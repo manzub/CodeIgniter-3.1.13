@@ -1,0 +1,634 @@
+.x-small {
+  font-size: 77%;
+  letter-spacing: normal;
+}
+
+.small {
+  font-size: 85%;
+  letter-spacing: normal;
+}
+
+.med-small {
+  font-size: 93%;
+  letter-spacing: normal;
+}
+
+.medium {
+  font-size: 100%;
+  letter-spacing: normal;
+}
+
+.med-large {
+  font-size: 108%;
+  letter-spacing: normal;
+}
+
+.large {
+  font-size: 116%;
+  letter-spacing: normal;
+}
+
+.x-large {
+  font-size: 123.1%;
+  letter-spacing: normal;
+}
+
+.x2-large {
+  font-size: 131%;
+  letter-spacing: normal;
+}
+
+.x3-large {
+  font-size: 138.5%;
+  letter-spacing: normal;
+}
+
+.x9-large {
+  font-size: 182%;
+  letter-spacing: normal;
+}
+
+.strong {
+  font-weight: bold;
+}
+
+.hide-offscreen {
+  position: absolute;
+  left: -999em;
+}
+
+.hide-textindent {
+  text-indent: -999em;
+  display: block;
+  overflow: hidden;
+}
+
+.y-glbl-mod-grad,
+.mod-bg-elements-img {
+  background: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/th/default/gsprite_mod_default_103008.gif) repeat-x;
+}
+
+.y-glbl-universal-grad,
+.framework-img {
+  background: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/gsprite_20100302.png) repeat-x;
+}
+
+.y-glbl-mod-controls,
+.elements-img {
+  background: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/th/default/sprite_default_082409.png) no-repeat;
+}
+
+.y-glbl-ltdrk,
+.mod-action-icons {
+  background: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/sprite_ltdrk_080409.gif) no-repeat;
+}
+
+.y-glbl-universal,
+.util-img {
+  background: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/sprite_pg_20100304.png) no-repeat;
+}
+
+.y-glbl-properties {
+  background: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/sprite_trough_01222009b.gif) no-repeat;
+}
+
+.mod .mod-bdr {
+  border: 1px solid #93B9D9;
+}
+
+.mod .mod-alt-bdr {
+  border: 1px solid #E6EFF7;
+}
+
+.mod .mod-bgcolor {
+  background: #ffffff;
+}
+
+.mod .link-color {
+  color: #16387c;
+}
+
+.mod .sub-hd {
+  background: #B1CCE3 url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/th/default/gsprite_mod_default_103008.gif) 0px 0px repeat-x;
+  color: #333;
+}
+
+.mod .sub-hd a:link,
+.mod .sub-hd a:visited,
+.mod .sub-hd a {
+  color: #333;
+}
+
+.mod .alt-bg-color {
+  background: #E6EFF7;
+}
+
+.mod a.alt-text-color,
+.mod .alt-text-color {
+  color: #999999;
+}
+
+.mod .reverse-bg-color {
+  background: #16387c;
+}
+
+.mod a.text-color,
+.mod .text-color {
+  color: #333;
+}
+
+.mod a.reverse-text-color,
+.mod .reverse-text-color {
+  color: #ffffff;
+}
+
+.mod .divider {
+  border: 1px solid #93B9D9;
+}
+
+.mod .divider-l {
+  border-left: 1px solid #93B9D9;
+}
+
+.mod .divider-r {
+  border-right: 1px solid #93B9D9;
+}
+
+.mod .divider-t {
+  border-top: 1px solid #93B9D9;
+}
+
+.mod .divider-b {
+  border-bottom: 1px solid #93B9D9;
+}
+
+.mod .line-h {
+  border: 1px solid #ADC9E8;
+}
+
+.mod .line-h-t {
+  border-top: 1px solid #ADC9E8;
+}
+
+.mod .line-h-r {
+  border-right: 1px solid #ADC9E8;
+}
+
+.mod .line-h-b {
+  border-bottom: 1px solid #ADC9E8;
+}
+
+.mod .line-h-l {
+  border-left: 1px solid #ADC9E8;
+}
+
+.mod .line-l {
+  border: 1px solid #93B9D9;
+}
+
+.mod .line-l-t {
+  border-top: 1px solid #93B9D9;
+}
+
+.mod .line-l-r {
+  border-right: 1px solid #93B9D9;
+}
+
+.mod .line-l-b {
+  border-bottom: 1px solid #93B9D9;
+}
+
+.mod .line-l-l {
+  border-left: 1px solid #93B9D9;
+}
+
+.y-bg-1 {
+  background-color: #fff;
+}
+
+.y-bg-2 {
+  background-color: #f9fafa;
+}
+
+.y-bg-3 {
+  background-color: #eff3f5;
+}
+
+.y-bg-4 {
+  background-color: #dbe1e6;
+}
+
+.y-bg-5 {
+  background-color: #a1adb9;
+}
+
+.y-bg-6 {
+  background-color: #c5ced7;
+}
+
+.y-bg-hilite {
+  background-color: #56758e;
+}
+
+.y-ln-1 {
+  border-color: #dbe1e6;
+}
+
+.y-ln-2 {
+  border-color: #c5ced7;
+}
+
+.y-ln-3 {
+  border-color: #a1adb9;
+}
+
+.y-ln-4 {
+  border-color: #2d4458;
+}
+
+.y-ln-5 {
+  border-color: #eff3f5;
+}
+
+.y-ln-6 {
+  border-color: #fff;
+}
+
+.y-ln-accent {
+  border-color: #731a8b;
+}
+
+.y-txt-1 {
+  color: #333;
+}
+
+.y-txt-2 {
+  color: #6C717A;
+}
+
+.y-txt-3 {
+  color: #a1adb9;
+}
+
+.y-txt-4 {
+  color: #000;
+}
+
+.y-txt-5 {
+  color: #fff;
+}
+
+.y-txt-modhdr {
+  color: #333;
+}
+
+.y-txt-accent {
+  color: #7d3883;
+}
+
+.y-txt-input {
+  color: #999;
+}
+
+.y-link-1 {
+  color: #16387c;
+}
+
+.y-link-2 {
+  color: #16387c;
+}
+
+.y-link-1-visited {
+  color: #5b73a3;
+}
+
+.y-link-2-visited {
+  color: #5b73a3;
+}
+
+a {
+  color: #16387c;
+}
+
+a:visited {
+  color: #5b73a3;
+}
+
+a:visited.y-link-2 {
+  color: #5b73a3;
+}
+
+.clearfix:after {
+  content: ".";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+
+.ua-ie .clearfix {
+  zoom: 1;
+}
+
+.loading-spinner {
+  background: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/anim_loading_sm_082208.gif) 0 0 no-repeat;
+}
+
+a:hover.goto-link {
+  text-decoration: none;
+}
+
+a:hover.goto-link span.goto {
+  text-decoration: underline;
+}
+
+.goto-link span.property {
+  color: #666;
+  font-weight: bold;
+  text-transform: uppercase;
+  zoom: 1;
+}
+
+.goto-link span.property img {
+  vertical-align: middle;
+}
+
+.y-fp-pg-grad {
+  background-image: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/th/slate/gsprite_pg_slate_20100129.gif);
+  background-repeat: repeat-x;
+}
+
+.y-fp-pg-vgrad {
+  background-image: none;
+  background-repeat: repeat-y;
+}
+
+.y-fp-pg-controls {
+  background-image: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/th/slate/sprite_pg_slate_20100217.png);
+  background-repeat: no-repeat;
+}
+
+.y-fp-pg-controls-nt {
+  background-image: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/sprite_pg_nontheme_20100315.png);
+  background-repeat: no-repeat;
+}
+
+.mod .cta-btn,
+.mod .cta-btn:visited {
+  background: #0868a7 url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/gsprite_20100302.png) repeat-x 0 -1204px !important;
+  color: #FFF !important;
+  font-weight: bold;
+  padding: 0.2em 1em;
+  border: solid 1px #336699 !important;
+  text-align: center;
+}
+
+.mod .cta-btn-disabled {
+  border: 1px Solid #bbbbbb !important;
+  background: #ccc none !important;
+  color: #666 !important;
+  font-weight: bold;
+  padding: 0 .3em;
+  text-align: center;
+}
+
+.mod .cta-btn-ext,
+.mod .cta-btn-ext:visited {
+  background: #fba707 url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/gsprite_20100302.png) repeat-x scroll 0 0;
+  border: 1px solid #dd9714;
+  color: #000;
+  font-weight: bold;
+  padding: 0.08em 0.3em;
+  text-decoration: none;
+  text-align: center;
+}
+
+.mod .cancel-btn {
+  color: #346697 !important;
+  border: none !important;
+  background: none !important;
+  padding: 0 !important;
+  font-weight: none !important;
+}
+
+.ua-ie6 .mod .cta-btn,
+.ua-ie7 .mod .cta-btn,
+.ua-ie6 .mod .cta-btn-disabled,
+.ua-ie7 .mod .cta-btn-disabled,
+.ua-ie6 .mod .cta-btn-ext,
+.ua-ie7 .mod .cta-btn-ext,
+.ua-ie6 .mod .cancel-btn,
+.ua-ie7 .mod .cancel-btn {
+  overflow: visible;
+  zoom: 1;
+}
+
+.y-pa-bg-open {
+  background-color: #5c758e;
+}
+
+.y-pa-link-open {
+  color: #fff;
+}
+
+.y-pa-ln-open-lt {
+  border-color: #7b93ad;
+}
+
+.y-pa-ln-open-dk {
+  border-color: #475e78;
+}
+
+.y-pa-txt-open-1 {
+  color: #fff;
+}
+
+.y-pa-txt-open-2 {
+  color: #d6dfe5;
+}
+
+.y-pa-txt-button {
+  color: #333;
+}
+
+.y-pa-txt-tab-sel {
+  color: #fff;
+}
+
+.y-hdr-ln {
+  border-color: #dbe1e6;
+}
+
+.y-hdr-txt {
+  color: #6c717a;
+}
+
+.y-hdr-link {
+  color: #16387c;
+}
+
+.y-ftr-bg {
+  background-color: #fff;
+}
+
+.y-ftr-ln {
+  border-color: #dbe1e6;
+}
+
+.y-ftr-txt {
+  color: #333;
+}
+
+.y-ftr-link {
+  color: #16387c;
+}
+
+.y-ftr-txt-hdr {
+  color: #333;
+}
+
+.y-ftr-link-hdr {
+  color: #16387c;
+}
+
+.y-subftr-txt {
+  color: #6c717a;
+}
+
+.y-subftr-link {
+  color: #16387c;
+}
+
+.y-mast-txt {
+  color: #3e4454;
+}
+
+.y-mast-link {
+  color: #16387c;
+}
+
+.y-mast-ln-lt {
+  border-color: #fff;
+}
+
+.y-mast-ln-dk {
+  border-color: #c1cad2;
+}
+
+.y-mast-bg {
+  border-bottom: 2px solid #e8edf0;
+  border-left: 1px solid #fff;
+}
+
+.y-mast-sprite {
+  background: url(https://web.archive.org/web/20100401005003im_/http://d.yimg.com/a/i/ww/met/th/slate/sprite_masthead_slate_srchbt2_07242009.png) no-repeat;
+}
+
+.y-opennews-sprite {
+  background-image: none;
+}
+
+.y-fp-ln-pg {
+  border-color: #dbe1e6;
+}
+
+.y-fp-bg {
+  background-color: #e8edf0;
+  background-position: 0 -2252px;
+  background-repeat: repeat-x;
+  background-attachment: scroll;
+}
+
+.y-pa-app .pa-app-col1 .hd h2 a,
+.y-pa-app .pa-app-col1 .hd .pa-app-header {
+  color: #fff;
+}
+
+.y-pa-app .pa-app-col1 .hd h2 {
+  color: #fff;
+}
+
+.y-pa-app .pa-app-load,
+.y-pa-app .pa-app-col1 .mod .bd,
+.type_pa .pa-module-loading-msg {
+  background-color: #fff;
+}
+
+.type_pa .pa-apps-list a.pa-btn-link:focus,
+.type_pa .pa-apps-list a.pa-btn-link:hover,
+.type_pa .pa-apps-list .pa-btn-hover .pa-btn-link {
+  background-color: #eff3f5;
+}
+
+/* sets the PA buttons border color to the same as the bg color, needed for the
+2-D bg gradient to look right */
+.type_pa .pa-apps-list li {
+  border-color: #fff;
+}
+
+/* override the override for this bucket */
+.bkt893 .type_pa .pa-panel-edit .pa-apps-list li {
+  border-color: #dbe1e6;
+}
+
+/*IN Local App - selected tab name color - Should inherit from y-txt-4 but currently no proper way to do this */
+.type_local_default ul.lmaintablist li.selected a {
+  color: #000;
+}
+
+.type_pa .pa-hover .pa-apps-list .pa-btn-app-current .pa-btn-title {
+  color: #fff;
+}
+
+.type_pa .pa-hover .pa-apps-list .pa-btn-app-current .pa-btn-vital {
+  color: #d6dfe5;
+}
+
+.type_pa .pa-edit-stage .y-sortable-active,
+.type_pa .y-sortable-proxy {
+  background: #eff3f5 none;
+}
+
+.type_pa .y-sortable-proxy {
+  border-color: #a1adb9;
+}
+
+.type_pa .pa-sort-removed a,
+.type_pa .pa-sort-removed a:hover {
+  color: #a1adb9;
+  background-color: #eff3f5;
+}
+
+.bkt893 .type_pa .pa-sb-click .pa-btn-app-over,
+.bkt893 .type_pa .pa-sb-click .pa-btn-link:hover {
+  background-color: #dbe1e6;
+  border-color: #c5ced7;
+}
+
+.bkt893 .y-pa-panel-open #y-pa {
+  background-image: none;
+}
+
+.bkt893 .y-pa-panel-open #y-pa,
+.bkt893 .type_pa .pa-panel-gallery .hd .btn-add,
+.bkt893 .type_pa .pa-panel-edit .hd .btn-edit {
+  background-color: #f9fafa;
+}
+
+.bkt893 .type_pa .pa-hover .pa-apps-list .pa-btn-app-current .pa-btn-title {
+  color: #333;
+}
+
+.equal {
+  display: flex;
+  display: -webkit-flex;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .row.equal {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
