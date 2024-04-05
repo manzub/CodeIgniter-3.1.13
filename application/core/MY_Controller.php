@@ -22,6 +22,8 @@ class Main_Controller extends MY_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		$this->load->helper('email_helper.php');
+
 		$this->load->model('model_groups');
 		$this->load->model('model_users');
 		$this->load->model('model_config');
@@ -84,7 +86,7 @@ class Main_Controller extends MY_Controller
 		if ($user_id != null) {
 			// check if already earned from ref bonus
 			$user = $this->model_users->getUserById($user_id);
-			$refered_by = $user['refered_by'];
+			$refered_by = $user['referred_by'];
 			if (!in_array($refered_by, array(null, 'NULL'))) {
 				$cond = array('user_id' => $refered_by, 'type' => 'ref_bonus', 'reward_earned >' => '0');
 				$earned_ref = $this->model_users->getUserRewardByCond($user_id, $cond);
@@ -102,17 +104,64 @@ class Main_Controller extends MY_Controller
 		}
 	}
 
-	public function generate_ref_code($count = 6)
+	public function generate_ref_code($count = 8)
 	{
-		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		// $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$ref_code = '';
 
-		for ($i = 0; $i < $n; $i++) {
+		for ($i = 0; $i < $count; $i++) {
 			$index = rand(0, strlen($characters) - 1);
 			$ref_code .= $characters[$index];
 		}
 
 		return $ref_code;
+	}
+
+	public function send_referral_email($sender = null, $recipient = null, $subject = null, $link = null)
+	{
+		// construct mail body
+		// send email
+		// return true or false case
+		$from = "noreply@surveymonkey.com";
+		$fromName = "SurveyMonkey";
+
+		$email_body = `<div style="text-align: left; color: #666666;">
+		Your friend has invited you to join SurveyMonkey. Get ready for a rewarding experience
+		like no other!
+		<ol>As a SurveyMonkey member, you'll enjoy these benefits:
+			<li>Earn Points (SB): Complete tasks like surveys, reviews, transcribe audio recordings,
+				and more to earn SB points.</li>
+			<li>Multiple Reward Options: Redeem SB points for gift cards from popular
+				retailers or cash through PayPal or Local Bank.</li>
+			<li>Daily Goal Bonuses: Meet your daily goals and earn bonus SB points for extra
+				rewards.</li>
+			<li>Community and Support: Connect with our active community for support and
+				advice.</li>
+		</ol>
+		Explore our website to start earning SB points today! Earn your first $5 gift card
+		quickly and easily by verifying your email address and mobile number, and completing
+		your first profiler quiz. <br><br>Click below to join SurveyMonkey! Get ready to turn
+		your online activities into rewards.
+	</div>`;
+
+		$htmlContent = html_email_template($email_body, $link, $sender);
+
+		// Set content-type header for sending HTML email 
+		$headers = "MIME-Version: 1.0" . "\r\n";
+		$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+		// Additional headers 
+		$headers .= 'From: ' . $fromName . '<' . $from . '>' . "\r\n";
+		$headers .= 'Cc: noreply@surveymonkey.com' . "\r\n";
+		$headers .= 'Bcc: noreply@surveymonkey.com' . "\r\n";
+
+		// Send email 
+		if (mail($recipient, $subject, $htmlContent, $headers)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public function logged_in()

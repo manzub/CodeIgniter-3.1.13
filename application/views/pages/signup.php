@@ -30,7 +30,7 @@
 						<h1 class="page-title" style="font-size: 17px;font-weight:bold">Create an account:</h1>
 						<p style="font-size: 12px;">Sign up.</p>
 						<span></span>
-						<form action="<?php echo base_url('auth/signup') ?>" method="post" class="">
+						<form method="post">
 							<div class="form-group">
 								<label for="usernameInput">Username</label>
 								<input class="form-control" type="text" name="username" id="usernameInput">
@@ -44,6 +44,10 @@
 							<div class="form-group">
 								<label for="pwInput">Password</label>
 								<input class="form-control" type="password" name="password" id="pwInput">
+							</div>
+							<div class="form-group">
+								<label for="ref_code">Referral Code (Optional)</label>
+								<input <?php echo $this->uri->segment(3) != '' ? 'disabled' : '' ?> class="form-control" type="text" name="ref_code" id="ref_code" value="<?php echo $this->uri->segment(3) != '' ? $this->uri->segment(3) : null ?>">
 							</div>
 							<div class="form-group">
 								<input type="checkbox" name="" id="">

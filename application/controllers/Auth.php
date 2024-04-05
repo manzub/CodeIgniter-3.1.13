@@ -9,6 +9,8 @@ class Auth extends Main_Controller
 		$this->load->model('model_auth');
 		$this->load->model('model_users');
 		$this->load->model('model_groups');
+		$this->load->model('model_logs');
+		$this->load->model('model_referrals');
 	}
 
 	public function login()
@@ -37,9 +39,16 @@ class Auth extends Main_Controller
 					$logged_in_sess = array('id' => $login['id'], 'username' => $login['username'], 'email' => $login['email'], 'logged_in' => TRUE);
 					$this->session->set_userdata($logged_in_sess);
 					$this->session->set_userdata('curr_status', $this->user_status['logged_in']);
+					// log activity
+					$activity = array('user_id' => $login['id'], 'activity_code' => '0', 'activity' => 'Login Successful', 'message' => 'Welcome!');
+					$this->model_logs->logActivity($activity);
+					// redirect
 					redirect('home', 'refresh');
 				} else {
 					$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'message' => 'Incorrect username/password combination.', 'title' => 'Oops an error occured'));
+					// log activity
+					$activity = array('user_id' => $user_id, 'activity_code' => '0', 'activity' => 'Failed Login', 'message' => 'Incorrect username/password combination.');
+					$this->model_logs->logActivity($activity);
 				}
 			} else {
 				$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'message' => 'Email does not exist.', 'title' => 'Oops an error occured'));
@@ -49,7 +58,7 @@ class Auth extends Main_Controller
 		$this->render_template('pages/login', $this->data);
 	}
 
-	public function signup()
+	public function signup($ref_code = null)
 	{
 		$this->logged_in();
 
@@ -68,9 +77,31 @@ class Auth extends Main_Controller
 					$password_hash = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
 					$group_data = $this->model_groups->getGroupByGroupName('member');
 					$data = array('username' => $this->input->post('username'), 'password' => $password_hash, 'email' => $this->input->post('email'), 'user_group' => $group_data['id']);
+
+					$raw_ref_code = $this->input->post('ref_code') != '' ? $this->input->post('ref_code') : $ref_code;
+					$ref_id = null;
+					if (!in_array($raw_ref_code, array('', null))) {
+						// validate ref_code
+						$ref_user = $this->model_users->getUserByRefCode($raw_ref_code);
+						if ($ref_user['username']) {
+							// log referral -> invited, active
+							$saved_ref = $this->model_referrals->referUser(array('ref_code' => $raw_ref_code, 'email' => $this->input->post('email'), 'status' => 'invited'));
+							$my_ref_code = $this->generate_ref_code(8);
+							$data = array_merge($data, array('referred_by' => $raw_ref_code, 'ref_code' => $my_ref_code));
+							$ref_id = $saved_ref;
+						}
+					}
+
 					$signup = $this->model_users->create($data);
 
 					if ($signup) {
+						if (!in_array($raw_ref_code, array('', null))) {
+							// edit ref info -> save user_id
+							$this->model_referrals->updateReferral($ref_id, array('user_id' => $signup, 'status' => 'active'));
+						}
+						// log activity
+						$activity = array('user_id' => $signup, 'activity_code' => '0', 'activity' => 'Created User Account', 'message' => 'Welcome to SurveyMonkey!');
+						$this->model_logs->logActivity($activity);
 						// TODO: OTP codes
 						$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Congratulations', 'message' => 'Sign in to continue'));
 						redirect('auth/login', 'refresh');
@@ -90,13 +121,18 @@ class Auth extends Main_Controller
 		redirect('home', 'refresh');
 	}
 
-	public function deactivate_user() {
+	public function deactivate_user()
+	{
 		$this->not_logged_in();
 
 		$user_id = $this->session->userdata('id');
-
+		// TODO: reactivate user account
 		$update = $this->model_users->update($user_id, array('status' => 'deactivated'));
 		if ($update) {
+			// log activity
+			$activity = array('user_id' => $user_id, 'activity_code' => '0', 'activity' => 'Deactivated User', 'message' => 'Sad to see you leave, we do hope you come back soon!');
+			$this->model_logs->logActivity($activity);
+			// destroy session
 			$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Done', 'message' => 'You have successfully deactivated your account'));
 			$this->session->sess_destroy();
 			redirect('auth/login', 'refresh');

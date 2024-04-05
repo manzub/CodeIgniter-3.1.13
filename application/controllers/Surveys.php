@@ -94,6 +94,7 @@ class Surveys extends Main_Controller
 							$global_limit = intval($survey_item['limit_per_user']);
 							$sv_status = $survey_item['status'];
 							if ($global_limit > 0) {
+								// TODO: global limit
 								# item has a global limit - reduce global limit and change status
 								$global_limit = $global_limit - 1;
 								$sv_status = $global_limit <= 0 ? 'expired' : 'available';
@@ -101,6 +102,9 @@ class Surveys extends Main_Controller
 
 							$data = array('limit_per_user' => $global_limit, 'status' => $status);
 							$this->model_surveys->edit($survey_item['id'], $data);
+							// log activity
+							$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Completed Question', 'message' => 'Well done!');
+							$this->model_logs->logActivity($activity);
 						}
 
 						echo json_encode($result);
@@ -195,11 +199,28 @@ class Surveys extends Main_Controller
 			$this->form_validation->set_rules('completed', 'Survey Item', 'required');
 
 			if ($this->form_validation->run() == TRUE) {
-				$data = array('points_earned' => $survey_item[0]['reward_points']);
+				// TODO: multiplier
+				$points_earned = $survey_item[0]['reward_points'];
+				$data = array('points_earned' => $points_earned);
 				$update = $this->model_surveys->updateCompletedSurvey($data, $completed_item[0]['id']);
 				if ($update == true) {
+					// reward ref parent user
+					$my_account = $this->model_users->getuserById($user_id);
+					if (!in_array($my_account['referred_by'], array(null, 'NULL'))) {
+						$my_referrer = $this->model_users->getUserByRefCode($my_account['referred_by']);
+						// load interest config
+						$reward_interest_config = $this->model_config->getConfigByName('ref_reward_interest');
+						$reward_interest = intval($reward_interest_config['value']);
+						$interest_earned = $points_earned / $reward_interest;
+
+						$this->model_users->logClaimedReward($my_referrer['id'], array('user_id' => $my_referrer['id'], 'reward_earned' => $interest_earned, 'type' => 'ref_interest', 'streak' => '0'));
+					}
+
 					$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'survey_id' => $survey_item[0]['id'], 'reward_earned' => $survey_item[0]['reward_points'], 'type' => 'completed_activity', 'streak' => '0'));
-					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned '.$survey_item[0]['reward_points'], 'title' => 'Completed'));
+					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $survey_item[0]['reward_points'], 'title' => 'Completed'));
+					// log activity
+					$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Completed Survey', 'message' => 'Congratulations! Earned' . $survey_item[0]['reward_points']);
+					$this->model_logs->logActivity($activity);
 					redirect('surveys/index', 'refresh');
 				}
 			}

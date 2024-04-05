@@ -32,7 +32,7 @@ class Model_users extends CI_Model {
 
 			$users_meta = $this->db->insert('users_meta', array('user_id' => $user_id));
 
-			return ($create == true && $users_meta) ? true : false;
+			return ($create == true && $users_meta) ? $user_id : false;
 		}
 	} 
 

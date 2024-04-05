@@ -24,7 +24,7 @@
 																	<div class="med-small pa-apps-list">
 																		<ul class="med-small pa-apps-list">
 																			<li class="y-fp-pg-controls no-edit first pa-btn-app">
-																				<a href="" class="pa-btn-link y-fp-pg-controls y-ln-1">
+																				<a href="<?php echo base_url('home') ?>" class="pa-btn-link y-fp-pg-controls y-ln-1">
 																					<img class="pa-btn-icon" src="<?php echo base_url('assets/icons/tasks-' . rand(0, 1) . '.png') ?>" />
 																					<span class="y-pa-txt-button pa-btn-title">Activities</span>
 																				</a>
@@ -88,7 +88,7 @@
 																</li>
 																<?php if (!empty($this->session->userdata('logged_in'))) { ?>
 																	<li class="y-fp-pg-controls no-edit first pa-btn-app">
-																		<a href="" class="pa-btn-link y-fp-pg-controls y-ln-1">
+																		<a href="<?php echo base_url('auth/logout') ?>" class="pa-btn-link y-fp-pg-controls y-ln-1">
 																			<img class="pa-btn-icon" src="<?php echo base_url('assets/icons/logout-' . rand(0, 1) . '.png') ?>" />
 																			<span class="y-pa-txt-button pa-btn-title">Log Out</span>
 																		</a>
