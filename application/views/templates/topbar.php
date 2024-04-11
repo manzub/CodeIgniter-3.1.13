@@ -15,6 +15,7 @@
 </head>
 
 <body class="ui-skin">
+	<p style="background-color: #444;padding:5px 15px;color:yellow">Turn off adblocker to earn rewards</p>
 	<!-- top bar for sitewide information -->
 	<div id="y-shade">
 		<div class="mod view_default">

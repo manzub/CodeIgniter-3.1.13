@@ -31,6 +31,7 @@ class Model_surveys extends CI_Model
 		return $query->result_array();
 	}
 
+	// TODO: rewrite surveys module
 	public function getAvailableSurveys($group_name = null, $user_id = null, $is_page = false, $page = 0, $per_page = 5)
 	{
 		// select all from survey_meta where survey_id not in surveys_completed
@@ -68,7 +69,7 @@ class Model_surveys extends CI_Model
 	{
 		if ($slug != null) {
 			$query = $this->db->get_where('survey_meta', array('slug' => $slug));
-			return $query->result_array();
+			return $query->row_array();
 		}
 	}
 

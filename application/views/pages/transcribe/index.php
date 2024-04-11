@@ -19,33 +19,24 @@
 				<div class="panel panel-default no-shadow" style="margin-bottom:0px">
 					<div class="panel-heading" style="padding:10px;">
 						<div class="header-flex">
-							<div class="page-title" style="font-size: 20px;">Answer Survey</div>
+							<div class="page-title" style="font-size: 20px;">Transcribe</div>
 							<a href="">Refresh</a>
 						</div>
-						<small>Your available surveys</small>
+						<small>Your available actions</small>
 					</div>
 					<div class="panel-body" style="padding: 10px;">
-						<div id="sv_list-items" class="list-group no-shadow">
-							<?php foreach ($surveys as $key => $survey) { ?>
-								<a href="<?php echo base_url('surveys/single/' . $survey['slug']); ?>" class="list-group-item">
-									<h4 class="list-group-item-heading" style="font-size: 14px;font-weight:bold">
-										EST <span style="text-transform: uppercase;"><?php echo $survey['duration'] ?>min</span>
-										<span class="glyphicon glyphicon-thumbs-up"></span>
-										<span style="text-transform: uppercase;">guaranteed</span>
-										<?php $dl_slugs = array_map(function ($o) {
-											return $o['slug'];
-										}, $this->session->userdata('daily_activity')); ?>
-										<?php if (in_array($survey['slug'], $dl_slugs)) { ?>
-											<span class="badge badge-info">⭐</span>
-										<?php } ?>
-										<span class="label label-primary"><?php echo $survey['reward_points'] ?> SB</span>
-									</h4>
-									<p class="list-group-item-text">
-										<?php echo $survey['title'] ?>
-										<p>Begin</p>
-									</p>
-								</a>
-							<?php } ?>
+						<div class="list-group">
+							<a href="<?php echo base_url('transcribe/single/10') ?>" class="list-group-item" style="padding: 7px;">
+								<div class="d-flex align-items-center justify-content-between" style="gap:10px">
+									<img src="<?php echo base_url('assets/phs/cd.png') ?>" style="height: 35px;width:35px">
+									<div style="width:100%;height:30px">
+										<span style="background: url('<?php echo base_url('assets/phs/sound-wave.png') ?>');background-repeat:repeat-x;width:100%;height:30px;display:inline-block"></span>
+									</div>
+									<h1 style="font-size: 10px;"><strong>1:59</strong></h1>
+								</div>
+								<p style="margin-top: 5px;font-weight:bold">Customer service recognition file from conversation with...</p>
+								<span style="font-size: 10px;color:blue">Transcribe</span>
+							</a>
 						</div>
 					</div>
 				</div>
@@ -78,13 +69,3 @@
 		</div>
 	</div>
 </div>
-
-<script type="text/javascript">
-	var base_url = "<?php echo base_url() ?>"
-
-	$(document).ready(function() {
-		// $.ajax({
-		// 	url: base_url + 'surveys/getSurveysPagination'
-		// })
-	})
-</script>

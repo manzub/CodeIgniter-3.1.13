@@ -30,7 +30,7 @@
 																				</a>
 																			</li>
 																			<li class="y-fp-pg-controls pa-btn-app">
-																				<a href="" class="pa-btn-link y-fp-pg-controls y-ln-1">
+																				<a href="<?php echo base_url('home/bonuses') ?>" class="pa-btn-link y-fp-pg-controls y-ln-1">
 																					<img class="pa-btn-icon" src="<?php echo base_url('assets/icons/bonus-' . rand(0, 1) . '.png') ?>" />
 																					<span class="y-pa-txt-button pa-btn-title">Bonuses</span>
 																				</a>
@@ -52,6 +52,7 @@
 																</div>
 															</div>
 														</div>
+														<!-- recommended -->
 														<div class="pa-apps-promolist y-ln-1">
 															<h3 class="x-small y-txt-3 y-bg-2 y-ln-1">RECOMMENDED</h3>
 															<ul class="med-small pa-apps-list">
@@ -75,7 +76,7 @@
 																</li>
 																<li class="y-fp-pg-controls"></li>
 																<li class="y-fp-pg-controls no-edit first pa-btn-app">
-																	<a href="" class="pa-btn-link y-fp-pg-controls y-ln-1">
+																	<a href="<?php echo base_url('profile/redeem_points') ?>" class="pa-btn-link y-fp-pg-controls y-ln-1">
 																		<img class="pa-btn-icon" src="<?php echo base_url('assets/icons/redeem-' . rand(0, 1) . '.png') ?>" />
 																		<span class="y-pa-txt-button pa-btn-title">Redeem SB</span>
 																	</a>
@@ -95,6 +96,27 @@
 																	</li>
 																<?php } ?>
 															</ul>
+														</div>
+														<!-- more ads -->
+														<div class="mod view_default" style="padding-top: 10px;">
+															<div class="bd type_ads type_ads_default">
+																<div class="fpad fpad-reserve" style="min-height: 100px;margin-bottom:10px">
+																	<!--banner_siderbar_left_center  -->
+																	<?php if (isset($banner_sidebar_left_center)) { ?>
+																		<?php echo $banner_sidebar_left_center['extra'] != NULL ? `<a href="` . $banner_top_right['extra'] . `">` : ''; ?>
+																		<img src="<?php echo base_url($banner_sidebar_left_center['value']) ?>" style="height:200px;width:190px">
+																		<?php echo $banner_sidebar_left_center['extra'] != NULL ? `</a>` : '' ?>
+																	<?php } ?>
+																</div>
+																<div class="fpad fpad-reserve" style="min-height: 100px;">
+																	<!-- banner_sidebar_left_bottom  -->
+																	<?php if (isset($banner_sidebar_left_bottom)) { ?>
+																		<?php echo $banner_sidebar_left_bottom['extra'] != NULL ? `<a href="` . $banner_top_right['extra'] . `">` : ''; ?>
+																		<img src="<?php echo base_url($banner_sidebar_left_bottom['value']) ?>" style="height:200px;width:190px">
+																		<?php echo $banner_sidebar_left_bottom['extra'] != NULL ? `</a>` : '' ?>
+																	<?php } ?>
+																</div>
+															</div>
 														</div>
 													</div>
 												</div>

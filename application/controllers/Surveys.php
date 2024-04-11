@@ -8,6 +8,7 @@ class Surveys extends Main_Controller
 		parent::__construct();
 		$this->load->model('model_surveys');
 		$this->load->model('model_users');
+		$this->load->model('model_config');
 		$this->data['title'] = "Surveys | SurveyMonkey";
 		$this->data['per_page'] = 5;
 	}
@@ -19,7 +20,7 @@ class Surveys extends Main_Controller
 
 		$result = array('data' => array(), 'status' => 0);
 		if ($survey_slug != null) {
-			$valid_survey = $this->model_surveys->getSurveyBySlug($survey_slug)[0];
+			$valid_survey = $this->model_surveys->getSurveyBySlug($survey_slug);
 
 			if ($valid_survey) {
 				$completed_questions = array();
@@ -146,7 +147,7 @@ class Surveys extends Main_Controller
 	{
 		// current user - guest
 		$user_id = $this->session->userdata('id');
-		$group_name = $this->session->userdata['group_name'];
+		$group_name = $this->session->userdata('group_name');
 
 		$surveys_page = $this->model_surveys->getAvailableSurveys($group_name, $user_id, true, $page - 1, $this->data['per_page']);
 		$this->data['surveys'] = $surveys_page;
@@ -181,6 +182,7 @@ class Surveys extends Main_Controller
 
 	public function completed($slug = null)
 	{
+		$this->not_logged_in();
 		// current user
 		$user_id = $this->session->userdata('id');
 

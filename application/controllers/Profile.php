@@ -56,6 +56,8 @@ class Profile extends Main_Controller
 		}
 	}
 
+	// page functions
+
 	public function index()
 	{
 		$this->not_logged_in();
@@ -178,6 +180,17 @@ class Profile extends Main_Controller
 		$this->render_template('pages/profile/invite', $this->data);
 	}
 
+	public function redeem_points() {
+		$this->not_logged_in();
+
+		$user_id = $this->session->userdata('id');
+		$group_name = $this->session->userdata('group_name');
+
+		$this->render_template('pages/profile/redeem', $this->data);
+	}
+
+	// misc functions
+
 	public function send_invite_email()
 	{
 		$this->not_logged_in();
@@ -192,7 +205,7 @@ class Profile extends Main_Controller
 
 				$ref_code = $this->model_users->getUserById($user_id)['ref_code'];
 				$link_url = base_url('auth/signup/' . $ref_code);
-				$link_html = `<a href="`.$link_url.`"
+				$link_html = `<a href="` . $link_url . `"
 				style="line-height: 24px; text-decoration: none; word-break: break-word; font-weight: 500; display: block; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff;">Create
 				a Free Account</a>`;
 				$send_ref_email = $this->send_referral_email($this->session->userdata('username'), $recipient, $subject, $link_html);
@@ -211,8 +224,6 @@ class Profile extends Main_Controller
 			}
 		}
 	}
-
-	// misc functions
 
 	public function edit_user()
 	{

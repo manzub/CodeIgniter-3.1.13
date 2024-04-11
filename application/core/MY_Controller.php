@@ -21,12 +21,18 @@ class Main_Controller extends MY_Controller
 
 	public function __construct()
 	{
+		// construct permissions here
+		$default_member_permission = array('completeQuestion', 'completeSurvey', 'earnRewards', 'completeTranscribe', 'completeReview');
+		// print_r(serialize($default_member_permission));
 		parent::__construct();
 		$this->load->helper('email_helper.php');
 
 		$this->load->model('model_groups');
 		$this->load->model('model_users');
+		$this->load->model('model_dailyactivity');
+
 		$this->load->model('model_config');
+		$this->load_banner_configs();
 
 		$group_data = array();
 		if (empty($this->session->userdata('logged_in'))) {
@@ -49,6 +55,7 @@ class Main_Controller extends MY_Controller
 			$this->session->set_userdata('group_name', $group_data['group_name']);
 			$this->bonus_available();
 			$this->earned_from_refered_users($user_id);
+			$this->daily_activities($user_id);
 		}
 	}
 
@@ -104,6 +111,132 @@ class Main_Controller extends MY_Controller
 		}
 	}
 
+	public function daily_activities($user_id = null)
+	{
+		// get last set from db
+		$last_activity_list = $this->model_dailyactivity->get_last_activity_list($user_id);
+		if (!empty($last_activity_list)) {
+			// check if time expired
+			// compare with today time
+			$now = time();
+			$last_created = strtotime($last_activity_list['date_created']);
+			$datediff = $now - $last_created;
+			$diff_in_days = round($datediff / (60 * 60 * 24));
+			if ($diff_in_days > 0) {
+				// create new activity list
+				$this->generate_daily_activity_list($user_id);
+			} else {
+				// save previous item in session
+				$current_activity_list = unserialize($last_activity_list['activity_slug']);
+				$this->session->set_userdata('daily_activity', $current_activity_list);
+				if (!empty($this->session->userdata('daily_activity'))) {
+					if ($this->has_completed_daily_activity($user_id)) {
+						$this->session->userdata(array('daily_activity_comp' => true));
+					}
+				}
+			}
+		} else {
+			// create new activity list
+			$this->generate_daily_activity_list($user_id);
+		}
+		// TODO: below on every complete activity
+		// update session on each activity
+		// reward config points
+	}
+
+	public function generate_daily_activity_list($user_id)
+	{
+		$this->load->model('model_surveys');
+		$this->load->model('model_transcribe');
+		$this->load->model('model_reviews');
+
+		$activities_all = array();
+		// load 5 random items each activity model
+		$review_items = $this->model_reviews->getMyAvailableActivities('member', $user_id, true);
+		$transcribe_items = $this->model_transcribe->getMyAvailableActivities('member', $user_id, true);
+		$survey_items = $this->model_surveys->getAvailableSurveys('member', $user_id, true);
+		$activities_all = array_merge($review_items, $survey_items, $transcribe_items);
+		$rand_keys = array_rand($activities_all, rand(3, 5));
+
+		$activities_list = array();
+		for ($i = 0; $i < count($rand_keys); $i++) {
+			$curr_item = $activities_all[$rand_keys[$i]];
+			// get slug and item id
+			// create array('slug' => string, 'activity_type' => enum(action_types), 'item_id' => int)
+			$activity_type = substr($curr_item['slug'], 0, 2);
+			$activity_item = array('slug' => $curr_item['slug'], 'activity_type' => $activity_type, 'item_id' => $curr_item['id'], 'status' => 'available');
+			array_push($activities_list, $activity_item);
+		}
+
+		// save array to session -> slugs[slug, status]
+		$this->session->set_userdata('daily_activity', $activities_list);
+		$saved = $this->model_dailyactivity->save_current_activity_list(array('user_id' => $user_id, 'activity_slug' => serialize($activities_list)));
+
+		return ($saved == true) ? true : false;
+	}
+
+	public function has_completed_daily_activity($user_id)
+	{
+		// check if all items completed
+		$activities_list = $this->session->userdata('daily_activity');
+		$count_completed = 0;
+		foreach ($activities_list as $key => $activity_item) {
+			if ($activity_item['status'] == 'completed') {
+				$count_completed += 1;
+			}
+		}
+
+		// TODO: test
+		if ($count_completed >= count($activities_list)) {
+			return true;
+		}
+		return false;
+	}
+
+	public function get_daily_activities()
+	{
+		$user_id = $this->session->userdata('id');
+		$result = array();
+
+		$activities_list = $this->session->userdata('daily_activity');
+		if (!empty($activities_list)) {
+			// foreach item in list, get activity from model by slug
+			// return result list
+			foreach ($activities_list as $key => $dl_activity) {
+				// item hasnt been completed
+				if ($dl_activity['status'] == 'available') {
+					$item = null;
+					$link = "";
+					$ac_type = "";
+					switch ($dl_activity['activity_type']) {
+						case 'rv': //review
+							$ac_type = "Review";
+							$item = $this->model_reviews->getReviewItemBySlug($dl_activity['slug']);
+							$link = base_url('reviews/single/' . $dl_activity['slug']);
+							break;
+						case 'av': //transcribe
+							$ac_type = "Transcribe";
+							$item = $this->model_transcribe->getTranscribeItemBySlug($dl_activity['slug']);
+							$link = base_url('transcribe/single/' . $dl_activity['slug']);
+							break;
+
+						default: //default survey
+						$ac_type = "Survey";
+						$item = $this->model_surveys->getSurveyBySlug($dl_activity['slug']);
+						$link = base_url('surveys/single/' . $dl_activity['slug']);
+							break;
+					}
+
+					if ($item != null) {
+						$result[$key] = array('title' => $item['title'], 'link' => $link, 'type' => $ac_type);
+					}
+				}
+			}
+		}
+
+		return $result;
+	}
+
 	public function generate_ref_code($count = 8)
 	{
 		// $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -116,6 +249,17 @@ class Main_Controller extends MY_Controller
 		}
 
 		return $ref_code;
+	}
+
+	public function load_banner_configs()
+	{
+		// page banners
+		// top_left, sidebar_center, home_bottom, sidebar_left_center, sidebar_left_bottom
+		$this->data['banner_top_right'] = $this->model_config->getConfigByName('banner_page_top_right_340');
+		$this->data['banner_right_center'] = $this->model_config->getConfigByName('banner_sidebar_right_center');
+		$this->data['banner_home_bottom'] = $this->model_config->getConfigByName('banner_page_home_bottom');
+		$this->data['banner_sidebar_left_center'] = $this->model_config->getConfigByName('banner_sidebar_left_center');
+		$this->data['banner_sidebar_left_bottom'] = $this->model_config->getConfigByName('banner_sidebar_left_bottom');
 	}
 
 	public function send_referral_email($sender = null, $recipient = null, $subject = null, $link = null)
@@ -183,6 +327,7 @@ class Main_Controller extends MY_Controller
 
 	public function render_template($page = null, $data = array())
 	{
+		$data['dl_activity_list'] = $this->get_daily_activities();
 		if (!file_exists(APPPATH . '/views/' . $page . '.php')) {
 			# code...
 			$data["message"] = "Page Not Found";

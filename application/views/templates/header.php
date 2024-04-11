@@ -7,10 +7,11 @@
 						<div class="bd type_ads type_ads_default">
 							<div class="hdrm hdrm-reserve">
 								<h1>
-									<span class="logo">SurveyMonkey!</span>
+									<span style="background: transparent url(<?php echo base_url('assets/phs/yahoo_logo_us.png') ?>)" class="logo">SurveyMonkey!</span>
 								</h1>
 							</div>
 						</div>
+						<div class="ft"></div>
 					</div>
 				</div>
 				<form action="" class="search-form">
@@ -26,13 +27,13 @@
 									<span class="tab-cover y-mast-bg" style="padding-left:0em;padding-right:0em;">Answer</span>
 								</a>
 							</li>
-							<li class="small tab">
-								<a href="" class="y-mast-link review">
+							<li class="small tab <?php echo $this->uri->segment(1) == 'reviews' ? 'selected' : '' ?>">
+								<a href="<?php echo base_url('reviews') ?>" class="y-mast-link review">
 									<span class="tab-cover y-mast-bg-hide" style="padding-left:0em;padding-right:0em;">Review</span>
 								</a>
 							</li>
-							<li class="small tab">
-								<a href="" class="y-mast-link transcribe">
+							<li class="small tab <?php echo $this->uri->segment(1) == 'transcribe' ? 'selected' : '' ?>">
+								<a href="<?php echo base_url('transcribe') ?>" class="y-mast-link transcribe">
 									<span class="tab-cover y-mast-bg-hide" style="padding-left:0em;padding-right:0em;">Transcribe</span>
 								</a>
 							</li>
