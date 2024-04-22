@@ -12,69 +12,86 @@
 			<?php } ?>
 		</div>
 	</div>
+
+	<div class="jumbotron" style="padding: 10px;">
+		<h1 style="font-size: 15px;"><strong>Review Video</strong></h1>
+		<p>Give your review a short clip or a movie, positive or negative and a rating</p>
+		<small>Please ensure your reviews are grammatically correct.</small>
+	</div>
 	<!-- content items -->
 	<div class="mod view_default">
-		<div class="panel panel-default no-shadow">
-			<div class="panel-heading" style="padding: 10px;">
-				<h1 style="font-size: 15px;"><strong>Review Video</strong></h1>
-				<p>Give your review a short clip or a movie, positive or negative and a rating</p>
-				<small>Please ensure your reviews are grammatically correct.</small>
-			</div>
-			<div class="panel-body" style="padding: 10px;">
-				<div class="video-info hidden">
+		<div class="card card-default no-shadow">
+			<div class="card-body" style="padding: 10px;">
+				<div id="video-info" class="video-info">
 					<video controls style="border: 1px solid #000;width:100%">
-						<source src="file:///Users/wizzdom/Downloads/1108312879-preview.mp4">
+						<source src="<?php echo base_url($review_item['short_clip']) ?>">
 					</video>
-					<h1 style="font-size: 20px;font-weight:bold">Moana</h1>
-					<p>In ancient Polynesia, when a terrible curse incurred by the demigod Maui reaches Moana's island, she answers the Ocean's call to seek out Maui to set things right.</p>
+					<h1 style="font-size: 20px;font-weight:bold"><?php echo $review_item['title'] ?></h1>
+					<p><?php echo nl2br($review_item['short_desc']) ?></p>
 					<p>
-						<span class="badge badge-primary">Adventure</span>
-						<span class="badge badge-primary">Animation</span>
-						<span class="badge badge-primary">Comedy</span>
+						<?php foreach ($categories as $key => $item) { ?>
+							<span class="badge badge-primary"><?php echo $item ?></span>
+						<?php } ?>
 					</p>
-					<p>IMDB: <a href="">imdb.com/movies/sdsds/ds</a></p>
+					<?php if ($review_item['is_movie']) { ?>
+						<p>IMDB: <a href="<?php echo $review_item['imdb'] ?>"><?php echo $review_item['imdb'] ?></a></p>
+					<?php } ?>
 				</div>
-
-				<div class="review_action">
-					<div class="d-flex align-items-center" style="gap:10px">
-						<img src="<?php echo base_url('assets/phs/pictures.png') ?>" alt="" style="height: 60px;">
-						<div class="d-block">
-							<h1><strong>Review the avengers movie</strong></h1>
-							<p>some short description</p>
-							<small style="color:blue">action link</small>
-						</div>
-					</div>
+				<div id="rv_action" class="review_action">
 					<hr>
-					<form action="" method="post">
+					<form action="<?php echo base_url('reviews/completeReviewItem/'.$review_item['slug']) ?>" method="post">
 						<div class="form-group">
 							<p><label for="" style="margin-bottom: 0px;">Leave A Review:</label></p>
 							<div style="display: flex;align-items: start;width:75%;margin-bottom: 7px;">
 								<small>Leave an informative positive or negative review on the clip you just watched.</small>
 							</div>
-							<p><strong>0/1500</strong></p>
-							<textarea class="form-control" name="review_text" id="" cols="30" rows="10"></textarea>
+							<p><strong><span id="word-count">0</span>/1500</strong></p>
+							<textarea class="form-control" name="review_text" id="text_input" cols="30" rows="10" maxlength="1500"></textarea>
 						</div>
 
 						<div class="form-group rating-container">
 							<p>Leave a rating:</p>
-							<input type="hidden" name="review_rating" value="dislike">
+							<input id="rv_rating" type="hidden" name="review_rating" value="">
 							<div class="btn-group" role="group" aria-label="...">
-								<button type="button" class="btn btn-default">
-									<span class="glyphicon glyphicon-thumbs-down"></span>
+								<button onclick="document.getElementById('rv_rating').value = 'dislike'" type="button" class="btn btn-secondary">
+									<span class="bi bi-hand-thumbs-down"></span>
 								</button>
-								<button type="button" class="btn btn-default">
-									<span class="glyphicon glyphicon-thumbs-up"></span>
+								<button onclick="document.getElementById('rv_rating').value = 'like'" type="button" class="btn btn-success">
+									<span class="bi bi-hand-thumbs-up"></span>
 								</button>
-								<button type="button" class="btn btn-default">
-									<span class="glyphicon glyphicon-heart"></span>
+								<button onclick="document.getElementById('rv_rating').value = 'heart'" type="button" class="btn btn-danger">
+									<span class="bi bi-heart"></span>
 								</button>
 							</div>
 						</div>
 
-						<button class="btn btn-primary">Submit</button>
+						<button type="submit" class="btn btn-primary">Submit</button>
 					</form>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		var area = document.querySelector('textarea');
+		if (area.addEventListener) {
+			area.addEventListener('input', function() {
+				updateWordCount();
+				// event handling code for sane browsers
+			}, false);
+		} else if (area.attachEvent) {
+			area.attachEvent('onpropertychange', function() {
+				updateWordCount();
+				// IE-specific event handling code
+			});
+		}
+
+		function updateWordCount() {
+			let word_count = String(area.value).length;
+			document.getElementById('word-count').innerHTML = word_count;
+		}
+	})
+</script>

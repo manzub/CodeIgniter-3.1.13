@@ -1,13 +1,15 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Home extends Main_Controller
+class Home extends Member_Controller
 {
 
 	public function __construct()
 	{
 		parent::__construct();
 		$this->load->model('model_surveys');
+		$this->load->model('model_reviews');
+		$this->load->model('model_transcribe');
 		$this->load->model('model_users');
 		$this->load->model('model_config');
 		$this->data["title"] = "SurveyMonkey!";
@@ -74,6 +76,8 @@ class Home extends Main_Controller
 		$this->data['completed_dl_count'] = $completed_dl_count;
 
 		$this->data['surveys'] = $this->model_surveys->getAvailableSurveys($group_name, $user_id, true, 0, 7);
+		$this->data['transcribe'] = $this->model_transcribe->getMyAvailableActivities($group_name, $user_id, true, 0, 7);
+		$this->data['reviews'] = $this->model_reviews->getMyAvailableActivities($group_name, $user_id, true, 0, 4);
 		$this->render_template('pages/home', $this->data);
 	}
 

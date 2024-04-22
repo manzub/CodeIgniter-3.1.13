@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Auth extends Main_Controller
+class Auth extends Member_Controller
 {
 	public function __construct()
 	{
@@ -43,7 +43,13 @@ class Auth extends Main_Controller
 					$activity = array('user_id' => $login['id'], 'activity_code' => '0', 'activity' => 'Login Successful', 'message' => 'Welcome!');
 					$this->model_logs->logActivity($activity);
 					// redirect
-					redirect('home', 'refresh');
+
+					$group_data = $this->model_groups->getUserGroupByUserId($login['id']);
+					if (in_array($group_data['group_name'], array('mod', 'admin', 'publisher'))) {
+						redirect('dashboard', 'refresh');
+					} else {
+						redirect('home', 'refresh');
+					}
 				} else {
 					$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'message' => 'Incorrect username/password combination.', 'title' => 'Oops an error occured'));
 					// log activity

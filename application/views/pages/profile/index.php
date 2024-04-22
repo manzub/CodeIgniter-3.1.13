@@ -17,13 +17,13 @@
 			<div class="row">
 				<?php for ($i = 0; $i < 3; $i++) { ?>
 					<div class="col-md-4">
-						<div class="panel panel-info">
-							<div class="panel-heading" style="text-align: center;">
+						<div class="card card-info">
+							<div class="card-header" style="text-align: center;">
 								<h1 style="font-size: 20px;font-weight:bold;margin-bottom:5px;">Gold</h1>
 								<p style="font-size: 12px;margin:0px 0px;">2x Reward Bonus</p>
 								<p style="font-size: 12px;margin: 0px 0px;">No delay on withdrawals</p>
 							</div>
-							<div class="panel-body" style="text-align: center;">
+							<div class="card-body" style="text-align: center;">
 								<div style="display: flex;align-items:baseline;justify-content:center;margin-bottom:10px">
 									<h1 style="font-size: 30px;font-weight:bold;">$20.45</h1>
 									<small>/MONTHLY</small>
@@ -47,28 +47,28 @@
 				<?php $claimed = true;
 				$last_reward = round($last_reward * $multiply); ?>
 				<div class="col-md-3" style="text-align: center;">
-					<div class="panel <?php if (!empty($last_streak)) {
+					<div class="card <?php if (!empty($last_streak)) {
 						echo $last_streak[0]['streak'].' ';
 															if ($i <= intval($last_streak[0]['streak'])) {
-																echo 'panel-warning';
+																echo 'card-warning';
 															} else if ($i == (intval($last_streak[0]['streak']) + 1) && $this->session->userdata('bonus_available')) {
 																$claimed = false;
-																echo 'panel-success';
+																echo 'card-success';
 															} else {
-																echo 'panel-default';
+																echo 'card-default';
 															}
 														} else {
 															if ($i == 1) {
 																$claimed = false;
-																echo 'panel-success';
+																echo 'card-success';
 															} else {
-																echo 'panel-default';
+																echo 'card-default';
 															}
 														} ?>">
-						<div class="panel-heading">
+						<div class="card-header">
 							<h1 style="font-size: 25px;font-weight:bolder;" class="page-title">DAY <?php echo $i ?></h1>
 						</div>
-						<div class="panel-body">
+						<div class="card-body">
 							<h3 style="font-size: 20px;font-weight:bold;margin-bottom:10px">+<?php echo $last_reward ?> SB</h3>
 							<form action="profile/claimDailyBonus" method="post">
 								<button <?php echo $claimed ? 'disabled' : '' ?> class="btn btn-primary" style="text-transform: uppercase;"><?php echo $i <= intval($last_streak[0]['streak']) ? 'Claimed' : 'Claim' ?></button>

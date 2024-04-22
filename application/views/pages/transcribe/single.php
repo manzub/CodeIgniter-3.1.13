@@ -14,29 +14,25 @@
 	</div>
 	<!-- content items -->
 	<div class="mod view_default">
-		<div class="panel panel-default no-shadow">
-			<div class="panel-heading" style="padding: 10px;">
+		<div class="card panel-default no-shadow">
+			<div class="card-header" style="padding: 10px;">
 				<h1><strong>Transcribe Audio</strong></h1>
 				<p>Listen to an audio recording and write what you wear</p>
 				<small>Please ensure your transcribtion is grammatically correct.</small>
 			</div>
-			<div class="panel-body" style="padding: 10px;">
+			<div class="card-body" style="padding: 10px;">
 				<div class="thumbnail">
-					<div class="d-flex align-items-center justify-content-between" style="gap:10px">
-						<!-- <img src="<?php echo base_url('assets/phs/cd.png') ?>" style="height: 35px;width:35px"> -->
-						<div style="width:100%;height:30px">
-							<span style="background: url('<?php echo base_url('assets/phs/sound-wave.png') ?>');background-repeat:repeat-x;width:100%;height:30px;display:inline-block"></span>
-						</div>
-						<h1 style="font-size: 10px;"><strong>1:59</strong></h1>
-						<button class="btn btn-default">
-							<span class="glyphicon glyphicon-play"></span>
-						</button>
-					</div>
+					<audio controls>
+						<source src="<?php echo base_url(unserialize($transcribe_item['files'])[0]) ?>" type="audio/mp3">
+						Your browser does not support the audio element.
+					</audio>
 					<p style="margin-top: 5px;font-weight:bold">Customer service recognition file from conversation with customer from company xyz</p>
 				</div>
-				<form action="<?php echo base_url('transcribe/completeTranscribe/'.$this->uri->segment(3)) ?>" method="post">
+				<hr>
+				<form action="<?php echo base_url('transcribe/completeTranscribeItem/' . $transcribe_item['slug']) ?>" method="post">
 					<div class="form-group">
-						<textarea class="form-control" name="transcribe text" id="" cols="30" rows="10"></textarea>
+						<p>Write what you hear here</p>
+						<textarea class="form-control" name="transcribe_text" id="" cols="30" rows="10"></textarea>
 					</div>
 					<button type="submit" class="btn btn-primary">Submit</button>
 				</form>

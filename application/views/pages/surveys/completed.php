@@ -1,7 +1,7 @@
 <div id="y-col1">
 	<div class="mod view_default">
-		<div class="panel panel-default no-shadow">
-			<div class="panel-body">
+		<div class="card panel-default no-shadow">
+			<div class="card-body">
 				<div class="row">
 					<div class="col-lg-1"></div>
 					<div class="col-lg-10">

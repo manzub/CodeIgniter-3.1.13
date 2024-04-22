@@ -8,8 +8,7 @@ class MY_Controller extends CI_Controller
 	}
 }
 
-
-class Main_Controller extends MY_Controller
+class Member_Controller extends MY_Controller
 {
 	var $permission = array();
 	var $user_status = array(
@@ -21,9 +20,6 @@ class Main_Controller extends MY_Controller
 
 	public function __construct()
 	{
-		// construct permissions here
-		$default_member_permission = array('completeQuestion', 'completeSurvey', 'earnRewards', 'completeTranscribe', 'completeReview');
-		// print_r(serialize($default_member_permission));
 		parent::__construct();
 		$this->load->helper('email_helper.php');
 
@@ -31,8 +27,18 @@ class Main_Controller extends MY_Controller
 		$this->load->model('model_users');
 		$this->load->model('model_dailyactivity');
 
+		// $this->load->model('model_surveys');
+		// $this->load->model('model_transcribe');
+		// $this->load->model('model_reviews');
+
 		$this->load->model('model_config');
 		$this->load_banner_configs();
+
+		// construct permissions here
+		// $default_member_permission = array('completeQuestion', 'completeSurvey', 'earnRewards', 'completeTranscribe', 'completeReview');
+		// print_r(serialize($default_member_permission));
+		$default_admin_permission = array('createUser', 'updateUser', 'deleteUser', 'viewUser', 'createGroup', 'updateGroup', 'deleteGroup', 'viewGroup', 'manageActivity', 'createCategory', 'editCategory', 'deleteCategory', 'updateSetting', 'createTransaction', 'updateTransaction', 'viewTransaction', 'deleteTransaction', 'manageReview', 'allReview', 'manageSurvey', 'allSurvey', 'manageTranscribe', 'allTranscribe');
+		echo serialize($default_admin_permission);
 
 		$group_data = array();
 		if (empty($this->session->userdata('logged_in'))) {
@@ -55,7 +61,7 @@ class Main_Controller extends MY_Controller
 			$this->session->set_userdata('group_name', $group_data['group_name']);
 			$this->bonus_available();
 			$this->earned_from_refered_users($user_id);
-			$this->daily_activities($user_id);
+			// $this->daily_activities($user_id);
 		}
 	}
 
@@ -146,17 +152,15 @@ class Main_Controller extends MY_Controller
 
 	public function generate_daily_activity_list($user_id)
 	{
-		$this->load->model('model_surveys');
-		$this->load->model('model_transcribe');
-		$this->load->model('model_reviews');
-
 		$activities_all = array();
 		// load 5 random items each activity model
 		$review_items = $this->model_reviews->getMyAvailableActivities('member', $user_id, true);
 		$transcribe_items = $this->model_transcribe->getMyAvailableActivities('member', $user_id, true);
 		$survey_items = $this->model_surveys->getAvailableSurveys('member', $user_id, true);
 		$activities_all = array_merge($review_items, $survey_items, $transcribe_items);
-		$rand_keys = array_rand($activities_all, rand(3, 5));
+
+		$rand_keys = array_rand($activities_all, 4);
+
 
 		$activities_list = array();
 		for ($i = 0; $i < count($rand_keys); $i++) {
@@ -221,9 +225,9 @@ class Main_Controller extends MY_Controller
 							break;
 
 						default: //default survey
-						$ac_type = "Survey";
-						$item = $this->model_surveys->getSurveyBySlug($dl_activity['slug']);
-						$link = base_url('surveys/single/' . $dl_activity['slug']);
+							$ac_type = "Survey";
+							$item = $this->model_surveys->getSurveyItemBySlug($dl_activity['slug']);
+							$link = base_url('surveys/single/' . $dl_activity['slug']);
 							break;
 					}
 
@@ -327,7 +331,8 @@ class Main_Controller extends MY_Controller
 
 	public function render_template($page = null, $data = array())
 	{
-		$data['dl_activity_list'] = $this->get_daily_activities();
+		// $data['dl_activity_list'] = $this->get_daily_activities();
+		$data['dl_activity_list'] = array();
 		if (!file_exists(APPPATH . '/views/' . $page . '.php')) {
 			# code...
 			$data["message"] = "Page Not Found";
@@ -339,5 +344,15 @@ class Main_Controller extends MY_Controller
 		$this->load->view($page, $data);
 		$this->load->view('templates/sidebar_right', $data);
 		$this->load->view('templates/footer', $data);
+	}
+
+	public function render_admin($page = null, $data = array())
+	{
+
+		$this->load->view('templates/admin/header', $data);
+		$this->load->view('templates/admin/header_menu', $data);
+		$this->load->view('templates/admin/side_menubar', $data);
+		$this->load->view($page, $data);
+		$this->load->view('templates/admin/footer', $data);
 	}
 }

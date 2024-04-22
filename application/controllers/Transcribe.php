@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Transcribe extends Main_Controller
+class Transcribe extends Member_Controller
 {
 	public function __construct()
 	{
@@ -10,6 +10,7 @@ class Transcribe extends Main_Controller
 		$this->load->model('model_transcribe');
 		$this->load->model('model_users');
 		$this->load->model('model_config');
+		$this->load->model('model_categories');
 		$this->load->model('model_logs');
 		$this->data['title'] = "Transcribe | SurveyMonkey";
 		$this->data['per_page'] = 5;
@@ -18,7 +19,7 @@ class Transcribe extends Main_Controller
 	public function completeTranscribeItem($slug = null)
 	{
 		$user_id = $this->session->userdata('id');
-		if ($slug = null) {
+		if ($slug == null) {
 			redirect('transcribe', 'refresh');
 		}
 
@@ -30,29 +31,33 @@ class Transcribe extends Main_Controller
 				// check if user already completed and limits_per_user
 				$transcribe_item = $this->model_transcribe->getTranscribeItemBySlug($slug);
 
-				// check if item hasnt expired
-				if ($transcribe_item['status'] == 'available') {
-					// limit_per_user hasnt been reached
-					$completed_items = $this->model_transcribe->getCompletedByTranscribeId($user_id, $transcribe_item['id']);
-					if (!empty($completed_items)) {
-						if (count($completed_items) >= $transcribe_item['limit_per_user']) {
-							$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Oops', 'message' => 'You have already completed this activity'));
-							redirect('transcribe', 'refresh');
+				if (!empty($transcribe_item)) {
+					// check if item hasnt expired
+					if ($transcribe_item['status'] == 'available') {
+						// limit_per_user hasnt been reached
+						$completed_items = $this->model_transcribe->getCompletedByTranscribeId($user_id, $transcribe_item['id']);
+						if (!empty($completed_items)) {
+							if (count($completed_items) >= $transcribe_item['limit_per_user']) {
+								$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Oops', 'message' => 'You have already completed this activity'));
+								redirect('transcribe', 'refresh');
+							}
+						}
+
+						// save completed item
+						$comp_raw = htmlspecialchars($this->input->post('transcribe_text'));
+						$data = array('transcribe_id' => $transcribe_item['id'], 'items' => $comp_raw, 'completed_by' => $user_id, 'status' => 'completed', 'points_earned' => '0');
+						$completed = $this->model_transcribe->completeItem($data);
+
+						if ($completed) {
+							// log activity
+							$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Transcribed 1 Item', 'message' => 'Well done!');
+							$this->model_logs->logActivity($activity);
+							// redirect to claims page
+							redirect('transcribe/completed/' . $slug, 'refresh');
 						}
 					}
-
-					// save completed item
-					$comp_raw = htmlspecialchars($this->input->post('transcribe_text'));
-					$data = array('transcribe_id' => $transcribe_item['id'], 'items' => $comp_raw, 'completed_by' => $user_id, 'status' => 'completed', 'points_earned' => '0');
-					$completed = $this->model_transcribe->completeItem($data);
-
-					if ($completed) {
-						// log activity
-						$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Transcribed 1 Item', 'message' => 'Well done!');
-						$this->model_logs->logActivity($activity);
-						// redirect to claims page
-						redirect('transcribe/completed/' . $slug, 'refresh');
-					}
+				} else {
+					// redirect('transcribe', 'refresh');
 				}
 			}
 		}
@@ -66,7 +71,7 @@ class Transcribe extends Main_Controller
 		$group_name = $this->session->userdata('group_name');
 
 		// get available activities
-		$activities_page = $this->model_transcribe->getMyAvailableActivities($group_name, $user_id, true, $page, $this->data['per_page']);
+		$activities_page = $this->model_transcribe->getMyAvailableActivities($group_name, $user_id, true, $page - 1, $this->data['per_page']);
 		$this->data['activities'] = $activities_page;
 
 		// create navigation
@@ -90,6 +95,15 @@ class Transcribe extends Main_Controller
 			$transcribe_item = $this->model_transcribe->getTranscribeItemBySlug($slug);
 
 			if (!empty($transcribe_item)) {
+				$categories = array();
+				$cat_arr = explode(",", $transcribe_item['category']);
+				foreach ($cat_arr as $key => $item) {
+					$cat_item = $this->model_categories->getCategoryById($item);
+					array_push($categories, $cat_item['value']);
+				}
+
+				// todo multiple audio files
+
 				$this->data['title'] = $transcribe_item['title'] . " | SurveyMonkey";
 				$this->data['transcribe_item'] = $transcribe_item;
 				$this->render_template('pages/transcribe/single', $this->data);
@@ -107,7 +121,7 @@ class Transcribe extends Main_Controller
 		$this->not_logged_in();
 		$user_id = $this->session->userdata('id');
 
-		if ($slug = null) {
+		if ($slug == null) {
 			redirect('transcribe', 'refresh');
 		}
 

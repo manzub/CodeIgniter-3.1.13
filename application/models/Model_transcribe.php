@@ -10,7 +10,7 @@ class Model_transcribe extends CI_Model
 	public function getCompletedByTranscribeId($user_id = null, $transcribe_id = null)
 	{
 		if ($transcribe_id != null) {
-			$query = $this->db->get_where('transcribe_completed', array('completed_by' => $user_id, 'transcribe_id' => $transcribe_id));
+			$query = $this->db->get_where('transcribe_completed', array('transcribe_id' => $transcribe_id, 'completed_by' => $user_id));
 			$result = $query->result_array();
 			return $result;
 		}
@@ -34,33 +34,27 @@ class Model_transcribe extends CI_Model
 		$available_items = array();
 		if ($user_id != null) {
 			// TODO: test pagination later
-			if ($is_page) {
-				$this->db->limit($per_page, ($per_page * $page));
-			}
-
-			$this->db->order_by('id', 'RANDOM');
-			$sql = "SELECT * FROM transcribe_av INNER JOIN transcribe_av_meta ON transcribe_av.id = transcribe_av_meta.transcribe_id WHERE `status` = ?";
+			$sql = "SELECT * FROM transcribe_av INNER JOIN transcribe_av_meta ON transcribe_av.id = transcribe_av_meta.transcribe_id WHERE `status` = ? ORDER BY rand()";
+			$sql .= $is_page ? " LIMIT " . $per_page . " OFFSET ".($per_page * $page)."" : "";
 			$query = $this->db->query($sql, array('available'));
 			$result = $query->result_array();
-
 
 			// get each transcribe item and compare global limit
 			foreach ($result as $key => $item) {
 				// check global limit was set or expired
-				if (($item['global_limit'] != NULL) && intval($item['global_limit']) > 0) { //item is still valid and hasn't globally expired
+				if (($item['global_limit'] == NULL) || intval($item['global_limit']) > 0) { //item is still valid and hasn't globally expired
 					// check if user not guest or mod
-					if (!in_array($group_name, array('guest'))) {
-						// get completed items and check if user already completed
-						$completed_items = $this->getCompletedByTranscribeId($user_id, $item['id']);
-						if (!empty($completed_items)) { // if user has completed item already
-							// compare completed_items.length with limits_per_user
-							if (count($completed_items) >= $item['limits_per_user']) { // if already > limit_per_user => next item
-								continue;
-							}
+					// if (!in_array($group_name, array('guest'))) {
+					// get completed items and check if user already completed
+					$completed_items = $this->getCompletedByTranscribeId($user_id, $item['id']);
+					if (!empty($completed_items)) { // if user has completed item already
+						// compare completed_items.length with limits_per_user
+						if (count($completed_items) >= $item['limit_per_user']) { // if already > limit_per_user => next item
+							continue;
 						}
 					}
-
 					$available_items[$key] = $item;
+					// }
 				}
 			}
 		}
@@ -80,7 +74,7 @@ class Model_transcribe extends CI_Model
 
 	public function updateCompletedItem($transcribe_id, $data = array())
 	{
-		if ($data && $id) {
+		if ($data && $transcribe_id) {
 			$this->db->where('id', $transcribe_id);
 			$update = $this->db->update('transcribe_completed', $data);
 			return ($update == true) ? true : false;

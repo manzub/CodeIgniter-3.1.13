@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Profile extends Main_Controller
+class Profile extends Member_Controller
 {
 	public function __construct()
 	{

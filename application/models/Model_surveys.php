@@ -7,120 +7,107 @@ class Model_surveys extends CI_Model
 		parent::__construct();
 	}
 
-	public function getCompletedSurveysByUserId($user_id = null)
+	public function getCompletedBySurveyId($user_id = null, $survey_id = null)
 	{
 		// get all items from db completed by current_user
-		if ($user_id != null) {
-			$this->db->select('survey_id');
-			$query = $this->db->get_where('surveys_completed', array('completed_by' => $user_id));
+		if ($survey_id != null) {
+			$query = $this->db->get_where('surveys_completed', array('survey_id' => $survey_id, 'completed_by' => $user_id));
 			return $query->result_array();
+		}
+
+		return array();
+	}
+
+	public function getSurveyItemBySlug($slug = null)
+	{
+		if ($slug != null) {
+			$query = $this->db->get_where('survey_meta', array('slug' => $slug));
+			$result = $query->row_array();
+			return $result;
 		}
 	}
 
-	public function getCompletedSurveysBySlug($user_id = null, $slug = null)
+	public function getSurveyQuestionsById($survey_id = null)
 	{
-		if ($user_id != null) {
-			$query = $this->db->get_where('surveys_completed', array('completed_by' => $user_id, 'survey_slug' => $slug));
-			return $query->result_array();
+		if ($survey_id != null) {
+			$sql = "SELECT * FROM sv_questions WHERE sv_questions.survey_id = ?";
+			$query = $this->db->query($sql, array($survey_id));
+			$result = $query->result_array();
+			return $result;
 		}
+
+		return array();
 	}
 
-	public function getSurveys()
+	public function getSurveyOptionsByQuestionId($question_id = null)
 	{
-		$query = $this->db->get('survey_meta');
-		return $query->result_array();
+		if ($question_id != null) {
+			$query = $this->db->get_where('sv_quest_options', array('sv_quest_id' => $question_id));
+			$result = $query->result_array();
+			return $result;
+		}
+
+		return array();
 	}
 
 	// TODO: rewrite surveys module
 	public function getAvailableSurveys($group_name = null, $user_id = null, $is_page = false, $page = 0, $per_page = 5)
 	{
-		// select all from survey_meta where survey_id not in surveys_completed
+		$available_items = array();
 		if ($user_id != null) {
-			if ($is_page) {
-				$this->db->limit($per_page, ($per_page * $page));
-			}
+			// TODO: test pagination later
+			$sql = "SELECT * FROM survey_meta WHERE `status` = ? ORDER BY rand()";
+			$sql .= $is_page ? " LIMIT " . $per_page . " OFFSET " . ($per_page * $page) . "" : "";
+			$query = $this->db->query($sql, array('available'));
+			$result = $query->result_array();
 
-			$this->db->order_by('id', 'RANDOM');
-			$query = $this->db->get_where('survey_meta', array('status' => 'available')); // default query
-
-			if (!in_array($group_name, array('guest'))) { // members with not access to complete survey
-				$completed_surveys = array();
-
-				foreach ($this->getCompletedSurveysByUserId($user_id) as $item) {
-					array_push($completed_surveys, $item['survey_id']);
-				}
-
-				if (count($completed_surveys) !== 0) {
-					$available_items = array();
-					$results = $query->result_array();
-					foreach ($results as $key => $sv_item) {
-						if (!in_array($sv_item['id'], $completed_surveys)) {
-							array_push($available_items, $sv_item);
+			// get each survey item and check global_limit
+			foreach ($result as $key => $item) {
+				// check global limit was set
+				if (($item['global_limit'] == NULL) || intval($item['global_limit']) > 0) { //item is still valid and hasn't globally expired
+					// check if user not guest or mod
+					// if (!in_array($group_name, array('guest', 'mod'))) {
+					// get completed items and check if user already completed
+					$completed_items = $this->getCompletedBySurveyId($user_id, $item['id']);
+					if (!empty($completed_items)) { //check if user completed item already
+						// compare completed_items.length with limits_per_user
+						if (count($completed_items) >= intval($item['limit_per_user'])) { // if already > limit_per_user => next item
+							continue;
 						}
 					}
-					return $available_items;
+					$available_items[$key] = $item;
+					// }
 				}
 			}
-			return $query->result_array();
 		}
+
+		return $available_items;
 	}
 
-	public function getSurveyBySlug($slug = null)
+	public function updateSurveyItem($survey_id = null, $data = array())
 	{
-		if ($slug != null) {
-			$query = $this->db->get_where('survey_meta', array('slug' => $slug));
-			return $query->row_array();
-		}
-	}
-
-	public function getSurveyQuestionsById($slug = null)
-	{
-		if ($slug != null) {
-			$query = $this->db->get_where('sv_questions', array('survey_slug' => $slug));
-			return $query->result_array();
-		}
-	}
-
-	public function getSurveyQuestionById($question_id = null)
-	{
-		if ($question_id != null) {
-			$query = $this->db->get_where('sv_questions', array('id' => $question_id));
-			return $query->result_array();
-		}
-	}
-
-	public function getSurveyOptions($question_id = null)
-	{
-		if ($question_id != null) {
-			$query = $this->db->get_where('sv_quest_options', array('sv_quest_id' => $question_id));
-			return $query->result_array();
-		}
-	}
-
-	public function updateCompletedSurvey($data, $id)
-	{
-		if ($data && $id) {
-			$this->db->where('id', $id);
-			$update = $this->db->update('surveys_completed', $data);
+		if (!empty($data) && $survey_id) {
+			$this->db->where('id', $survey_id);
+			$update = $this->db->update('survey_meta', $data);
 			return ($update == true) ? true : false;
 		}
 	}
 
-	public function createCompleted($data)
+	public function updateCompletedItem($id, $data)
 	{
-		if ($data) {
-			$insert = $this->db->insert('surveys_completed', $data);
-			return ($insert == true) ? true : false;
+		if (!empty($data) && $id != null) {
+			$this->db->where('id', $id);
+			$update = $this->db->update('surveys_completed', $data);
+
+			return ($update == true) ? true : false;
 		}
 	}
 
-	public function edit($survey_id = null, $data = array())
+	public function completeSurveyItem($data)
 	{
-		if ($survey_id != null) {
-			$this->db->where('id', $survey_id);
-			$update = $this->db->update('survey_meta', $data);
-
-			return ($update == true) ? true : false;	
+		if ($data) {
+			$create = $this->db->insert('surveys_completed', $data);
+			return ($create == true) ? true : false;
 		}
 	}
 }

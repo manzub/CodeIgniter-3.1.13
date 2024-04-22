@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Surveys extends Main_Controller
+class Surveys extends Member_Controller
 {
 	public function __construct()
 	{
@@ -9,131 +9,128 @@ class Surveys extends Main_Controller
 		$this->load->model('model_surveys');
 		$this->load->model('model_users');
 		$this->load->model('model_config');
+		$this->load->model('model_logs');
 		$this->data['title'] = "Surveys | SurveyMonkey";
 		$this->data['per_page'] = 5;
 	}
 
-	public function fetchSurveyData($survey_slug = null)
+	public function fetchSurveyData($slug = null)
 	{
-		// current user
 		$user_id = $this->session->userdata('id');;
 
-		$result = array('data' => array(), 'status' => 0);
-		if ($survey_slug != null) {
-			$valid_survey = $this->model_surveys->getSurveyBySlug($survey_slug);
-
-			if ($valid_survey) {
-				$completed_questions = array();
-				// get survey questions
-				// get completed questions - array('quest_id'=>array('option_id','option_id'))
-				// get all survey questions omit results in completed_questions
-				// a:14:{i:0;s:10:"createUser";i:1;s:10:"updateUser";i:2;s:8:"viewUser";i:3;s:10:"deleteUser";i:4;s:11:"createGroup";i:5;s:11:"updateGroup";i:6;s:9:"viewGroup";i:7;s:11:"deleteGroup";i:8;s:11:"createStore";i:9;s:13:"createProduct";i:10;s:11:"createOrder";i:11;s:13:"updateCompany";i:12;s:11:"viewProfile";i:13;s:13:"updateSetting";}
-				$completed_survey = $this->model_surveys->getCompletedSurveysBySlug($user_id, $valid_survey['slug']);
-				if (!empty($completed_survey)) {
-					$completed_questions = unserialize($completed_survey[0]['questions']);
+		$result = array('data' => array());
+		if ($user_id != null) {
+			$survey_item = $this->model_surveys->getSurveyItemBySlug($slug);
+			if (!empty($survey_item)) {
+				// check if item already completed;
+				$last_session = null; // last completed session
+				$completed_item = $this->model_surveys->getCompletedBySurveyId($survey_item['id']);
+				if (!empty($completed_item)) { // if user has completed item
+					if (count($completed_item) >= $survey_item['limit_per_user']) {
+						redirect('surveys', 'refresh');
+					}
+					// if hasnt completed
+					// if hasnt last session.
+					$last_comp_item = $completed_item[count($completed_item) - 1];
+					if (count(unserialize($last_comp_item['questions'])) >= $survey_item['no_questions']) {
+						// another check to make sure item wasnt incorrectly completed
+						if ($last_comp_item['status'] != 'completed') {
+							$last_session = $last_comp_item;
+						} else {
+							redirect('surveys/completed/' . $survey_item['slug'], 'refresh');
+						}
+					}
 				}
 
-				$survey_questions = $this->model_surveys->getSurveyQuestionsById($valid_survey['slug']);
-				foreach ($survey_questions as $sv_key => $sv_question) {
-					if (array_key_exists($sv_question['id'], $completed_questions)) {
-						continue;
-					}
-					$input_type = $sv_question['option_style'] == 'single' ? 'radio' : 'checkbox';
-					// get options
-					// TODO: build html for checkbox
-					$options_arr = array();
-					$question_options = $this->model_surveys->getSurveyOptions($sv_question['id']);
-					foreach ($question_options as $key => $option) {
-						# code...
-						$options_arr[$key]['id'] = $option['id'];
-						$options_arr[$key]['option_text'] = $option['option_text'];
-						$options_arr[$key]['option_html'] = '<div class="col-lg-12">
-							<div class="input-group" style="border: 1px solid #e3e3e3;">
-								<span class="input-group-addon" style="background-color: inherit;border:none">
-									<input id="sv_opt" name="quest_id-' . $sv_question['id'] . '" value="' . $option['id'] . '" type="' . $input_type . '" aria-label="...">
-								</span>
-								<p style="margin-left:10px;line-height: 2em;">' . $option['option_text'] . '</p>
-							</div>
-						</div>';
-					}
+				// todo: get questions and options
+				// compare last session
+				// construct html
+				$sv_questions = $this->model_surveys->getSurveyQuestionsById($survey_item['id']);
+				if (!empty($sv_questions)) {
+					foreach ($sv_questions as $key => $sv_question) {
+						if ($last_session != null) {
+							if (array_key_exists($sv_question['id'], $last_session['questions'])) {
+								continue;
+							}
+						}
+						// get options
+						$input_type = $sv_question['option_style'] == 'single' ? 'radio' : 'checkbox';
+						$options_arr = array();
+						$sv_quest_options = $this->model_surveys->getSurveyOptionsByQuestionId($sv_question['id']);
+						foreach ($sv_quest_options as $key => $option) {
+							$options_arr[$key]['id'] = $option['id'];
+							$options_arr[$key]['option_text'] = $option['option_text'];
+							$options_arr[$key]['option_html'] = '<div class="col-lg-12">
+              <div class="input-group" style="border: 1px solid #e3e3e3;">
+                <span class="input-group-addon" style="background-color: inherit;border:none">
+                  <input id="sv_opt" name="quest_id-' . $sv_question['id'] . '" value="' . $option['id'] . '" type="' . $input_type . '" aria-label="...">
+                </span>
+                <p style="margin-left:10px;line-height: 2em;">' . $option['option_text'] . '</p>
+              </div>
+            </div>';
+						}
 
-					array_push($result['data'], array(
-						'id' => $sv_question['id'],
-						'question_text' => $sv_question['question_text'],
-						'survey_id' => $valid_survey['id'],
-						'question_html' => '<h2 style="font-weight: bold;font-size:14px">' . $sv_question['question_text'] . '</h2>',
-						'options' => $options_arr
-					));
+						array_push($result['data'], array(
+							'id' => $sv_question['id'],
+							'question_text' => $sv_question['question_text'],
+							'survey_id' => $survey_item['id'],
+							'question_html' => '<h2 style="font-weight: bold;font-size:14px">' . $sv_question['question_text'] . '</h2>',
+							'options' => $options_arr
+						));
+					}
+				} else {
+					redirect('surveys', 'refresh');
 				}
 			}
-			$result['status'] = 1;
 		}
+
 		echo json_encode($result);
 	}
 
 	public function completeQuestion($question_id = null)
 	{
-		// TODO correct user roles
 		$result = array('status' => 0);
-
-		// current user
-		$user_id = $this->session->userdata('id');;
+		$user_id = $this->session->userdata('id');
 
 		if ($question_id != null) {
-			$question_item = $this->model_surveys->getSurveyQuestionById($question_id)[0];
-			$survey_item = $this->model_surveys->getSurveyBySlug($question_item['survey_slug'])[0];
-			$survey_slug = $survey_item['slug'];
-			if ($survey_slug != null) {
-				$completed_questions = array();
-				// check already started question
-				$completed_item = $this->model_surveys->getCompletedSurveysBySlug($user_id, $survey_slug);
-				if (!empty($completed_item)) {
-					if ($completed_item[0]['status'] == 'completed') {
-						$result['status'] = 2;
-						// update survey_item
-						if (in_array('completeSurvey', $this->permission)) {
-							$global_limit = intval($survey_item['limit_per_user']);
-							$sv_status = $survey_item['status'];
-							if ($global_limit > 0) {
-								// TODO: global limit
-								# item has a global limit - reduce global limit and change status
-								$global_limit = $global_limit - 1;
-								$sv_status = $global_limit <= 0 ? 'expired' : 'available';
-							}
+			$x = $this->model_surveys->getSurveyOptionsByQuestionId($question_id);
+			if (!empty($x)) {
+				$survey_item = $this->model_surveys->getSurveyItemBySlug($x[0]['survey_slug']);
+				if (!empty($survey_item)) {
+					$completed_questions = array();
 
-							$data = array('limit_per_user' => $global_limit, 'status' => $status);
-							$this->model_surveys->edit($survey_item['id'], $data);
+					$completed_items = $this->model_surveys->getCompletedBySurveyId($user_id, $survey_item['id']);
+					if (count($completed_items) <= intval($survey_item['limit_per_user'])) {
+						$last_session = null;
+						if (!empty($completed_items)) {
+							$last_session = $completed_items[count($completed_items) - 1];
+							if (!empty($last_session)) {
+								if ($last_session['status'] != 'completed') {
+									$completed_questions = unserialize($last_session['questions']);
+								}
+							}
+						}
+
+
+						if (!array_key_exists($question_id, $completed_questions)) {
+							$options = gettype($this->input->post('sv_opt')) == 'array' ? $this->input->post('sv_opt') : array($this->input->post('sv_opt'));
+							array_push($completed_questions, array($question_id => $options));
+
+							$status = count($completed_questions) >= $survey_item['no_questions'] ? 'completed' : 'in_progress';
+							$data = array('survey_slug' => $survey_item['slug'], 'survey_id' => $survey_item['id'], 'questions' => serialize($completed_questions), 'completed_by' => $user_id, 'status' => $status, 'points_earned' => '0');
+							if ($last_session['status'] == 'in_progress') {
+								// complete item
+								$this->model_surveys->updateCompletedItem($last_session['id'], $data);
+								$result['status'] = count($completed_questions) >= intval($survey_item['no_questions']) ? 2 : 1;
+							} else {
+								if (count($completed_items) < intval($survey_item['limit_per_user'])) {
+									$this->model_surveys->completeSurveyItem($data);
+									$result['status'] = count($completed_questions) >= intval($survey_item['no_questions']) ? 2 : 1;
+								}
+							}
 							// log activity
 							$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Completed Question', 'message' => 'Well done!');
 							$this->model_logs->logActivity($activity);
-						}
-
-						echo json_encode($result);
-						return;
-					}
-
-					$completed_questions = unserialize($completed_item[0]['questions']);
-				}
-
-				if (!array_key_exists($question_id, $completed_questions)) {
-					// get selected options
-					$options = $this->input->post('sv_opt');
-					$completed_questions[$question_id] = gettype($options) == 'array' ? $options : array($options);
-
-					if (!empty($completed_item)) {
-						// update database
-						$status = $survey_item['no_questions'] > count($completed_questions) ? 'in_progress' : 'completed';
-						$data = array('questions' => serialize($completed_questions), 'status' => $status);
-						$update = $this->model_surveys->updateCompletedSurvey($data, $completed_item[0]['id']);
-						if ($update == true) {
-							$result['status'] = $status == 'completed' ? 2 : 1;
-						}
-					} else {
-						// create completed_item
-						$data = array('survey_slug' => $survey_slug, 'survey_id' => $survey_item['id'], 'questions' => serialize($completed_questions), 'completed_by' => $user_id, 'status' => 'in_progress');
-						$create = $this->model_surveys->createCompleted($data);
-						if ($create == true) {
-							$result['status'] = 1;
 						}
 					}
 				}
@@ -170,9 +167,9 @@ class Surveys extends Main_Controller
 		// completeQuestion - can answer question, completeSurvey can reduce global limit
 		if (in_array('completeQuestion', $this->permission)) {
 			// render view
-			$survey_item = $this->model_surveys->getSurveyBySlug($slug);
-			$this->data['title'] = $survey_item[0]['title'] . " | SurveyMonkey!";
-			$this->data['survey_item'] = $survey_item[0];
+			$survey_item = $this->model_surveys->getSurveyItemBySlug($slug);
+			$this->data['title'] = $survey_item['title'] . " | SurveyMonkey!";
+			$this->data['survey_item'] = $survey_item;
 			$this->render_template('pages/surveys/single', $this->data);
 		} else {
 			$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'message' => 'Create an account to start earning rewards.', 'title' => 'Why Miss Out?'));
@@ -182,30 +179,50 @@ class Surveys extends Main_Controller
 
 	public function completed($slug = null)
 	{
-		$this->not_logged_in();
 		// current user
 		$user_id = $this->session->userdata('id');
+		if (!in_array('earnRewards', $this->permission)) {
+			$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Why Miss Out', 'message' => 'Create an account to start earning'));
+			redirect('surveys', 'refresh');
+		}
 
 		if ($slug == null) {
 			redirect('surveys', 'refresh');
 		}
 
-		if (in_array('earnRewards', $this->permission)) {
-			$survey_item = $this->model_surveys->getSurveyBySlug($slug);
-			$completed_item = $this->model_surveys->getCompletedSurveysBySlug($user_id, $survey_item[0]['slug']);
+		$survey_item = $this->model_surveys->getSurveyItemBySlug($slug);
+		$completed_items = $this->model_surveys->getCompletedBySurveyId($user_id, $survey_item['id']);
 
-			if (empty($survey_item) || empty($completed_item) || $completed_item[0]['points_earned'] != '0') {
+		if (!empty($survey_item) && !empty($completed_items)) {
+			$last_comp_item = $completed_items[count($completed_items) - 1];
+			if (intval($last_comp_item['points_earned']) != 0) {
 				redirect('surveys', 'refresh');
 			}
 
+			// on click claim button
 			$this->form_validation->set_rules('completed', 'Survey Item', 'required');
-
 			if ($this->form_validation->run() == TRUE) {
-				// TODO: multiplier
-				$points_earned = $survey_item[0]['reward_points'];
+				$points_earned = $survey_item['reward_points'];
+
+				// check if daily activity
+				$dl_list = $this->session->userdata('daily_activity');
+				$dl_slug = array_map(function ($o) {
+					return $o['slug'];
+				}, $dl_list);
+				if (!empty($dl_slug)) {
+					if (in_array($survey_item['slug'], $dl_slug)) {
+						$daily_activity_config = $this->model_config->getConfigByName('daily_activity_reward');
+						$points_earned = intval($daily_activity_config['value']);
+						$key = array_search($survey_item['slug'], $dl_slug);
+						$dl_list[$key]['status'] = 'completed';
+						$this->session->set_userdata('daily_activity', $dl_list);
+					}
+				}
+
 				$data = array('points_earned' => $points_earned);
-				$update = $this->model_surveys->updateCompletedSurvey($data, $completed_item[0]['id']);
-				if ($update == true) {
+
+				$update = $this->model_surveys->updateCompletedItem($last_comp_item['id'], $data);
+				if ($update) {
 					// reward ref parent user
 					$my_account = $this->model_users->getuserById($user_id);
 					if (!in_array($my_account['referred_by'], array(null, 'NULL'))) {
@@ -218,21 +235,41 @@ class Surveys extends Main_Controller
 						$this->model_users->logClaimedReward($my_referrer['id'], array('user_id' => $my_referrer['id'], 'reward_earned' => $interest_earned, 'type' => 'ref_interest', 'streak' => '0'));
 					}
 
-					$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'survey_id' => $survey_item[0]['id'], 'reward_earned' => $survey_item[0]['reward_points'], 'type' => 'completed_activity', 'streak' => '0'));
-					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $survey_item[0]['reward_points'], 'title' => 'Completed'));
-					// log activity
-					$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Completed Survey', 'message' => 'Congratulations! Earned' . $survey_item[0]['reward_points']);
-					$this->model_logs->logActivity($activity);
-					redirect('surveys/index', 'refresh');
+					// reduce global limit
+					if ($survey_item['global_limit'] != NULL && intval($survey_item['global_limit']) > 0) {
+						$global_limit = intval($survey_item['global_limit']) - 1;
+						$this->model_surveys->updateSurveyItem($survey_item['id'], array('global_limit' => $global_limit));
+					}
 				}
+
+				$total_earned = round($points_earned * count($completed_items));
+				$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'review_id' => $survey_item['id'], 'reward_earned' => $total_earned, 'type' => 'completed_activity', 'streak' => '0'));
+				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $total_earned, 'title' => 'Completed'));
+				// log activity
+				$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Earned Reward', 'message' => 'Congratulations! Earned' . $total_earned);
+				$this->model_logs->logActivity($activity);
+				redirect('surveys', 'refresh');
 			}
 
-			$this->data['title'] = "Claim your rewards - " . $survey_item[0]['title'] . " | SurveyMonkey!";
-			$this->data['survey_item'] = $survey_item[0];
+			$this->data['title'] = "Claim your rewards - " . $survey_item['title'] . " | SurveyMonkey!";
+			$this->data['survey_item'] = $survey_item;
 			$this->render_template('pages/surveys/completed', $this->data);
 		} else {
-			$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'message' => 'Create an account to start earning rewards.', 'title' => 'Why Miss Out?'));
-			redirect('surveys', 'refresh');
+			// redirect("surveys", 'refresh');
+		}
+	}
+
+	// admin functions
+
+	public function admin()
+	{
+		$this->not_logged_in();
+		$user_id = $this->session->userdata('id');
+
+		if (in_array('manageSurvey', $this->permission)) {
+			$this->render_admin('pages/admin/activities/surveys/index', $this->data);
+		} else {
+			redirect('dashboard', 'refresh');
 		}
 	}
 }
