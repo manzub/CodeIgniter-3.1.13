@@ -10,7 +10,11 @@ class Model_reviews extends CI_Model
 	public function getCompletedByReviewId($user_id = null, $review_id = null)
 	{
 		if ($review_id != null) {
-			$query = $this->db->get_where('reviews_completed', array('completed_by' => $user_id, 'review_id' => $review_id));
+			$arr1 = array();
+			if ($user_id != null) {
+				$arr1 = array('completed_by' => $user_id);
+			}
+			$query = $this->db->get_where('reviews_completed', array_merge($arr1, array('review_id' => $review_id)));
 			$result = $query->result_array();
 			return $result;
 		}
@@ -27,6 +31,24 @@ class Model_reviews extends CI_Model
 		}
 
 		return array();
+	}
+
+	public function getAllReviewItems()
+	{
+		$query = $this->db->get('review_vd');
+		$result = $query->result_array();
+
+		return $result;
+	}
+
+	public function getReviewItemsCreatedBy($user_id = null)
+	{
+		if ($user_id != null) {
+			$query = $this->db->get_where('review_vd', array('created_by' => $user_id));
+			$result = $query->result_array();
+
+			return $result;
+		}
 	}
 
 	public function getMyAvailableActivities($group_name = null, $user_id = null, $is_page = false, $page = 0, $per_page = 5)
@@ -70,6 +92,19 @@ class Model_reviews extends CI_Model
 			$update = $this->db->update('review_vd', $data);
 			return ($update == true) ? true : false;
 		}
+
+		return false;
+	}
+
+	public function updateReviewItemFiles($review_id = null, $data = array())
+	{
+		if (!empty($data)) {
+			$this->db->where('review_id', $review_id);
+			$update = $this->db->update('review_vd_meta', $data);
+			return ($update == true) ? true : false;
+		}
+
+		return false;
 	}
 
 	public function completeItem($data = array())
@@ -89,5 +124,58 @@ class Model_reviews extends CI_Model
 			$update = $this->db->update('reviews_completed', $data);
 			return ($update == true) ? true : false;
 		}
+	}
+
+	// admin function
+
+	public function createReviewItem($user_id, $data)
+	{
+		if (!empty($data) && $user_id != null) {
+			// save to db and return created item
+			$this->db->set(array_merge(array('created_by' => $user_id), $data));
+			$this->db->insert('review_vd');
+			$insert_id = $this->db->insert_id();
+
+			return $insert_id;
+		}
+
+		return false;
+	}
+
+	public function saveReviewItemFiles($data)
+	{
+		if (!empty($data)) {
+			$this->db->set($data);
+			$this->db->insert('review_vd_meta');
+			$insert_id = $this->db->insert_id();
+
+			return $insert_id;
+		}
+
+		return false;
+	}
+
+	public function removeReviewItem($id = null)
+	{
+		if ($id != null) {
+			// remove from review_vd_meta then review_vd
+			$this->removeReviewItemFiles($id);
+			$this->db->wehere('id', $id);
+			$delete = $this->db->delete('review_vd');
+			return $delete == true;
+		}
+
+		return false;
+	}
+
+	public function removeReviewItemFiles($review_id = null): bool
+	{
+		if ($review_id != null) {
+			$this->db->where('review_id', $review_id);
+			$delete = $this->db->delete('review_vd_meta');
+			return $delete == true;
+		}
+
+		return false;
 	}
 }

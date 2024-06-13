@@ -11,6 +11,8 @@ class Profile extends Member_Controller
 		$this->load->model('model_referrals');
 		$this->load->model('model_logs');
 		$this->load->model('model_config');
+
+		$this->load->helper('my_helper.php');
 	}
 
 	public function claimDailyBonus()
@@ -20,35 +22,43 @@ class Profile extends Member_Controller
 		if ($user_id) {
 			$cond = array('type' => 'daily_bonus', 'streak <=' => '5');
 			$lastest_streaks = $this->model_users->getUserRewardByCond($user_id, $cond);
+
 			if (!empty($lastest_streaks)) {
-				# last item exists
-				$curr_count = intval($lastest_streaks[0]['streak']);
-				$reward_bonus = (int) $lastest_streaks[0]['reward_earned'];
+				$item = $lastest_streaks[0];
+				$to_multiply = false;
 
-				if ($curr_count > 0 && $curr_count <= 5) {
-					$multiply = (float) $this->model_config->getConfigByName('daily_bonus_multiply')['value'];
-					$reward_bonus = round($reward_bonus * $multiply);
-					$curr_count = $curr_count + 1;
-				} else {
-					$curr_count = 1;
-					$reward_bonus = (int) $this->model_config->getConfigByName('daily_bonus')['value'];
+				$last_count = $item['streak'];
+				if ($last_count <= 5) {
+					$reward = 0;
+					$diff_in_days =  diff_in_days(strtotime($item['last_modified']));
+					if ($diff_in_days == 1) {
+						$reward = intval($item['reward_earned']);
+						$to_multiply = true;
+					} else {
+						$base_reward = $this->model_config->getConfigByName('daily_bonus')['value'];
+						$reward = intval($base_reward);
+					}
+
+					$curr_count = $this->session->userdata('streak_count');
+					$reward_earned = $reward;
+					if ($to_multiply) {
+						$multiply_config = $this->model_config->getConfigByName('daily_bonus_multiply')['value'];
+						$multiply = intval($multiply_config);
+						$reward_earned = round($reward * $multiply);
+					}
+
+					$data = array('user_id' => $user_id, 'reward_earned' => $reward_earned, 'type' => 'daily_bonus', 'streak' => $curr_count);
+					$this->model_users->logClaimedReward($user_id, $data);
+
+					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Congratulations!', 'message' => 'You have Claimed Daily Bonus #' . $curr_count));
+					// log activity
+					$activity = array('user_id' => $user_id, 'activity_code' => '4', 'activity' => 'Claimed Daily Bonus', 'message' => 'Claimed Daily Bonus!');
+					$this->model_logs->logActivity($activity);
+					redirect('profile', 'refresh');
 				}
-
-				$data = array('user_id' => $user_id, 'reward_earned' => $reward_bonus, 'type' => 'daily_bonus', 'streak' => $curr_count);
-				$this->model_users->logClaimedReward($user_id, $data);
-
-				if ($curr_count == 5) {
-					$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'reward_earned' => 0, 'type' => 'daily_bonus', 'streak' => 0));
-				}
-
-				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Congratulations!', 'message' => 'You have Claimed Daily Bonus #' . $curr_count));
-				// log activity
-				$activity = array('user_id' => $user_id, 'activity_code' => '4', 'activity' => 'Claimed Daily Bonus', 'message' => 'Claimed Daily Bonus!');
-				$this->model_logs->logActivity($activity);
-				redirect('profile', 'refresh');
 			} else {
 				$reward_bonus = (int) $this->model_config->getConfigByName('daily_bonus')['value'];
-				$data = array('user_id' => $user_id, 'reward_earned' => $reward_bonus, 'type' => 'daily_bonus', 'streak' => 1);
+				$data = array('user_id' => $user_id, 'reward_earned' => $reward_bonus, 'type' => 'daily_bonus', 'streak' => $this->session->userdata('streak_count'));
 				$this->model_users->logClaimedReward($user_id, $data);
 				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Congratulations!', 'message' => 'You have Claimed Daily Bonus #1'));
 				redirect('profile', 'refresh');
@@ -60,6 +70,7 @@ class Profile extends Member_Controller
 
 	public function index()
 	{
+
 		$this->not_logged_in();
 
 		$user_id = $this->session->userdata('id');
@@ -69,7 +80,49 @@ class Profile extends Member_Controller
 		$reward_bonus = (int) $this->model_config->getConfigByName('daily_bonus')['value'];
 		$multiply = (float) $this->model_config->getConfigByName('daily_bonus_multiply')['value'];
 
+		// TODO: reset streak count
+		// list new streaks available to claim current count.
+		// construct here
+		$streak_count_html = '';
+		$current_count = (int) $this->session->userdata('streak_count');
+		$last_reward = round($reward_bonus * $multiply);
+		for ($i = 1; $i <= 5; $i++) {
+			$claimed = true;
+			// create html for each loop item
+			$classname = "card ";
+			if ($i < $current_count) {
+				$classname .= "bg-warning";
+			} else if ($i == $current_count) {
+				if (!empty($this->session->userdata('bonus_available'))) {
+					$claimed = false;
+					$classname .= "bg-secondary";
+				} else {
+					$classname .= "bg-warning";
+				}
+			} else {
+				$claimed = false;
+				$classname .= "bg-default";
+			}
+
+			$streak_count_html .= '<div class="col-md-3 mb-2" style="text-align: center;">';
+			$streak_count_html .= '<div class="' . $classname . '">';
+			$streak_count_html .= '<div class="card-header">';
+			$streak_count_html .= '<h1 style="font-size: 25px;font-weight:bolder;" class="page-title">DAY' . $i . '</h1>';
+			$streak_count_html .= '</div>';
+			$streak_count_html .= '<div class="card-body">';
+			$streak_count_html .= '<h3 style="font-size: 20px;font-weight:bold;margin-bottom:10px">+' . $last_reward . 'SB</h3>';
+			$streak_count_html .= '<form action="profile/claimDailyBonus" method="post">';
+			$is_disabled = empty($this->session->userdata('bonus_available')) ? 'disabled' : '';
+			$claim_txt = !$claimed ? 'Claim' : 'Claimed';
+			$streak_count_html .= '<button ' . $is_disabled . ' class="btn btn-primary" style="text-transform: uppercase;">' . $claim_txt . '</button>';
+			$streak_count_html .= '</form>';
+			$streak_count_html .= '</div>';
+			$streak_count_html .= '</div>';
+			$streak_count_html .= '</div>';
+		}
+
 		$this->data['last_streak'] = $lastest_streaks;
+		$this->data['streaks_html'] = $streak_count_html;
 		$this->data['bonus'] = $reward_bonus;
 		$this->data['multiply'] = $multiply;
 
@@ -180,7 +233,8 @@ class Profile extends Member_Controller
 		$this->render_template('pages/profile/invite', $this->data);
 	}
 
-	public function redeem_points() {
+	public function redeem_points()
+	{
 		$this->not_logged_in();
 
 		$user_id = $this->session->userdata('id');

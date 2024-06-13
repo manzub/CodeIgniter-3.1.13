@@ -53,73 +53,89 @@
 					</li>
 				<?php endif; ?>
 
-				<?php if (in_array('manageReview', $user_permission) || in_array('manageSurvey', $user_permission) || in_array('manageTranscribe', $user_permission)) { ?>
-					<li class="treeview" id="mainActivityNav">
+				<?php if (in_array('manageSurvey', $user_permission) || in_array('manageActivity', $user_permission)) { ?>
+					<li class="treeview" id="mainSurveyNav">
 						<a href="#">
-							<i class="fa fa-files-o"></i>
-							<span>Activities</span>
+							<i class="fa fa-cube"></i>
+							<span>Surveys</span>
 							<span class="pull-right-container">
 								<i class="fa fa-angle-left pull-right"></i>
 							</span>
 						</a>
 						<ul class="treeview-menu">
-							<?php if (in_array('manageReview', $user_permission)) { ?>
-								<li><a href="#"><i class="fa fa-circle"></i><span>Reviews</span></a></li>
-							<?php } ?>
-							<?php if (in_array('manageSurvey', $user_permission)) { ?>
-								<li><a href="<?php echo base_url('surveys/admin') ?>"><i class="fa fa-circle"></i><span>Survey</span></a></li>
-							<?php } ?>
-							<?php if (in_array('manageTranscribe', $user_permission)) { ?>
-								<li><a href="#"><i class="fa fa-circle"></i><span>Transcribe</span></a></li>
-							<?php } ?>
-							<?php if (in_array('createCategory', $user_permission) || in_array('updateCategory', $user_permission) || in_array('viewCategory', $user_permission) || in_array('deleteCategory', $user_permission)) : ?>
-								<li>
-									<a href="<?php echo base_url('category/') ?>">
-										<i class="fa fa-files-o"></i> <span>Categories</span>
-									</a>
-								</li>
+							<li><a href="<?php echo base_url('surveys/admin') ?>"><i class="fa fa-circle"></i><span>Manage Surveys</span></a></li>
+							<?php if (in_array('reviewActivity', $user_permission)) : ?>
+								<li id="addProductNav"><a href="<?php echo base_url('surveys/completed_list') ?>"><i class="fa fa-circle-o"></i>Review Completed</a></li>
 							<?php endif; ?>
 						</ul>
 					</li>
 				<?php } ?>
 
-
-				<?php if (in_array('createProduct', $user_permission) || in_array('updateProduct', $user_permission) || in_array('viewProduct', $user_permission) || in_array('deleteProduct', $user_permission)) : ?>
-					<li class="treeview" id="mainProductNav">
+				<?php if (in_array('manageReview', $user_permission) || in_array('manageActivity', $user_permission)) { ?>
+					<li class="treeview" id="mainReviewNav">
 						<a href="#">
 							<i class="fa fa-cube"></i>
-							<span>Products</span>
+							<span>Reviews</span>
 							<span class="pull-right-container">
 								<i class="fa fa-angle-left pull-right"></i>
 							</span>
 						</a>
 						<ul class="treeview-menu">
-							<?php if (in_array('createProduct', $user_permission)) : ?>
-								<li id="addProductNav"><a href="<?php echo base_url('products/create') ?>"><i class="fa fa-circle-o"></i> Add Product</a></li>
-							<?php endif; ?>
-							<?php if (in_array('updateProduct', $user_permission) || in_array('viewProduct', $user_permission) || in_array('deleteProduct', $user_permission)) : ?>
-								<li id="manageProductNav"><a href="<?php echo base_url('products') ?>"><i class="fa fa-circle-o"></i> Manage Products</a></li>
+							<li><a href="<?php echo base_url('reviews/admin') ?>"><i class="fa fa-circle"></i><span>Manage Reviews</span></a></li>
+							<?php if (in_array('reviewActivity', $user_permission)) : ?>
+								<li id="addProductNav"><a href="<?php echo base_url('surveys/review_list') ?>"><i class="fa fa-circle-o"></i>Review Completed</a></li>
 							<?php endif; ?>
 						</ul>
 					</li>
-				<?php endif; ?>
+				<?php } ?>
 
-
-				<?php if (in_array('createTransaction', $user_permission) || in_array('updateTransaction', $user_permission) || in_array('viewTransaction', $user_permission) || in_array('deleteTransaction', $user_permission)) : ?>
-					<li class="treeview" id="mainOrdersNav">
+				<?php if (in_array('manageTranscribe', $user_permission) || in_array('manageActivity', $user_permission)) { ?>
+					<li class="treeview" id="mainProductNav">
 						<a href="#">
-							<i class="fa fa-dollar"></i>
-							<span>Orders</span>
+							<i class="fa fa-cube"></i>
+							<span>Transcribe</span>
 							<span class="pull-right-container">
 								<i class="fa fa-angle-left pull-right"></i>
 							</span>
 						</a>
 						<ul class="treeview-menu">
-							<?php if (in_array('createOrder', $user_permission)) : ?>
-								<li id="addOrderNav"><a href="<?php echo base_url('orders/create') ?>"><i class="fa fa-circle-o"></i> Add Order</a></li>
+							<li><a href="<?php echo base_url('transcribe/admin') ?>"><i class="fa fa-circle"></i><span>Transcribe</span></a></li>
+							<?php if (in_array('reviewActivity', $user_permission)) : ?>
+								<li id="addProductNav"><a href="<?php echo base_url('surveys/review_list') ?>"><i class="fa fa-circle-o"></i>Review Completed</a></li>
 							<?php endif; ?>
-							<?php if (in_array('updateOrder', $user_permission) || in_array('viewOrder', $user_permission) || in_array('deleteOrder', $user_permission)) : ?>
-								<li id="manageOrdersNav"><a href="<?php echo base_url('orders') ?>"><i class="fa fa-circle-o"></i> Manage Orders</a></li>
+						</ul>
+					</li>
+				<?php } ?>
+
+				<?php if (in_array('manageCategory', $user_permission)) { ?>
+					<li class="treeview" id="mainActivityNav">
+						<a href="#">
+							<i class="fa fa-files-o"></i>
+							<span>Categories</span>
+							<span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+						</a>
+						<ul class="treeview-menu">
+							<?php if (in_array('createCategory', $user_permission) || in_array('manageCategory', $user_permission)) : ?>
+								<li><a href="<?php echo base_url('categories') ?>"><i class="fa fa-files-o"></i><span>Manage Categories</span></a></li>
+							<?php endif; ?>
+						</ul>
+					</li>
+				<?php } ?>
+
+				<?php if (in_array('createTransaction', $user_permission) || in_array('manageTransaction', $user_permission)) : ?>
+					<li class="treeview" id="mainOrdersNav">
+						<a href="#">
+							<i class="fa fa-dollar"></i>
+							<span>Withdrawals</span>
+							<span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+						</a>
+						<ul class="treeview-menu">
+							<?php if (in_array('manageOrder', $user_permission)) : ?>
+								<li id="manageOrdersNav"><a href="<?php echo base_url('transactions') ?>"><i class="fa fa-circle-o"></i> Manage Orders</a></li>
 							<?php endif; ?>
 						</ul>
 					</li>

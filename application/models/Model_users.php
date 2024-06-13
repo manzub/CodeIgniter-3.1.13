@@ -1,21 +1,25 @@
 <?php
 
-class Model_users extends CI_Model {
+class Model_users extends CI_Model
+{
 	public function __construct()
 	{
 		parent::__construct();
 	}
 
-	public function getUserById($user_id) {
+	public function getUserById($user_id)
+	{
 		if ($user_id) {
-			$query = $this->db->get_where('users', array('id' => $user_id));
+			$sql = "SELECT * FROM users INNER JOIN users_meta ON users.id = users_meta.user_id WHERE users.id = ?";
+			$query = $this->db->query($sql, array($user_id));
 			$result = $query->row_array();
 
 			return $result;
 		}
 	}
 
-	public function getUserByRefCode($ref_code = null) {
+	public function getUserByRefCode($ref_code = null)
+	{
 		if ($ref_code) {
 			$query = $this->db->get_where('users', array('ref_code' => $ref_code));
 			$result = $query->row_array();
@@ -24,7 +28,8 @@ class Model_users extends CI_Model {
 		}
 	}
 
-	public function create($data = array()) {
+	public function create($data = array())
+	{
 		if ($data) {
 			$create = $this->db->insert('users', $data);
 
@@ -34,24 +39,26 @@ class Model_users extends CI_Model {
 
 			return ($create == true && $users_meta) ? $user_id : false;
 		}
-	} 
+	}
 
 	public function update($id = null, $data = array())
 	{
 		$this->db->where('id', $id);
 		$update = $this->db->update('users', $data);
-			
-		return ($update == true) ? true : false;	
+
+		return ($update == true) ? true : false;
 	}
 
 	// misc functions
-	public function logClaimedReward($user_id = null, $data = array()) {
+	public function logClaimedReward($user_id = null, $data = array())
+	{
 		if ($user_id != null) {
 			$this->db->insert('claims_rewards', $data);
 		}
 	}
 
-	public function getUserRewardByCond($user_id = null, $cond = array()) {
+	public function getUserRewardByCond($user_id = null, $cond = array())
+	{
 		if ($user_id != null) {
 			$this->db->limit(5);
 			$this->db->order_by('id', 'DESC');
@@ -63,21 +70,32 @@ class Model_users extends CI_Model {
 		return false;
 	}
 
-	public function getUserMetaById($user_id = null) {
+	public function getUserTotalRewardsToday($user_id)
+	{
+		$sql = "SELECT SUM(reward_earned) AS total_earned FROM `claims_rewards` WHERE user_id = " . $user_id . " AND last_modified >= CURRENT_DATE
+		AND last_modified < CURRENT_DATE + INTERVAL 1 DAY";
+		$query = $this->db->query($sql);
+		return $query->row_array();
+	}
+
+	public function getUserMetaById($user_id = null)
+	{
 		if ($user_id != null) {
 			$query = $this->db->get_where('users_meta', array('user_id' => $user_id));
 			return $query->row_array();
 		}
 	}
 
-	public function getUserAccountsById($user_id = null) {
+	public function getUserAccountsById($user_id = null)
+	{
 		if ($user_id != null) {
 			$query = $this->db->get_where('users_account', array('user_id' => $user_id));
 			return $query->result_array();
 		}
 	}
 
-	public function getUserRewardsBalance($user_id) {
+	public function getUserRewardsBalance($user_id)
+	{
 		if ($user_id != null) {
 			$sql = "SELECT SUM(reward_earned) AS total_rewards FROM claims_rewards WHERE user_id = ?";
 			$query = $this->db->query($sql, array($user_id));
@@ -89,18 +107,20 @@ class Model_users extends CI_Model {
 	{
 		$this->db->where('user_id', $user_id);
 		$update = $this->db->update('users_meta', $data);
-			
-		return ($update == true) ? true : false;	
+
+		return ($update == true) ? true : false;
 	}
 
-	public function insertUserAccount($data = array()) {
+	public function insertUserAccount($data = array())
+	{
 		if (!empty($data)) {
 			$inserted = $this->db->insert('users_account', $data);
 			return $inserted == true ? true : false;
 		}
 	}
 
-	public function unlinkAccountByUserId($user_id = null, $account_type = null) {
+	public function unlinkAccountByUserId($user_id = null, $account_type = null)
+	{
 		if ($user_id && $account_type) {
 			$cond = array('user_id' => $user_id, 'type' => $account_type);
 			$this->db->where($cond);

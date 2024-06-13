@@ -202,4 +202,313 @@ class Reviews extends Member_Controller
 			redirect('reviews', 'refresh');
 		}
 	}
+
+
+	// admin functions
+
+	public function admin()
+	{
+		$this->not_logged_in();
+
+		if (in_array('manageReview', $this->permission) || in_array('manageActivity', $this->permission)) {
+			$this->render_admin('pages/admin/activities/reviews/index', $this->data);
+		} else {
+			redirect('dashboard', 'refresh');
+		}
+	}
+
+	public function create()
+	{
+		$this->not_logged_in();
+		$user_id = $this->session->userdata('id');
+
+		if (in_array('createReview', $this->permission)) {
+
+			$this->form_validation->set_rules('review_title', 'Title', 'trim|required');
+			$this->form_validation->set_rules('short_desc', 'Short Description', 'trim|required');
+			$this->form_validation->set_rules('categories[]', 'Categories', 'required');
+			$this->form_validation->set_rules('is_movie', 'Is Movie', 'trim|required');
+			$this->form_validation->set_rules('imdb_link', 'IMDB Link', 'trim');
+			$this->form_validation->set_rules('limit_per_user', 'User Limits', 'trim|required');
+			$this->form_validation->set_rules('global_limit', 'Global Limit', 'trim|required');
+			$this->form_validation->set_rules('short_clip_link', 'Short Clip', 'trim');
+			$this->form_validation->set_rules('thumbnail_links', 'Thumbnails', 'trim');
+
+			if ($this->form_validation->run() == TRUE) {
+				// check short_clip and thumbnail_links
+				$thumbnails = array();
+				if (isset($_FILES['thumbnails'])) {
+					# upload thumbnails
+				} else {
+					// use thumbnail links
+					$thumb_links_html = $this->input->post('thumbnail_links');
+					$thumb_links = array_map(function ($x) {
+						return trim($x);
+					}, explode(';', $thumb_links_html));
+					$thumbnails = $thumb_links;
+				}
+
+				$short_clip = "";
+				if (isset($_FILES['short_clip'])) {
+					# upload short clip file
+				} else {
+					$clip_link = $this->input->post('short_clip_link');
+					$short_clip = $clip_link;
+				}
+
+				$categories = $this->input->post('categories');
+				$review_title = trim($this->input->post('review_title'));
+				$limit_per_user = intval($this->input->post('limit_per_user'));
+				$global_limit = intval($this->input->post('global_limit'));
+				$short_desc = htmlspecialchars($this->input->post('short_desc'));
+				$is_movie =  intval($this->input->post('is_movie'));
+				$imdb_link = "";
+				if (!empty($is_movie)) {
+					$imdb_link = $this->input->post('imdb_link');
+				}
+
+				// create item as draft state
+				$reward_config = $this->model_config->getConfigByName('review_item_reward_points');
+				$reward_points = intval($reward_config['value']);
+				$slug = 'rv-' . rand(100, 9999) . substr($review_title, 0, 25);
+				$data = array('slug' => $slug, 'title' => $review_title, 'category' => implode(",", $categories), 'limit_per_user' => $limit_per_user, 'global_limit' => $global_limit, 'status' => 'draft', 'reward_points' => $reward_points);
+				$created_item = $this->model_reviews->createReviewItem($user_id, $data);
+
+				if ($created_item) {
+					$review_item_files = array('review_id' => $created_item, 'thumbnail_large' => $thumbnails[0], 'thumbnail_small' => $thumbnails[count($thumb_links) - 1], 'short_desc' => $short_desc, 'short_clip' => $short_clip, 'is_movie' => $is_movie, 'imdb' => $imdb_link);
+					$saved_files = $this->model_reviews->saveReviewItemFiles($review_item_files);
+					if ($saved_files) {
+						// log activity
+						$log = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Item Created', 'message' => 'Created New Review Item');
+						$this->model_logs->logActivity($log);
+						// redirect to reviews dashboard
+						$this->session->set_flashdata('alert', array('title' => 'Item Created', 'classname' => 'alert-success', 'message' => 'Successfully created review item'));
+					} else {
+						$this->session->set_flashdata('alert', array('title' => 'Error Occurred', 'classname' => 'alert-warning', 'message' => 'Could not save files.'));
+					}
+				} else {
+					$this->session->set_flashdata('alert', array('title' => 'Error Occurred', 'classname' => 'alert-warning', 'message' => 'Could not save files.'));
+				}
+				redirect('reviews/admin', 'refresh');
+			}
+
+			$cat_arr = $this->model_categories->getAllCategories();
+			$this->data['categories'] = $cat_arr;
+
+			$this->render_admin('pages/admin/activities/reviews/create', $this->data);
+		} else {
+			redirect('dashboard', 'refresh');
+		}
+	}
+
+	public function readReviewItems()
+	{
+		$user_id = $this->session->userdata('id');
+		$result = array('data' => array());
+
+		if (in_array('manageReview', $this->permission) || in_array('manageActivity', $this->permission)) {
+			$group_name = $this->session->userdata('group_name');
+
+			// if any admin user list all, else list created by
+			$items = null;
+			if ((strpos($group_name, 'admin') !== false) || $group_name == 'moderator') {
+				$items = $this->model_reviews->getAllReviewItems();
+				if ($group_name == 'moderator') {
+					$items = array_values(array_filter($items, function($x) {
+						return $x['status'] == 'draft';
+					}));
+				}
+			} else {
+				$items = $this->model_reviews->getReviewItemsCreatedBy($user_id);
+			}
+			
+			foreach ($items as $key => $value) {
+				// create list items
+				$buttons = "";
+
+				if (in_array('manageActivity', $this->permission)) {
+					if ($value['status'] == 'draft') {
+						$buttons .= "<a href='" . base_url('reviews/review_item/' . $value['slug']) . "' class='btn btn-primary'><i class='fa fa-pencil'></i></a>";
+					}
+				} else {
+					if (in_array('manageReview', $this->permission)) {
+						if ($value['status'] == 'draft') {
+							$buttons .= "<a href='" . base_url('reviews/edit/' . $value['slug']) . "' class='btn btn-primary' style='margin-right:10px'><i class='fa fa-pencil'></i></a>";
+						}
+						$buttons .= "<button onclick='removeFunc(" . $value['slug'] . ")' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
+					}
+				}
+
+				// no of times completed
+				$completed_count = 0;
+				$completed_items = $this->model_reviews->getCompletedByReviewId(null, $value['id']);
+				$completed_count = count($completed_items);
+
+				$status = "<span class='label label-info'>" . strtoupper($value['status']) . "</span>";
+
+				$result['data'][$key] = array(
+					$value['title'],
+					$value['global_limit'],
+					$completed_count,
+					$value['reward_points'] . "SB",
+					$status,
+					$buttons
+				);
+			}
+		} else {
+			redirect('dashboard', 'refresh');
+		}
+
+		echo json_encode($result);
+	}
+
+	public function edit($review_slug)
+	{
+		$user_id = $this->session->userdata('id');
+		if ($review_slug != null) {
+			if (in_array('manageReview', $this->permission)) {
+				$review_item = $this->model_reviews->getReviewItemBySlug($review_slug);
+
+				if (!empty($review_item)) {
+					// load items.
+					$this->form_validation->set_rules('review_title', 'Title', 'trim|required');
+					$this->form_validation->set_rules('short_desc', 'Short Description', 'trim|required');
+					$this->form_validation->set_rules('categories[]', 'Categories', 'required');
+					$this->form_validation->set_rules('is_movie', 'Is Movie', 'trim|required');
+					$this->form_validation->set_rules('imdb_link', 'IMDB Link', 'trim');
+					$this->form_validation->set_rules('limit_per_user', 'User Limits', 'trim|required');
+					$this->form_validation->set_rules('global_limit', 'Global Limit', 'trim|required');
+					$this->form_validation->set_rules('short_clip_link', 'Short Clip', 'trim');
+					$this->form_validation->set_rules('thumbnail_links', 'Thumbnails', 'trim');
+
+					if ($this->form_validation->run() == TRUE) {
+						// check short_clip and thumbnail_links
+						$thumbnails = array();
+						if (isset($_FILES['thumbnails'])) {
+							# upload thumbnails
+						} else {
+							// use thumbnail links
+							$thumb_links_html = $this->input->post('thumbnail_links');
+							$thumb_links = array_map(function ($x) {
+								return trim($x);
+							}, explode(';', $thumb_links_html));
+							$thumbnails = $thumb_links;
+						}
+
+						$short_clip = "";
+						if (isset($_FILES['short_clip'])) {
+							# upload short clip file
+						} else {
+							$clip_link = $this->input->post('short_clip_link');
+							$short_clip = $clip_link;
+						}
+
+						$categories = $this->input->post('categories');
+						$review_title = trim($this->input->post('review_title'));
+						$limit_per_user = intval($this->input->post('limit_per_user'));
+						$global_limit = intval($this->input->post('global_limit'));
+						$short_desc = htmlspecialchars($this->input->post('short_desc'));
+						$is_movie =  intval($this->input->post('is_movie'));
+						$imdb_link = "";
+						if (!empty($is_movie)) {
+							$imdb_link = $this->input->post('imdb_link');
+						}
+
+						// update review item
+						$data = array('title' => $review_title, 'category' => implode(",", $categories), 'limit_per_user' => $limit_per_user, 'global_limit' => $global_limit);
+						$updated_item = $this->model_reviews->updateReviewItem($review_item['id'], $data);
+
+						if ($updated_item) {
+							$review_item_files = array('thumbnail_large' => $thumbnails[0], 'thumbnail_small' => $thumbnails[count($thumb_links) - 1], 'short_desc' => $short_desc, 'short_clip' => $short_clip, 'is_movie' => $is_movie, 'imdb' => $imdb_link);
+							$updated_files = $this->model_reviews->updateReviewItemFiles($review_item['id'], $review_item_files);
+							if ($updated_files) {
+								// log activity
+								$log = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Item Updated', 'message' => 'Updated Review Item #' . $review_item['id']);
+								$this->model_logs->logActivity($log);
+								// redirect to reviews dashboard
+								$this->session->set_flashdata('alert', array('title' => 'Item Updated', 'classname' => 'alert-success', 'message' => 'Successfully updated review item'));
+							} else {
+								$this->session->set_flashdata('alert', array('title' => 'Error Occurred', 'classname' => 'alert-warning', 'message' => 'Could not save files.'));
+							}
+						} else {
+							$this->session->set_flashdata('alert', array('title' => 'Error Occurred', 'classname' => 'alert-warning', 'message' => 'Could not save files.'));
+						}
+						redirect('reviews/admin', 'refresh');
+					}
+
+					$cat_arr = $this->model_categories->getAllCategories();
+					$this->data['review_item'] = $review_item;
+					$this->data['categories'] = $cat_arr;
+
+					$this->render_admin('pages/admin/activities/reviews/edit', $this->data);
+				} else {
+					$this->session->set_flashdata('alert', array('title' => 'Error occurred', 'classname' => 'alert-danger', 'message' => 'Invalid Review Item'));
+					redirect('reviews/admin', 'refresh');
+				}
+			} else {
+				redirect('reviews/admin', 'refresh');
+			}
+		}
+	}
+
+	public function delete()
+	{
+		$user_id = $this->session->userdata('id');
+		$group_name = $this->session->userdata('group_name');
+
+		$response = array();
+
+		$review_slug = $this->input->post('slug');
+
+		if (in_array('manageReview', $this->permission)) {
+			$review_item = $this->model_reviews->getReviewItemBySlug($review_slug);
+
+			if (!empty($review_item)) {
+				$can_delete = false;
+				// is not admin user
+				if (!(strpos($group_name, 'admin') !== false)) {
+					$can_delete = $review_item['created_by'] == $user_id ? true : false;
+				} else {
+					$can_delete = true;
+				}
+
+				if ($can_delete) {
+					// delete files if uploaded in product dir
+					$upload_path = FCPATH . "./uploads/reviews";
+					$dir = $upload_path . "/" . $review_item['slug'] . "/";
+					if (is_dir($dir) xor file_exists($dir)) {
+						# delete all dir files
+						$files = glob($dir . "{,.}*", GLOB_BRACE);
+						foreach ($files as $file) {
+							if (is_dir($file)) {
+								rmdir($file);
+							} else {
+								unlink($file);
+							}
+						}
+						rmdir($dir);
+					}
+
+					// model review to remove item
+					$deleted = $this->model_reviews->removeReviewItem($review_item['id']);
+					if ($deleted) {
+						// log activity
+						$log = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Deleted Item', 'message' => 'Successfully deleted review item');
+						$this->model_logs->logActivity($log);
+						$response['success'] = true;
+						$response['messages'] = 'Successfully removed';
+					} else {
+						$response['success'] = false;
+						$response['messages'] = 'Error occurred while deleting product, contact admin';
+						$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'title' => 'Error occurred', 'message' => 'Could not delete item, please try again later.'));
+					}
+				} else {
+					$response['success'] =  false;
+					$response['message'] = 'Cannot delete item';
+				}
+			}
+		}
+
+		echo json_encode($response);
+	}
 }

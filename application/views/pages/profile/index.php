@@ -1,5 +1,19 @@
 <div id="y-col1" style="width: 78.23%;">
 	<div class="mod view_default">
+		<div class="bd type_breakingnews type_breakingnews_default">
+			<?php if ($this->session->flashdata('alert')) { ?>
+				<div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<strong><?php echo $this->session->flashdata('alert')['title']; ?></strong>
+					<p><?php echo $this->session->flashdata('alert')['message']; ?></p>
+				</div>
+			<?php } ?>
+		</div>
+	</div>
+
+	<div class="mod view_default">
 		<ol class="breadcrumb">
 			<li><a href="<?php echo base_url('home') ?>"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
 			<li><a href="<?php echo base_url('profile') ?>"><?php echo $this->session->userdata('username') ?></a></li>
@@ -42,41 +56,7 @@
 		</div>
 		<p style="font-size: 12px;">Log in everyday to claim daily bonus</p>
 		<div class="row">
-			<?php $last_reward = $bonus ?>
-			<?php for ($i = 1; $i <= 5; $i++) { ?>
-				<?php $claimed = true;
-				$last_reward = round($last_reward * $multiply); ?>
-				<div class="col-md-3" style="text-align: center;">
-					<div class="card <?php if (!empty($last_streak)) {
-						echo $last_streak[0]['streak'].' ';
-															if ($i <= intval($last_streak[0]['streak'])) {
-																echo 'card-warning';
-															} else if ($i == (intval($last_streak[0]['streak']) + 1) && $this->session->userdata('bonus_available')) {
-																$claimed = false;
-																echo 'card-success';
-															} else {
-																echo 'card-default';
-															}
-														} else {
-															if ($i == 1) {
-																$claimed = false;
-																echo 'card-success';
-															} else {
-																echo 'card-default';
-															}
-														} ?>">
-						<div class="card-header">
-							<h1 style="font-size: 25px;font-weight:bolder;" class="page-title">DAY <?php echo $i ?></h1>
-						</div>
-						<div class="card-body">
-							<h3 style="font-size: 20px;font-weight:bold;margin-bottom:10px">+<?php echo $last_reward ?> SB</h3>
-							<form action="profile/claimDailyBonus" method="post">
-								<button <?php echo $claimed ? 'disabled' : '' ?> class="btn btn-primary" style="text-transform: uppercase;"><?php echo $i <= intval($last_streak[0]['streak']) ? 'Claimed' : 'Claim' ?></button>
-							</form>
-						</div>
-					</div>
-				</div>
-			<?php } ?>
+			<?php echo $streaks_html ?>
 		</div>
 	</div>
 	<div class="jumbotron" style="padding: 10px 10px;">

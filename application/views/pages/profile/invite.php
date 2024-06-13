@@ -28,13 +28,13 @@
 		</div>
 	</div>
 	<div id="refer-form" class="mod view_default">
-		<div class="panel panel-default">
-			<div class="panel-heading">
+		<div class="card bg-default">
+			<div class="card-header">
 				<div class="page-title">
 					<h1 style="font-size: 20px;font-weight:bold;text-transform:capitalize">3 ways to invite:</h1>
 				</div>
 			</div>
-			<div class="panel-body">
+			<div class="card-body">
 				<div class="row equal">
 					<div class="col-lg-12">
 						<form action="<?php echo base_url('profile/send_invite_email') ?>" method="post">
@@ -80,8 +80,8 @@
 							<div class="input-group">
 								<input id="form-input" type="text" class="form-control" placeholder="Referral link" value="<?php echo base_url('auth/signup/' . $ref_code) ?>">
 								<span class="input-group-btn">
-									<button id="copy-button" class="btn btn-default" type="button">
-										<span class="glyphicon glyphicon-copy"></span>
+									<button id="copy-button" class="btn btn-secondary" type="button">
+										<span class="bi bi-copy"></span>
 										<strong>Copy</strong>
 									</button>
 								</span>

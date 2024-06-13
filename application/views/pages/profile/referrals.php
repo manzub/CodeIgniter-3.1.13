@@ -7,8 +7,8 @@
 		</ol>
 	</div>
 	<div class="mod view_default">
-		<div class="panel panel-default">
-			<div class="panel-heading">
+		<div class="card bg-default">
+			<div class="card-header">
 				<div class="header-flex">
 					<h1 style="font-weight: bold;font-size:20px">Referrals</h1>
 					<div class="actions" style="display: flex;align-items:center;justify-content:space-between;gap:10px">
@@ -24,7 +24,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="panel-body">
+			<div class="card-body">
 				<?php if (empty($my_referrals)) { ?>
 					<center>
 						<h1 style="font-size: 25px;font-weight:200">You haven't invited anyone yet.</h1>

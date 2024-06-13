@@ -18,8 +18,8 @@
 		<?php } ?>
 		<div class="row equal">
 			<div class="col-md-6">
-				<div class="panel panel-default no-shadow">
-					<div class="panel-heading" style="padding: 5px 5px;">
+				<div class="card bg-default no-shadow">
+					<div class="card-header" style="padding: 5px 5px;">
 						<div class="header-flex">
 							<h1 style="font-size: 15px;font-weight:bold;">Account Info</h1>
 							<a href="<?php echo base_url('profile/edit_user') ?>" class="btn btn-default">
@@ -27,7 +27,7 @@
 							</a>
 						</div>
 					</div>
-					<div class="panel-body">
+					<div class="card-body">
 						<table class="table">
 							<tbody>
 								<tr>
@@ -48,8 +48,8 @@
 				</div>
 			</div>
 			<div class="col-md-6">
-				<div class="panel panel-default no-shadow">
-					<div class="panel-heading" style="padding: 5px 5px;">
+				<div class="card bg-default no-shadow">
+					<div class="card-header" style="padding: 5px 5px;">
 						<div class="header-flex">
 							<h1 style="font-size: 15px;font-weight:bold;">Address</h1>
 							<a href="<?php echo base_url('profile/edit_meta') ?>" type="button" class="btn btn-default">
@@ -57,7 +57,7 @@
 							</a>
 						</div>
 					</div>
-					<div class="panel-body">
+					<div class="card-body">
 						<table class="table">
 							<tbody>
 								<tr>
@@ -80,13 +80,13 @@
 		</div>
 		<div class="row">
 			<div class="col-lg-12">
-				<div class="panel panel-default no-shadow">
-					<div class="panel-heading">
+				<div class="card bg-default no-shadow">
+					<div class="card-header">
 						<div class="header-flex">
 							<h1 style="font-size: 15px;font-weight:bold">Linked Accounts</h1>
 						</div>
 					</div>
-					<div class="panel-body">
+					<div class="card-body">
 						<style>
 							.hidden {
 								visibility: hidden;
@@ -136,13 +136,13 @@
 		</div>
 		<div class="row">
 			<div class="col-lg-12">
-				<div class="panel panel-default no-shadow">
-					<div class="panel-heading">
+				<div class="card bg-default no-shadow">
+					<div class="card-header">
 						<div class="header-flex">
 							<h1 style="font-size: 15px;font-weight:bold">Support</h1>
 						</div>
 					</div>
-					<div class="panel-body">
+					<div class="card-body">
 						<p style="font-size: 17px;margin-bottom:5px"><a href="">Contact Customer Support</a></p>
 						<p><a onclick="if(window.confirm('Are you sure you want to proceed?')) { window.location.href = '<?php echo base_url('auth/deactivate_user') ?>'}" style="font-size: 17px;">Deactivate My Account</a></p>
 					</div>

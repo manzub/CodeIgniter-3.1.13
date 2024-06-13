@@ -9,21 +9,24 @@
 	</div>
 
 	<div class="mod view_default">
-		<div class="panel panel-default">
-			<div class="panel-heading">
+		<div class="card bg-default">
+			<div class="card-header">
 				<h1 class="panel-title"><strong>Redeem SB</strong></h1>
 				<p>Redeem your earned points with our available options</p>
 			</div>
-			<div class="panel-body">
+			<div class="card-body">
 				<div class="row">
 					<?php for ($i = 0; $i < 4; $i++) { ?>
-						<div class="col-sm-6 col-md-4">
-							<div class="thumbnail">
-								<img src="..." alt="...">
-								<div class="caption">
+						<div class="col-sm-6 col-md-4 mb-2">
+							<div class="card">
+								<img class="card-img-top" src="..." alt="..." style="height: 150px;">
+								<div class="card-body">
 									<h3>Thumbnail label</h3>
 									<p>Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
-									<p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+									<p>
+										<a href="#" class="btn btn-primary" role="button">Button</a>
+										<a href="#" class="btn btn-secondary" role="button">Button</a>
+									</p>
 								</div>
 							</div>
 						</div>

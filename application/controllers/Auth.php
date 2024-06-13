@@ -10,6 +10,7 @@ class Auth extends Member_Controller
 		$this->load->model('model_users');
 		$this->load->model('model_groups');
 		$this->load->model('model_logs');
+		$this->load->model('model_config');
 		$this->load->model('model_referrals');
 	}
 
@@ -45,7 +46,11 @@ class Auth extends Member_Controller
 					// redirect
 
 					$group_data = $this->model_groups->getUserGroupByUserId($login['id']);
-					if (in_array($group_data['group_name'], array('mod', 'admin', 'publisher'))) {
+
+					// get admin users
+					$admins = $this->model_config->getConfigByName('admin_accounts');
+					$admin_arr = unserialize($admins['value']);
+					if (in_array($group_data['group_name'], $admin_arr)) {
 						redirect('dashboard', 'refresh');
 					} else {
 						redirect('home', 'refresh');
@@ -60,6 +65,7 @@ class Auth extends Member_Controller
 				$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'message' => 'Email does not exist.', 'title' => 'Oops an error occured'));
 			}
 		}
+
 
 		$this->render_template('pages/login', $this->data);
 	}

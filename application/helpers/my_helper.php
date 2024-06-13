@@ -169,3 +169,13 @@ if (!function_exists('html_email_template')) {
 		return $htmlContent;
 	}
 }
+
+
+if (!function_exists('diff_in_days')) {
+	function diff_in_days($param) {
+		$now = time();
+		$datediff = $now - $param;
+		$diff_in_days = round($datediff / (60 * 60 * 24));
+		return $diff_in_days;
+	}
+}

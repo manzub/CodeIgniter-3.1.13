@@ -87,6 +87,7 @@ class Surveys extends Member_Controller
 		echo json_encode($result);
 	}
 
+	// TODO: on each complete page complete as guest user
 	public function completeQuestion($question_id = null)
 	{
 		$result = array('status' => 0);
@@ -158,6 +159,7 @@ class Surveys extends Member_Controller
 		$this->render_template('pages/surveys/index', $this->data);
 	}
 
+	//  TODO: show alert if limit reached
 	public function single($slug = null)
 	{
 		if ($slug == null) {
@@ -266,10 +268,83 @@ class Surveys extends Member_Controller
 		$this->not_logged_in();
 		$user_id = $this->session->userdata('id');
 
-		if (in_array('manageSurvey', $this->permission)) {
+		if (in_array('manageSurvey', $this->permission) || in_array('manageActivity', $this->permission)) {
 			$this->render_admin('pages/admin/activities/surveys/index', $this->data);
 		} else {
 			redirect('dashboard', 'refresh');
 		}
+	}
+
+	public function readSurveyItems()
+	{
+		$user_id = $this->session->userdata('id');
+		$group_name = $this->session->userdata('group_name');
+
+		if ($group_name == 'moderator') {
+			if (!in_array('manageActivity', $this->permission)) {
+				redirect('dashboard', 'refresh');
+			}
+		}
+
+		if ((strpos($group_name, 'admin') !==  false)) {
+			if (!in_array('manageSurvey', $this->permission)) {
+				redirect('dashboard', 'refresh');
+			}
+		}
+
+		$result = array('data' => array());
+
+		// if any admin user or mod list all, else list created by
+		$items = null;
+		if ((strpos($group_name, 'admin') !==  false) || $group_name == 'moderator') {
+			$items = $this->model_surveys->getAllSurveyItems();
+			if ($group_name == 'moderator') {
+				$items = array_values(array_filter($items, function ($x) {
+					return $x['status'] == 'draft';
+				}));
+			}
+		} else {
+			$items = $this->model_surveys->getSurveyItemsCreatedBy($user_id);
+		}
+
+		foreach ($items as $key => $value) {
+			// buttons
+			$buttons = "";
+
+			if (in_array('manageActivity', $this->permission)) {
+				if ($value['status'] == 'draft') {
+					$buttons .= "<a href='" . base_url('surveys/review_item/' . $value['slug']) . "' class='btn btn-primary'><i class='fa fa-pencil'></i></a>";
+				}
+			} else {
+				if (in_array('manageSurvey', $this->permission)) {
+					if ($value['status'] == 'draft') {
+						$buttons .= "<a href='" . base_url('surveys/edit/' . $value['slug']) . "' class='btn btn-primary' style='margin-right:10px'><i class='fa fa-pencil'></i></a>";
+					}
+					$buttons .= "<button onclick='removeFunc(" . $value['slug'] . ")' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
+				}
+			}
+
+			$status = "<span class='label label-info'>" . strtoupper($value['status']) . "</span>";
+
+			$result['data'][$key] = array(
+				$value['title'],
+				$value['no_questions'],
+				$value['global_limit'],
+				$value['reward_points'] . "SB",
+				$status,
+				$buttons
+			);
+		}
+
+		echo json_encode($result);
+	}
+
+	public function create()
+	{
+		$this->not_logged_in();
+		$user_id = $this->session->userdata('id');
+
+		// form to create new survey
+		$this->render_admin('pages/admin/activities/surveys/create', $this->data);
 	}
 }

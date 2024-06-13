@@ -1,11 +1,15 @@
 <div id="y-col1">
 	<div class="mod view_default">
 		<div class="bd type_breakingnews type_breakingnews_default">
-			<div class="remove-margin"></div>
+			<div class="alert alert-success p-2">
+				<h3 class="alert-heading font-weight-bold" style="font-size: 15px;">Login Bonus Available!</h3>
+				<p>Click <a href="<?php echo base_url('profile') ?>" class="text-dark alert-link">here</a> to claim login bonus.</p>
+			</div>
 		</div>
 	</div>
 	<!-- ads  -->
 	<!-- content items -->
+	<!-- TODO: bonus info/ daily activity count. daily login bonus link -->
 	<div class="mod view_default">
 		<div class="bd type_fptoday type_fptoday_default">
 			<div class="fptoday-container y-ln-1">
@@ -14,11 +18,10 @@
 						<div class="d-flex align-items-center justify-content-between">
 							<div class="d-flex align-items-center">
 								<span class="title y-txt-modhdr medium">TODAY</span>
-								<span class="date y-txt-2 medium" style="font-family: inherit;"> - June 30, 2010</span>
+								<span> - <?php echo date("F d, Y") ?></span>
 							</div>
-							<div class="text-muted d-flex align-items-center">
-								<span>1/3 Daily Activity -</span>
-								<span>12 hours left</span>
+							<div class="d-flex align-items-center">
+								<span class="title"><?php echo $completed_dl_count ?>/3 Daily Activities</span>
 							</div>
 						</div>
 					</div>

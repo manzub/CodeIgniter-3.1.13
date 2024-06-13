@@ -21,24 +21,21 @@ class Member_Controller extends MY_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->helper('email_helper.php');
+		$this->load->helper('my_helper.php');
+		$this->load->library('dailyactivities');
 
 		$this->load->model('model_groups');
 		$this->load->model('model_users');
 		$this->load->model('model_dailyactivity');
-
-		// $this->load->model('model_surveys');
-		// $this->load->model('model_transcribe');
-		// $this->load->model('model_reviews');
-
 		$this->load->model('model_config');
 		$this->load_banner_configs();
 
 		// construct permissions here
 		// $default_member_permission = array('completeQuestion', 'completeSurvey', 'earnRewards', 'completeTranscribe', 'completeReview');
 		// print_r(serialize($default_member_permission));
-		$default_admin_permission = array('createUser', 'updateUser', 'deleteUser', 'viewUser', 'createGroup', 'updateGroup', 'deleteGroup', 'viewGroup', 'manageActivity', 'createCategory', 'editCategory', 'deleteCategory', 'updateSetting', 'createTransaction', 'updateTransaction', 'viewTransaction', 'deleteTransaction', 'manageReview', 'allReview', 'manageSurvey', 'allSurvey', 'manageTranscribe', 'allTranscribe');
-		echo serialize($default_admin_permission);
+		// $default_admin_permission = array('createUser', 'updateUser', 'deleteUser', 'viewUser', 'createGroup', 'updateGroup', 'deleteGroup', 'viewGroup', 'manageActivity', 'createCategory', 'editCategory', 'deleteCategory', 'updateSetting', 'createTransaction', 'updateTransaction', 'viewTransaction', 'deleteTransaction', 'manageReview', 'allReview', 'manageSurvey', 'allSurvey', 'manageTranscribe', 'allTranscribe');
+		$default_admin_permission = array('manageActivity', 'reviewActivity');
+		// echo serialize($default_admin_permission);
 
 		$group_data = array();
 		if (empty($this->session->userdata('logged_in'))) {
@@ -52,7 +49,7 @@ class Member_Controller extends MY_Controller
 
 			$guest_user = array('id' => $group_data['id'], 'username' => $group_data['username'], 'email' => $group_data['email'], 'group_name' => $group_data['group_name']);
 			$this->session->set_userdata($guest_user);
-		} else { //load regular user
+		} else { //load user
 			$user_id = $this->session->userdata('id');
 
 			$group_data = $this->model_groups->getUserGroupByUserId($user_id);
@@ -61,7 +58,25 @@ class Member_Controller extends MY_Controller
 			$this->session->set_userdata('group_name', $group_data['group_name']);
 			$this->bonus_available();
 			$this->earned_from_refered_users($user_id);
-			// $this->daily_activities($user_id);
+			$this->daily_limit_reached($user_id);
+			$this->get_daily_activities($user_id);
+		}
+	}
+
+	public function daily_limit_reached($user_id = null)
+	{
+		if ($user_id != null) {
+			$daily_limit_config = $this->model_config->getConfigByName('daily_limit');
+			$daily_limit = intval($daily_limit_config['value']);
+
+			// select all earning from db with date time greater than yesterday
+			$todays_earnings_raw = $this->model_users->getUserTotalRewardsToday($user_id);
+			$todays_earnings = intval($todays_earnings_raw['total_earned']);
+
+			// compare with db set limit
+			if ($todays_earnings >= $daily_limit) {
+				$this->session->set_userdata(array('daily_limit_reached' => true));
+			}
 		}
 	}
 
@@ -75,21 +90,53 @@ class Member_Controller extends MY_Controller
 			$lastest_streaks = $this->model_users->getUserRewardByCond($user_id, $cond);
 			if (!empty($lastest_streaks)) { // saved item available
 				// compare with today time
-				$now = time();
-				$last_streak = strtotime($lastest_streaks[0]['last_modified']);
-				$datediff = $now - $last_streak;
-				$diff_in_days = round($datediff / (60 * 60 * 24));
-				if ($diff_in_days > 0 && $diff_in_days < 2) {
+				$diff_in_days = diff_in_days(strtotime($lastest_streaks[0]['last_modified']));
+				if ($diff_in_days == 1) {
 					// set session
-					$this->session->set_userdata(array('streak_count' => (int) $lastest_streaks[0]['streak'], 'last_time' => $lastest_streaks[0]['last_modified'], 'bonus_available' => true));
+					$x = intval($lastest_streaks[0]['streak']);
+					$new_count = $x < 5 ? $x + 1 : 1;
+					$this->session->set_userdata(array('streak_count' => $new_count, 'last_time' => $lastest_streaks[0]['last_modified'], 'bonus_available' => true));
 				} else {
-					$this->session->set_userdata(array('streak_count' => (int) $lastest_streaks[0]['streak'], 'last_time' => $lastest_streaks[0]['last_modified'], 'bonus_available' => false));
+					if ($diff_in_days > 1) {
+						$this->session->set_userdata(array('streak_count' => 1, 'bonus_available' => true));
+					} else {
+						$this->session->set_userdata(array('streak_count' => $lastest_streaks[0]['streak'], 'bonus_available' => false));
+					}
 				}
 			} else {
 				// bonus item available with streak 0
-				$this->session->set_userdata(array('streak_count' => 0, 'bonus_available' => true));
+				$this->session->set_userdata(array('streak_count' => 1, 'bonus_available' => true));
 			}
 		}
+	}
+
+	public function get_daily_activities($user_id)
+	{
+		$activity_list = '';
+		if ($user_id != null) {
+			$last_saved_activities = $this->model_dailyactivity->get_last_activity_list($user_id);
+			if (!empty($last_saved_activities)) {
+				// compare date difference
+				$diff_in_days = diff_in_days(strtotime($last_saved_activities['date_created']));
+				if ($diff_in_days <= 1) {
+					$activity_list = $last_saved_activities['activity_slug'];
+				}
+			}
+
+			// if empty call dl_activity library and generate new list.
+			if (strlen($activity_list) == 0) {
+				$activity_list = $this->dailyactivities->generate_daily_activity_list($user_id);
+			}
+			// load session
+			$this->load_activities($activity_list, $user_id);
+		}
+	}
+
+	public function load_activities($activity_slug, $user_id)
+	{
+		$activity_list = unserialize($activity_slug);
+		$sorted_activities = $this->dailyactivities->has_completed_item($activity_list, $user_id);
+		$this->session->set_userdata('daily_activity', $sorted_activities);
 	}
 
 	public function earned_from_refered_users($user_id = null)
@@ -115,130 +162,6 @@ class Member_Controller extends MY_Controller
 				}
 			}
 		}
-	}
-
-	public function daily_activities($user_id = null)
-	{
-		// get last set from db
-		$last_activity_list = $this->model_dailyactivity->get_last_activity_list($user_id);
-		if (!empty($last_activity_list)) {
-			// check if time expired
-			// compare with today time
-			$now = time();
-			$last_created = strtotime($last_activity_list['date_created']);
-			$datediff = $now - $last_created;
-			$diff_in_days = round($datediff / (60 * 60 * 24));
-			if ($diff_in_days > 0) {
-				// create new activity list
-				$this->generate_daily_activity_list($user_id);
-			} else {
-				// save previous item in session
-				$current_activity_list = unserialize($last_activity_list['activity_slug']);
-				$this->session->set_userdata('daily_activity', $current_activity_list);
-				if (!empty($this->session->userdata('daily_activity'))) {
-					if ($this->has_completed_daily_activity($user_id)) {
-						$this->session->userdata(array('daily_activity_comp' => true));
-					}
-				}
-			}
-		} else {
-			// create new activity list
-			$this->generate_daily_activity_list($user_id);
-		}
-		// TODO: below on every complete activity
-		// update session on each activity
-		// reward config points
-	}
-
-	public function generate_daily_activity_list($user_id)
-	{
-		$activities_all = array();
-		// load 5 random items each activity model
-		$review_items = $this->model_reviews->getMyAvailableActivities('member', $user_id, true);
-		$transcribe_items = $this->model_transcribe->getMyAvailableActivities('member', $user_id, true);
-		$survey_items = $this->model_surveys->getAvailableSurveys('member', $user_id, true);
-		$activities_all = array_merge($review_items, $survey_items, $transcribe_items);
-
-		$rand_keys = array_rand($activities_all, 4);
-
-
-		$activities_list = array();
-		for ($i = 0; $i < count($rand_keys); $i++) {
-			$curr_item = $activities_all[$rand_keys[$i]];
-			// get slug and item id
-			// create array('slug' => string, 'activity_type' => enum(action_types), 'item_id' => int)
-			$activity_type = substr($curr_item['slug'], 0, 2);
-			$activity_item = array('slug' => $curr_item['slug'], 'activity_type' => $activity_type, 'item_id' => $curr_item['id'], 'status' => 'available');
-			array_push($activities_list, $activity_item);
-		}
-
-		// save array to session -> slugs[slug, status]
-		$this->session->set_userdata('daily_activity', $activities_list);
-		$saved = $this->model_dailyactivity->save_current_activity_list(array('user_id' => $user_id, 'activity_slug' => serialize($activities_list)));
-
-		return ($saved == true) ? true : false;
-	}
-
-	public function has_completed_daily_activity($user_id)
-	{
-		// check if all items completed
-		$activities_list = $this->session->userdata('daily_activity');
-		$count_completed = 0;
-		foreach ($activities_list as $key => $activity_item) {
-			if ($activity_item['status'] == 'completed') {
-				$count_completed += 1;
-			}
-		}
-
-		// TODO: test
-		if ($count_completed >= count($activities_list)) {
-			return true;
-		}
-		return false;
-	}
-
-	public function get_daily_activities()
-	{
-		$user_id = $this->session->userdata('id');
-		$result = array();
-
-		$activities_list = $this->session->userdata('daily_activity');
-		if (!empty($activities_list)) {
-			// foreach item in list, get activity from model by slug
-			// return result list
-			foreach ($activities_list as $key => $dl_activity) {
-				// item hasnt been completed
-				if ($dl_activity['status'] == 'available') {
-					$item = null;
-					$link = "";
-					$ac_type = "";
-					switch ($dl_activity['activity_type']) {
-						case 'rv': //review
-							$ac_type = "Review";
-							$item = $this->model_reviews->getReviewItemBySlug($dl_activity['slug']);
-							$link = base_url('reviews/single/' . $dl_activity['slug']);
-							break;
-						case 'av': //transcribe
-							$ac_type = "Transcribe";
-							$item = $this->model_transcribe->getTranscribeItemBySlug($dl_activity['slug']);
-							$link = base_url('transcribe/single/' . $dl_activity['slug']);
-							break;
-
-						default: //default survey
-							$ac_type = "Survey";
-							$item = $this->model_surveys->getSurveyItemBySlug($dl_activity['slug']);
-							$link = base_url('surveys/single/' . $dl_activity['slug']);
-							break;
-					}
-
-					if ($item != null) {
-						$result[$key] = array('title' => $item['title'], 'link' => $link, 'type' => $ac_type);
-					}
-				}
-			}
-		}
-
-		return $result;
 	}
 
 	public function generate_ref_code($count = 8)
@@ -331,8 +254,9 @@ class Member_Controller extends MY_Controller
 
 	public function render_template($page = null, $data = array())
 	{
-		// $data['dl_activity_list'] = $this->get_daily_activities();
-		$data['dl_activity_list'] = array();
+		$activity_list = $this->session->userdata('daily_activity');
+		$data['dl_activity_list'] = $this->dailyactivities->daily_activity_html($activity_list);
+		// $data['dl_activity_list'] = array();
 		if (!file_exists(APPPATH . '/views/' . $page . '.php')) {
 			# code...
 			$data["message"] = "Page Not Found";

@@ -18,6 +18,19 @@ class Model_surveys extends CI_Model
 		return array();
 	}
 
+	public function getAllSurveyItems()
+	{
+		$query = $this->db->get('survey_meta');
+		$result = $query->result_array();
+		return $result;
+	}
+	
+	public function getSurveyItemsCreatedBy($user_id = null) {
+		$query = $this->db->get_where('survey_meta', array('created_by' => $user_id));
+		$result = $query->result_array();
+		return $result;
+	}
+
 	public function getSurveyItemBySlug($slug = null)
 	{
 		if ($slug != null) {

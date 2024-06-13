@@ -7,7 +7,7 @@ class Dashboard extends Member_Controller
 	{
 		parent::__construct();
 
-		$this->data['page_title'] = 'Dashboard';
+		$this->data['title'] = 'Dashboard';
 	}
 
 	public function index() {
