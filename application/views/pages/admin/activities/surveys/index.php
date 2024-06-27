@@ -14,12 +14,15 @@
 	<section class="content">
 		<div class="row">
 			<div class="col-md-12 col-xs-12">
-
+				<?php if (in_array('createSurvey', $user_permission)) : ?>
+					<a href="<?php echo base_url('surveys/create') ?>" class="btn btn-primary">Create New Item</a>
+					<br /> <br />
+				<?php endif; ?>
 				<div id="messages"></div>
 
 				<div class="box">
 					<div class="box-header">
-						<h3 class="box-title">Review Surveys</h3>
+						<h3 class="box-title">Manage Surveys</h3>
 					</div>
 
 					<div class="box-body">
@@ -31,7 +34,7 @@
 									<th>Global Limit</th>
 									<th>Reward Points</th>
 									<th>Status</th>
-									<?php if (in_array('reviewActivity', $user_permission) || in_array('manageActivity', $user_permission)) : ?>
+									<?php if (in_array('manageSurvey', $user_permission) || in_array('manageActivity', $user_permission)) : ?>
 										<th>Action</th>
 									<?php endif; ?>
 								</tr>

@@ -22,6 +22,39 @@ class Model_reviews extends CI_Model
 		return array();
 	}
 
+	public function getCompletedItemById($comp_id = null) {
+		if ($comp_id != null) {
+			$query = $this->db->get_where('reviews_completed', array('id' => $comp_id));
+			$result = $query->row_array();
+			return $result;
+		}
+
+		return array();
+	}
+
+	public function getCompletedAll() {
+		$query = $this->db->get('reviews_completed');
+		$result = $query->result_array();
+		return $result;
+	}
+
+	public function getCompletedAvailable() {
+		$query = $this->db->get_where('reviews_completed', array('status' => 'pending'));
+		$result = $query->result_array();
+		return $result;
+	}
+
+	public function getReviewItemById($review_id = null) {
+		if ($review_id != null) {
+			$sql = "SELECT * FROM review_vd INNER JOIN review_vd_meta ON review_vd.id = review_vd_meta.review_id WHERE review_vd.id = ?";
+			$query = $this->db->query($sql, array($review_id));
+			$result = $query->row_array();
+			return $result;
+		}
+
+		return array();
+	}
+
 	public function getReviewItemBySlug($slug = null)
 	{
 		if ($slug != null) {
@@ -117,10 +150,10 @@ class Model_reviews extends CI_Model
 		return false;
 	}
 
-	public function updateCompletedItem($review_id, $data = array())
+	public function updateCompletedItem($comp_id, $data = array())
 	{
-		if ($data && $review_id) {
-			$this->db->where('id', $review_id);
+		if ($data && $comp_id) {
+			$this->db->where('id', $comp_id);
 			$update = $this->db->update('reviews_completed', $data);
 			return ($update == true) ? true : false;
 		}

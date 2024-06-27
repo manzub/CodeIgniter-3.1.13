@@ -34,7 +34,6 @@ class Member_Controller extends MY_Controller
 		// $default_member_permission = array('completeQuestion', 'completeSurvey', 'earnRewards', 'completeTranscribe', 'completeReview');
 		// print_r(serialize($default_member_permission));
 		// $default_admin_permission = array('createUser', 'updateUser', 'deleteUser', 'viewUser', 'createGroup', 'updateGroup', 'deleteGroup', 'viewGroup', 'manageActivity', 'createCategory', 'editCategory', 'deleteCategory', 'updateSetting', 'createTransaction', 'updateTransaction', 'viewTransaction', 'deleteTransaction', 'manageReview', 'allReview', 'manageSurvey', 'allSurvey', 'manageTranscribe', 'allTranscribe');
-		$default_admin_permission = array('manageActivity', 'reviewActivity');
 		// echo serialize($default_admin_permission);
 
 		$group_data = array();

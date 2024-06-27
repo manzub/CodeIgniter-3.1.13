@@ -45,7 +45,7 @@ class Transcribe extends Member_Controller
 
 						// save completed item
 						$comp_raw = htmlspecialchars($this->input->post('transcribe_text'));
-						$data = array('transcribe_id' => $transcribe_item['id'], 'items' => $comp_raw, 'completed_by' => $user_id, 'status' => 'completed', 'points_earned' => '0');
+						$data = array('transcribe_id' => $transcribe_item['id'], 'transcribe_text' => $comp_raw, 'completed_by' => $user_id, 'status' => 'completed', 'points_earned' => '0');
 						$completed = $this->model_transcribe->completeItem($data);
 
 						if ($completed) {
@@ -276,7 +276,7 @@ class Transcribe extends Member_Controller
 
 				if (in_array('manageActivity', $this->permission)) {
 					if ($value['status'] == 'draft') {
-						$buttons .= "<a href='" . base_url('surveys/review_item/' . $value['slug']) . "' class='btn btn-primary'><i class='fa fa-pencil'></i></a>";
+						$buttons .= "<a href='" . base_url('transcribe/review_item/' . $value['slug']) . "' title='Review' class='btn btn-primary'><i class='fa fa-archive'></i></a>";
 					}
 				} else {
 					if (in_array('manageTranscribe', $this->permission)) {
@@ -306,6 +306,171 @@ class Transcribe extends Member_Controller
 		}
 
 		echo json_encode($result);
+	}
+
+	public function readCompletedItems()
+	{
+		$result = array('data' => array());
+
+		if (in_array('reviewActivity', $this->permission)) {
+			$items = $this->model_transcribe->getCompletedAvailable();
+
+			foreach ($items as $key => $value) {
+				$transcribe_item = $this->model_transcribe->getTranscribeItemById($value['transcribe_id']);
+				$buttons = "";
+
+				if (in_array('reviewActivity', $this->permission)) {
+					$buttons .= "<a href='" . base_url('transcribe/review_completed_item/' . $value['id']) . "' class='btn btn-primary'>Review</a>";
+				}
+
+				$result['data'][$key] = array(
+					$transcribe_item['title'],
+					$value['date_completed'],
+					$value['points_earned'] . "SB",
+					$buttons
+				);
+			}
+		} else {
+			redirect('transcribe/admin', 'refresh');
+		}
+
+		echo json_encode($result);
+	}
+
+	public function review_item($transcribe_slug)
+	{
+		$this->not_logged_in();
+		$user_id = $this->session->userdata('id');
+
+		if ($transcribe_slug == null) {
+			redirect('dashboard', 'refresh');
+		}
+
+		if (!in_array('reviewActivity', $this->permission)) {
+			redirect('dashboard', 'refresh');
+		}
+
+		$transcribe_item = $this->model_transcribe->getTranscribeItemBySlug($transcribe_slug);
+
+		$this->form_validation->set_rules('approve_deny', 'Approve or Deny', 'required');
+		if ($this->form_validation->run() == TRUE) {
+			// do something
+			$approve_deny = $this->input->post('approve_deny');
+			$status = $approve_deny == 'deny' ? 'rejected' : 'available';
+
+			$data = array('status' => $status);
+			$update = $this->model_transcribe->updateTranscribeItem($transcribe_item['transcribe_id'], $data);
+			if ($update) {
+				// reward points
+				$reward_config = $this->model_config->getConfigByName('mod_review_reward');
+				$points_earned = intval($reward_config['value']);
+
+				// reward ref parent user
+				$my_account = $this->model_users->getuserById($user_id);
+				if (!in_array($my_account['referred_by'], array(null, 'NULL'))) {
+					$my_referrer = $this->model_users->getUserByRefCode($my_account['referred_by']);
+					// load interest config
+					$reward_interest_config = $this->model_config->getConfigByName('ref_reward_interest');
+					$reward_interest = intval($reward_interest_config['value']);
+					$interest_earned = $points_earned / $reward_interest;
+
+					$this->model_users->logClaimedReward($my_referrer['id'], array('user_id' => $my_referrer['id'], 'reward_earned' => $interest_earned, 'type' => 'ref_interest', 'streak' => '0'));
+				}
+
+				// log claimed reward
+				$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'transcribe_id' => $transcribe_item['transcribe_id'], 'reward_earned' => $points_earned, 'type' => 'mod_reward', 'streak' => '0'));
+				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $points_earned, 'title' => 'Completed'));
+				// log activity
+				$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Reviewed Activity Item', 'message' => 'Completed Review! Earned' . $points_earned);
+				$this->model_logs->logActivity($activity);
+				redirect('transcribe/admin', 'refresh');
+			}
+		} else {
+			$files_html = implode(',', unserialize($transcribe_item['files']));
+			$cat_arr = $this->model_categories->getAllCategories();
+			$this->data['files_html'] = $files_html;
+			$this->data['transcribe_item'] = $transcribe_item;
+			$this->data['categories'] = $cat_arr;
+			$this->render_admin('pages/admin/activities/transcribe/review_item', $this->data);
+		}
+	}
+
+	public function review_completed_item($comp_id)
+	{
+		$this->not_logged_in();
+		$user_id = $this->session->userdata('id');
+
+		if (!in_array('reviewActivity', $this->permission)) {
+			redirect('transcribe/admin', 'refresh');
+		}
+
+		if ($comp_id == null) {
+			redirect('transcribe/admin', 'refresh');
+		}
+
+		$completed_item = $this->model_transcribe->getCompletedItemById($comp_id);
+		if (!empty($completed_item)) {
+			$transcribe_item = $this->model_transcribe->getTranscribeItemById($completed_item['transcribe_id']);
+
+			$this->form_validation->set_rules('approve_deny', 'Approve or Deny', 'required');
+			if ($this->form_validation->run() == TRUE) {
+				$approve_deny = $this->input->post('approve_deny');
+				$status = $approve_deny == 'deny' ? 'rejected' : 'approved';
+
+				// if approved -> reward comp user points.
+				$data = array('mod_status' => $status);
+				$update = $this->model_transcribe->updateCompletedItem($comp_id, $data);
+				if ($update) {
+					if ($approve_deny == 'approve') {
+						// reward comp user
+						$bonus = intval($this->model_config->getConfigByName('mod_approve_reward')['value']);
+						$this->model_users->logClaimedReward($completed_item['completed_by'], array('user_id' => $completed_item['completed_by'], 'transcribe_id' => $completed_item['transcribe_id'], 'reward_earned' => $bonus, 'type' => 'mod_reward', 'streak' => '0'));
+					}
+
+					// reward points
+					$reward_config = $this->model_config->getConfigByName('mod_review_reward');
+					$points_earned = intval($reward_config['value']);
+
+					// reward ref parent user
+					$my_account = $this->model_users->getuserById($user_id);
+					if (!in_array($my_account['referred_by'], array(null, 'NULL'))) {
+						$my_referrer = $this->model_users->getUserByRefCode($my_account['referred_by']);
+						// load interest config
+						$reward_interest_config = $this->model_config->getConfigByName('ref_reward_interest');
+						$reward_interest = intval($reward_interest_config['value']);
+						$interest_earned = $points_earned / $reward_interest;
+
+						$this->model_users->logClaimedReward($my_referrer['id'], array('user_id' => $my_referrer['id'], 'reward_earned' => $interest_earned, 'type' => 'ref_interest', 'streak' => '0'));
+					}
+
+					// log claimed reward
+					$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'transcribe_id' => $transcribe_item['transcribe_id'], 'reward_earned' => $points_earned, 'type' => 'mod_reward', 'streak' => '0'));
+					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $points_earned, 'title' => 'Completed'));
+					// log activity
+					$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Reviewed Activity Item', 'message' => 'Completed Review! Earned' . $points_earned);
+					$this->model_logs->logActivity($activity);
+					redirect('transcribe/admin', 'refresh');
+				}
+			}
+		} else {
+			redirect('transcribe/admin', 'refresh');
+		}
+
+		// transcribe audio, comp review text, approve_deny
+		$this->data['completed_item'] = $completed_item;
+		$this->data['transcribe_item'] = $transcribe_item;
+		$this->render_admin('pages/admin/activities/transcribe/completed_item', $this->data);
+	}
+
+	public function completed_list()
+	{
+		$this->not_logged_in();
+
+		if (in_array('reviewActivity', $this->permission)) {
+			$this->render_admin('pages/admin/activities/transcribe/completed_list', $this->data);
+		} else {
+			redirect('transcribe/admin', 'refresh');
+		}
 	}
 
 	public function edit($transcribe_slug)

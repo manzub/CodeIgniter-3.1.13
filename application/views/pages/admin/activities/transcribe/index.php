@@ -91,7 +91,7 @@
 
 	$(document).ready(function() {
 
-		$("#mainProductNav").addClass('active');
+		$("#mainTranscribeNav").addClass('active');
 
 		// initialize the datatable
 		manageTable = $('#manageTable').DataTable({

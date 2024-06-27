@@ -64,9 +64,6 @@
 						</a>
 						<ul class="treeview-menu">
 							<li><a href="<?php echo base_url('surveys/admin') ?>"><i class="fa fa-circle"></i><span>Manage Surveys</span></a></li>
-							<?php if (in_array('reviewActivity', $user_permission)) : ?>
-								<li id="addProductNav"><a href="<?php echo base_url('surveys/completed_list') ?>"><i class="fa fa-circle-o"></i>Review Completed</a></li>
-							<?php endif; ?>
 						</ul>
 					</li>
 				<?php } ?>
@@ -83,14 +80,14 @@
 						<ul class="treeview-menu">
 							<li><a href="<?php echo base_url('reviews/admin') ?>"><i class="fa fa-circle"></i><span>Manage Reviews</span></a></li>
 							<?php if (in_array('reviewActivity', $user_permission)) : ?>
-								<li id="addProductNav"><a href="<?php echo base_url('surveys/review_list') ?>"><i class="fa fa-circle-o"></i>Review Completed</a></li>
+								<li id="reviewCompReviewItemNav"><a href="<?php echo base_url('reviews/completed_list') ?>"><i class="fa fa-circle-o"></i>Review Completed</a></li>
 							<?php endif; ?>
 						</ul>
 					</li>
 				<?php } ?>
 
 				<?php if (in_array('manageTranscribe', $user_permission) || in_array('manageActivity', $user_permission)) { ?>
-					<li class="treeview" id="mainProductNav">
+					<li class="treeview" id="mainTranscribeNav">
 						<a href="#">
 							<i class="fa fa-cube"></i>
 							<span>Transcribe</span>
@@ -99,9 +96,9 @@
 							</span>
 						</a>
 						<ul class="treeview-menu">
-							<li><a href="<?php echo base_url('transcribe/admin') ?>"><i class="fa fa-circle"></i><span>Transcribe</span></a></li>
+							<li><a href="<?php echo base_url('transcribe/admin') ?>"><i class="fa fa-circle"></i><span>Manage Transcribe</span></a></li>
 							<?php if (in_array('reviewActivity', $user_permission)) : ?>
-								<li id="addProductNav"><a href="<?php echo base_url('surveys/review_list') ?>"><i class="fa fa-circle-o"></i>Review Completed</a></li>
+								<li id="reviewCompTranscribeItemNav"><a href="<?php echo base_url('transcribe/completed_list') ?>"><i class="fa fa-circle-o"></i>Review Completed</a></li>
 							<?php endif; ?>
 						</ul>
 					</li>

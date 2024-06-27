@@ -7,6 +7,16 @@ class Model_transcribe extends CI_Model
 		parent::__construct();
 	}
 
+	public function getCompletedItemById($comp_id = null) {
+		if ($comp_id != null) {
+			$query = $this->db->get_where('transcribe_completed', array('id' => $comp_id));
+			$result = $query->row_array();
+			return $result;
+		}
+
+		return array();
+	}
+
 	public function getCompletedByTranscribeId($user_id = null, $transcribe_id = null)
 	{
 		if ($transcribe_id != null) {
@@ -20,6 +30,21 @@ class Model_transcribe extends CI_Model
 		}
 
 		return array();
+	}
+
+
+	public function getCompletedAll()
+	{
+		$query = $this->db->get('transcribe_completed');
+		$result = $query->result_array();
+		return $result;
+	}
+
+	public function getCompletedAvailable()
+	{
+		$query = $this->db->get_where('transcribe_completed', array('mod_status' => 'pending'));
+		$result = $query->result_array();
+		return $result;
 	}
 
 	public function getAllTranscribeItems()
@@ -38,6 +63,17 @@ class Model_transcribe extends CI_Model
 
 			return $result;
 		}
+	}
+
+	public function getTranscribeItemById($transcribe_id = null)
+	{
+		if ($transcribe_id != null) {
+			$sql = "SELECT * FROM transcribe_av INNER JOIN transcribe_av_meta ON transcribe_av.id = transcribe_av_meta.transcribe_id WHERE transcribe_av.id = ?";
+			$query = $this->db->query($sql, array($transcribe_id));
+			return $query->row_array();
+		}
+
+		return array();
 	}
 
 	public function getTranscribeItemBySlug($slug = null)
@@ -94,10 +130,10 @@ class Model_transcribe extends CI_Model
 		return false;
 	}
 
-	public function updateCompletedItem($transcribe_id, $data = array())
+	public function updateCompletedItem($comp_id, $data = array())
 	{
-		if ($data && $transcribe_id) {
-			$this->db->where('id', $transcribe_id);
+		if ($data && $comp_id) {
+			$this->db->where('id', $comp_id);
 			$update = $this->db->update('transcribe_completed', $data);
 			return ($update == true) ? true : false;
 		}

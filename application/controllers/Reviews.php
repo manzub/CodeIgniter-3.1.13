@@ -48,7 +48,7 @@ class Reviews extends Member_Controller
 						$review_text = htmlspecialchars($this->input->post('review_text'));
 						$review_rating = $this->input->post('review_rating');
 						$has_watched = $this->input->post('review_watched') || 0;
-						$data = array('review_id' => $review_item['id'], 'review_rating' => $review_rating, 'review_text' => $review_text, 'has_watched' => $has_watched, 'completed_by' => $user_id, 'points_earned' => '0');
+						$data = array('review_id' => $review_item['id'], 'review_rating' => $review_rating, 'review_text' => $review_text, 'has_watched' => $has_watched, 'completed_by' => $user_id, 'points_earned' => '0', 'status' => 'pending');
 						$completed = $this->model_reviews->completeItem($data);
 
 						if ($completed) {
@@ -314,21 +314,21 @@ class Reviews extends Member_Controller
 			if ((strpos($group_name, 'admin') !== false) || $group_name == 'moderator') {
 				$items = $this->model_reviews->getAllReviewItems();
 				if ($group_name == 'moderator') {
-					$items = array_values(array_filter($items, function($x) {
+					$items = array_values(array_filter($items, function ($x) {
 						return $x['status'] == 'draft';
 					}));
 				}
 			} else {
 				$items = $this->model_reviews->getReviewItemsCreatedBy($user_id);
 			}
-			
+
 			foreach ($items as $key => $value) {
 				// create list items
 				$buttons = "";
 
 				if (in_array('manageActivity', $this->permission)) {
 					if ($value['status'] == 'draft') {
-						$buttons .= "<a href='" . base_url('reviews/review_item/' . $value['slug']) . "' class='btn btn-primary'><i class='fa fa-pencil'></i></a>";
+						$buttons .= "<a href='" . base_url('reviews/review_item/' . $value['slug']) . "' class='btn btn-primary'><i class='fa fa-archive'></i></a>";
 					}
 				} else {
 					if (in_array('manageReview', $this->permission)) {
@@ -360,6 +360,171 @@ class Reviews extends Member_Controller
 		}
 
 		echo json_encode($result);
+	}
+
+	public function readCompletedItems()
+	{
+		$result = array('data' => array());
+
+		if (in_array('reviewActivity', $this->permission)) {
+			$items = $this->model_reviews->getCompletedAvailable();
+
+			foreach ($items as $key => $value) {
+				$review_item = $this->model_reviews->getReviewItemById($value['review_id']);
+				$buttons = "";
+
+				if (in_array('reviewActivity', $this->permission)) {
+					$buttons .= "<a href='" . base_url('reviews/review_completed_item/' . $value['id']) . "' class='btn btn-primary'>Review</a>";
+				}
+
+				$result['data'][$key] = array(
+					$review_item['title'],
+					$value['review_rating'],
+					$value['date_completed'],
+					$value['points_earned'] . "SB",
+					$buttons
+				);
+			}
+		} else {
+			redirect('dashboard', 'refresh');
+		}
+
+		echo json_encode($result);
+	}
+
+	public function review_item($review_slug)
+	{
+		$this->not_logged_in();
+		$user_id = $this->session->userdata('id');
+
+		if ($review_slug == null) {
+			redirect('dashboard', 'refresh');
+		}
+
+		if (!in_array('reviewActivity', $this->permission)) {
+			redirect('dashboard', 'refresh');
+		}
+
+		$review_item = $this->model_reviews->getReviewItemBySlug($review_slug);
+
+		$this->form_validation->set_rules('approve_deny', 'Approve or Deny', 'required');
+		if ($this->form_validation->run() == TRUE) {
+			# code...
+			$approve_deny = $this->input->post('approve_deny');
+			$status = $approve_deny == 'deny' ? 'rejected' : 'available';
+
+			$data = array('status' => $status);
+			$update = $this->model_reviews->updateReviewItem($review_item['review_id'], $data);
+			if ($update) { // success change status
+				// reward points
+				$reward_config = $this->model_config->getConfigByName('mod_review_reward');
+				$points_earned = intval($reward_config['value']);
+
+				// reward ref parent user
+				$my_account = $this->model_users->getuserById($user_id);
+				if (!in_array($my_account['referred_by'], array(null, 'NULL'))) {
+					$my_referrer = $this->model_users->getUserByRefCode($my_account['referred_by']);
+					// load interest config
+					$reward_interest_config = $this->model_config->getConfigByName('ref_reward_interest');
+					$reward_interest = intval($reward_interest_config['value']);
+					$interest_earned = $points_earned / $reward_interest;
+
+					$this->model_users->logClaimedReward($my_referrer['id'], array('user_id' => $my_referrer['id'], 'reward_earned' => $interest_earned, 'type' => 'ref_interest', 'streak' => '0'));
+				}
+
+				// log claimed reward
+				$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'review_id' => $review_item['review_id'], 'reward_earned' => $points_earned, 'type' => 'mod_reward', 'streak' => '0'));
+				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $points_earned, 'title' => 'Completed'));
+				// log activity
+				$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Reviewed Activity Item', 'message' => 'Completed Review! Earned' . $points_earned);
+				$this->model_logs->logActivity($activity);
+				redirect('reviews/admin', 'refresh');
+			}
+		} else {
+			$cat_arr = $this->model_categories->getAllCategories();
+			$this->data['review_item'] = $review_item;
+			$this->data['categories'] = $cat_arr;
+			$this->render_admin('pages/admin/activities/reviews/review_item', $this->data);
+		}
+	}
+
+	public function review_completed_item($comp_id)
+	{
+		$this->not_logged_in();
+		$user_id = $this->session->userdata('id');
+
+		if (!in_array('reviewActivity', $this->permission)) {
+			redirect('dashboard', 'refresh');
+		}
+
+		if ($comp_id == null) {
+			redirect('dashboard', 'refresh');
+		}
+
+		$completed_item = $this->model_reviews->getCompletedItemById($comp_id);
+		if (!empty($completed_item)) {
+			$review_item = $this->model_reviews->getReviewItemById($completed_item['review_id']);
+
+			$this->form_validation->set_rules('approve_deny', 'Approve Or Deny', 'required');
+			if ($this->form_validation->run() == TRUE) {
+				# code...
+				$approve_deny = $this->input->post('approve_deny');
+				$status = $approve_deny == 'deny' ? 'rejected' : 'approved';
+
+				// if approved -> reward user points. else nothing.
+				$data = array('status' => $status);
+				$update = $this->model_reviews->updateCompletedItem($comp_id, $data);
+				if ($update) {
+					if ($approve_deny == 'approve') { // reward completed user
+						// reward completed user
+						$bonus = intval($this->model_config->getConfigByName('mod_approve_reward')['value']);
+						$this->model_users->logClaimedReward($completed_item['completed_by'], array('user_id' => $completed_item['completed_by'], 'review_id' => $completed_item['review_id'], 'reward_earned' => $bonus, 'type' => 'mod_reward', 'streak' => '0'));
+					}
+
+					// reward points
+					$reward_config = $this->model_config->getConfigByName('mod_review_reward');
+					$points_earned = intval($reward_config['value']);
+
+					// reward ref parent user
+					$my_account = $this->model_users->getuserById($user_id);
+					if (!in_array($my_account['referred_by'], array(null, 'NULL'))) {
+						$my_referrer = $this->model_users->getUserByRefCode($my_account['referred_by']);
+						// load interest config
+						$reward_interest_config = $this->model_config->getConfigByName('ref_reward_interest');
+						$reward_interest = intval($reward_interest_config['value']);
+						$interest_earned = $points_earned / $reward_interest;
+
+						$this->model_users->logClaimedReward($my_referrer['id'], array('user_id' => $my_referrer['id'], 'reward_earned' => $interest_earned, 'type' => 'ref_interest', 'streak' => '0'));
+					}
+
+					// log claimed reward
+					$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'review_id' => $review_item['review_id'], 'reward_earned' => $points_earned, 'type' => 'mod_reward', 'streak' => '0'));
+					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $points_earned, 'title' => 'Completed'));
+					// log activity
+					$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Reviewed Activity Item', 'message' => 'Completed Review! Earned' . $points_earned);
+					$this->model_logs->logActivity($activity);
+					redirect('reviews/admin', 'refresh');
+				}
+			}
+		} else {
+			redirect('dashboard', 'refresh');
+		}
+
+		// review video, comp rating, comp review text, has watched, approve_deny
+		$this->data['completed_item'] = $completed_item;
+		$this->data['review_item'] = $review_item;
+		$this->render_admin('pages/admin/activities/reviews/completed_item', $this->data);
+	}
+
+	public function completed_list()
+	{
+		$this->not_logged_in();
+
+		if (in_array('reviewActivity', $this->permission)) {
+			$this->render_admin('pages/admin/activities/reviews/completed_list', $this->data);
+		} else {
+			redirect('reviews/admin', 'refresh');
+		}
 	}
 
 	public function edit($review_slug)
