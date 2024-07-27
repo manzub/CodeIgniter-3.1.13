@@ -111,6 +111,15 @@ class Model_users extends CI_Model
 		return ($update == true) ? true : false;
 	}
 
+	public function requestCoins($user_id = null, $data = array())
+	{
+		if ($user_id != null && !empty($data)) {
+			$insert = $this->db->insert('transactions', array_merge(array('created_by' => $user_id), $data));
+			return $insert == true ? true : false;
+		}
+		return false;
+	}
+
 	public function insertUserAccount($data = array())
 	{
 		if (!empty($data)) {

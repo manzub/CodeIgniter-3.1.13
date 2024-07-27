@@ -102,7 +102,7 @@
 
 	// remove functions
 	function removeFunc(slug) {
-		if (id) {
+		if (slug) {
 			$("#removeForm").on('submit', function() {
 
 				var form = $(this);

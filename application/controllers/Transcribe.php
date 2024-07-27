@@ -283,7 +283,7 @@ class Transcribe extends Member_Controller
 						if ($value['status'] == 'draft') {
 							$buttons .= "<a href='" . base_url('transcribe/edit/' . $value['slug']) . "' class='btn btn-primary' style='margin-right:10px'><i class='fa fa-pencil'></i></a>";
 						}
-						$buttons .= "<button onclick='removeFunc(" . $value['slug'] . ")' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
+						$buttons .= "<button onclick='removeFunc(`" . $value['slug'] . "`)' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
 					}
 				}
 

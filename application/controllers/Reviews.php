@@ -270,7 +270,7 @@ class Reviews extends Member_Controller
 				// create item as draft state
 				$reward_config = $this->model_config->getConfigByName('review_item_reward_points');
 				$reward_points = intval($reward_config['value']);
-				$slug = 'rv-' . rand(100, 9999) . substr($review_title, 0, 25);
+				$slug = 'rv-' . rand(100, 9999) . '-' . str_replace(' ', '-', substr($review_title, 0, 25));
 				$data = array('slug' => $slug, 'title' => $review_title, 'category' => implode(",", $categories), 'limit_per_user' => $limit_per_user, 'global_limit' => $global_limit, 'status' => 'draft', 'reward_points' => $reward_points);
 				$created_item = $this->model_reviews->createReviewItem($user_id, $data);
 
@@ -335,7 +335,7 @@ class Reviews extends Member_Controller
 						if ($value['status'] == 'draft') {
 							$buttons .= "<a href='" . base_url('reviews/edit/' . $value['slug']) . "' class='btn btn-primary' style='margin-right:10px'><i class='fa fa-pencil'></i></a>";
 						}
-						$buttons .= "<button onclick='removeFunc(" . $value['slug'] . ")' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
+						$buttons .= "<button onclick='removeFunc(`" . $value['slug'] . ")`' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
 					}
 				}
 
@@ -440,12 +440,11 @@ class Reviews extends Member_Controller
 				$this->model_logs->logActivity($activity);
 				redirect('reviews/admin', 'refresh');
 			}
-		} else {
-			$cat_arr = $this->model_categories->getAllCategories();
-			$this->data['review_item'] = $review_item;
-			$this->data['categories'] = $cat_arr;
-			$this->render_admin('pages/admin/activities/reviews/review_item', $this->data);
 		}
+		$cat_arr = $this->model_categories->getAllCategories();
+		$this->data['review_item'] = $review_item;
+		$this->data['categories'] = $cat_arr;
+		$this->render_admin('pages/admin/activities/reviews/review_item', $this->data);
 	}
 
 	public function review_completed_item($comp_id)
@@ -581,7 +580,7 @@ class Reviews extends Member_Controller
 
 						// update review item
 						$data = array('title' => $review_title, 'category' => implode(",", $categories), 'limit_per_user' => $limit_per_user, 'global_limit' => $global_limit);
-						$updated_item = $this->model_reviews->updateReviewItem($review_item['id'], $data);
+						$updated_item = $this->model_reviews->updateReviewItem($review_item['review_id'], $data);
 
 						if ($updated_item) {
 							$review_item_files = array('thumbnail_large' => $thumbnails[0], 'thumbnail_small' => $thumbnails[count($thumb_links) - 1], 'short_desc' => $short_desc, 'short_clip' => $short_clip, 'is_movie' => $is_movie, 'imdb' => $imdb_link);

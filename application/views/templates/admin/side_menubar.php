@@ -138,6 +138,14 @@
 					</li>
 				<?php endif; ?>
 
+				<?php if (in_array('manageBonus', $user_permission)) { ?>
+					<li id="bonusesNav">
+						<a href="<?php echo base_url('bonuses/admin') ?>">
+							<i class="glyphicon glyphicon-tags"></i> <span>Bonuses</span>
+						</a>
+					</li>
+				<?php } ?>
+
 				<?php if (in_array('viewReports', $user_permission)) : ?>
 					<li id="reportNav">
 						<a href="<?php echo base_url('reports/') ?>">

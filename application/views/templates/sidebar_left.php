@@ -30,7 +30,7 @@
 																				</a>
 																			</li>
 																			<li class="y-fp-pg-controls pa-btn-app">
-																				<a href="<?php echo base_url('home/bonuses') ?>" class="pa-btn-link y-fp-pg-controls y-ln-1">
+																				<a href="<?php echo base_url('bonuses/') ?>" class="pa-btn-link y-fp-pg-controls y-ln-1">
 																					<img class="pa-btn-icon" src="<?php echo base_url('assets/icons/bonus-' . rand(0, 1) . '.png') ?>" />
 																					<span class="y-pa-txt-button pa-btn-title">Bonuses</span>
 																				</a>

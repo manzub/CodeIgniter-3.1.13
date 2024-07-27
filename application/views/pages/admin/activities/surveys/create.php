@@ -32,9 +32,9 @@
 							<div class="form-group">
 								<label for="survey_cat">Categories</label>
 								<select type="text" name="survey_cat[]" id="survey_cat" class="form-control select_group" multiple="multiple">
-									<option value="1">10</option>
-									<option value="1">10</option>
-									<option value="1">10</option>
+									<?php for ($i = 1; $i < sizeof($categories); $i++) { ?>
+										<option value="<?php echo $categories[$i]['id'] ?>"><?php echo $categories[$i]['name'] ?></option>
+									<?php } ?>
 								</select>
 							</div>
 
@@ -59,7 +59,7 @@
 									<h3 class="display-4">Questions will be added later</h3>
 									<p class="lead">Create Survey Item and add questions later.</p>
 									<hr class="my-4">
-									<butotn type="submit" class="btn btn-lg btn-primary">Create</butotn>
+									<button type="submit" class="btn btn-lg btn-primary">Create</button>
 								</div>
 							</div>
 						</div>

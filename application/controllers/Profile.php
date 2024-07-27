@@ -238,8 +238,42 @@ class Profile extends Member_Controller
 		$this->not_logged_in();
 
 		$user_id = $this->session->userdata('id');
-		$group_name = $this->session->userdata('group_name');
+		$currency = $this->session->userdata('currency');
 
+		$this->form_validation->set_rules('amount', 'Amount Requested', 'required');
+		$this->form_validation->set_rules('bank_type', 'Bank Type', 'required');
+		if ($this->form_validation->run() == TRUE) {
+			$user_accounts = $this->model_users->getUserAccountsById($user_id);
+			if (!empty($user_accounts)) {
+				// check balance and request funds
+				$balance = $this->model_users->getUserRewardsBalance($user_id);
+				$amount = $this->input->post('amount');
+				$bank_type = $this->input->post('bank_type');
+
+				if ($balance > $amount) {
+					# request withdrawal.
+					// if balance is calculated from rewards.
+					// withdrawal should minus
+					$amount_converted = intval($amount) / intval($currency['rate']);
+					$data = array('user_id' => $user_id, 'coins_requested' => $amount, 'currency' => $currency['currency'], 'value' => $amount_converted, 'bank_type' => $bank_type, 'status' => 'pending');
+					$requested = $this->model_users->requestCoins($user_id, $data);
+					if ($requested) {
+						# deduct balance
+						$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'reward_earned' => '-' . $amount, 'type' => 'withdrawal', 'streak' => '0'));
+						// log activity
+						$this->model_logs->logActivity(array('user_id' => $user_id, 'activity_code' => '4', 'activity' => 'Requested Coins', 'message' => 'Requested Amount #'.$amount));
+						$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Requested Coins', 'message' => 'Requested amount #'.$amount.' pending approval!. We will let you know once it\'s been completed.'));
+					}
+				} else {
+					$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Insufficient Balance', 'message' => 'Not enough balance, earn some more.'));
+				}
+			} else {
+				$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'No payment options saved', 'message' => 'Please save a payment option and try again.'));
+			}
+		}
+
+		$withdraw_options = unserialize($this->model_config->getConfigByName('withdraw_options')['value']);
+		$this->data['withdraw_options'] = $withdraw_options;
 		$this->render_template('pages/profile/redeem', $this->data);
 	}
 

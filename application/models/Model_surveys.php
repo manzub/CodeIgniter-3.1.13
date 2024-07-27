@@ -24,8 +24,9 @@ class Model_surveys extends CI_Model
 		$result = $query->result_array();
 		return $result;
 	}
-	
-	public function getSurveyItemsCreatedBy($user_id = null) {
+
+	public function getSurveyItemsCreatedBy($user_id = null)
+	{
 		$query = $this->db->get_where('survey_meta', array('created_by' => $user_id));
 		$result = $query->result_array();
 		return $result;
@@ -38,6 +39,16 @@ class Model_surveys extends CI_Model
 			$result = $query->row_array();
 			return $result;
 		}
+	}
+
+	public function getSurveyQuestionByQuestId($quest_id) {
+		if ($quest_id != null) {
+			$query = $this->db->get_where('sv_questions', array('id', $quest_id));
+			$result = $query->row_array();
+			return $result;
+		}
+
+		return array();
 	}
 
 	public function getSurveyQuestionsById($survey_id = null)
@@ -122,5 +133,99 @@ class Model_surveys extends CI_Model
 			$create = $this->db->insert('surveys_completed', $data);
 			return ($create == true) ? true : false;
 		}
+	}
+
+	// admin function
+	public function createSurveyItem($user_id, $data)
+	{
+		if (!empty($data) && $user_id != null) {
+			$this->db->set(array_merge(array('created_by' => $user_id), $data));
+			$this->db->insert('survey_meta');
+			$insert_id = $this->db->insert_id();
+
+			return $insert_id;
+		}
+
+		return false;
+	}
+
+	public function createSurveyQuestion($data) {
+		if (!empty($data)) {
+			$this->db->set($data);
+			$this->db->insert('sv_questions');
+			$insert_id = $this->db->insert_id();
+			return $insert_id;
+		}
+
+		return false;
+	}
+
+	public function createSurveyOption($data){
+		if (!empty($data)) {
+			$this->db->set($data);
+			$this->db->insert('sv_quest_options');
+			$insert_id = $this->db->insert_id();
+			return $insert_id;
+		}
+
+		return false;
+	}
+
+	public function removeSurveyItem($survey_id = null)
+	{
+		if ($survey_id != null) {
+			// remove options, remove questions then item
+			$this->removeSurveyOptions($survey_id);
+			$this->removeSurveyQuestions($survey_id);
+			$this->db->where('id', $survey_id);
+			$delete = $this->db->delete('survey_meta');
+			return $delete == true;
+		}
+
+		return false;
+	}
+
+	public function removeSurveyOptions($survey_id = null)
+	{
+		if ($survey_id != null) {
+			$this->db->where('survey_id', $survey_id);
+			$delete = $this->db->delete('sv_quest_options');
+			return $delete == true;
+		}
+
+		return false;
+	}
+
+	public function removeSurveyOptionsByQuestId($question_id)
+	{
+		if ($question_id != null) {
+			$this->db->where('sv_quest_id', $question_id);
+			$delete = $this->db->delete('sv_quest_options');
+			return $delete == true;
+		}
+
+		return false;
+	}
+
+	public function removeSurveyQuestions($survey_id = null)
+	{
+		if ($survey_id != null) {
+			$this->db->where('survey_id', $survey_id);
+			$delete = $this->db->delete('sv_questions');
+			return $delete == true;
+		}
+
+		return false;
+	}
+
+	public function removeSurveyQuestionByQuestId($question_id)
+	{
+		if ($question_id != null) {
+			$this->db->where('id', $question_id);
+			$delete = $this->db->delete('sv_questions');
+			return $delete == true;
+		}
+
+		return false;
 	}
 }

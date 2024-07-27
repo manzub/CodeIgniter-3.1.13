@@ -9,6 +9,21 @@
 	</div>
 
 	<div class="mod view_default">
+		<div class="bd type_breakingnews type_breakingnews_default">
+			<?php echo validation_errors(); ?>
+			<?php if ($this->session->flashdata('alert')) { ?>
+				<div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<strong><?php echo $this->session->flashdata('alert')['title']; ?></strong>
+					<p><?php echo $this->session->flashdata('alert')['message']; ?></p>
+				</div>
+			<?php } ?>
+		</div>
+	</div>
+
+	<div class="mod view_default">
 		<div class="card bg-default">
 			<div class="card-header">
 				<h1 class="panel-title"><strong>Redeem SB</strong></h1>
@@ -16,21 +31,50 @@
 			</div>
 			<div class="card-body">
 				<div class="row">
-					<?php for ($i = 0; $i < 4; $i++) { ?>
-						<div class="col-sm-6 col-md-4 mb-2">
-							<div class="card">
-								<img class="card-img-top" src="..." alt="..." style="height: 150px;">
-								<div class="card-body">
-									<h3>Thumbnail label</h3>
-									<p>Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
-									<p>
-										<a href="#" class="btn btn-primary" role="button">Button</a>
-										<a href="#" class="btn btn-secondary" role="button">Button</a>
-									</p>
+					<?php foreach ($withdraw_options as $key => $value) { ?>
+						<div class="col-sm-6 col-md-6 mb-2" style="padding:10px">
+							<div class="d-flex justify-content-between align-items-center shadow-sm" style="border: 1px solid #000;padding:10px">
+								<div class="img">
+									<img src="<?php echo base_url('assets/images/withdrawal.png') ?>" style="height: 150px;">
+								</div>
+								<div class="content">
+									<h1 style="font-size: 25px;"><strong><?php echo $value ?> SB</strong></h1>
+									<p>Withdraw to your saved payment option.</p>
+									<form method="post" action="<?php echo base_url('profile/redeem_points') ?>">
+										<input type="hidden" name="amount" value="<?php echo $value ?>">
+										<div class="d-flex align-items-center justify-content-between" style="gap: 10px;">
+											<select name="bank_type" class="form-control">
+												<option value="paypal">Paypal</option>
+												<option value="bank">Bank Transfer</option>
+											</select>
+											<button class="mt-2 btn btn-primary" role="button">Request</button>
+										</div>
+									</form>
 								</div>
 							</div>
 						</div>
 					<?php } ?>
+					<div class="col-md-8 mb-2" style="padding:10px">
+						<div class="d-flex justify-content-start align-items-center shadow-sm" style="border: 1px solid #000;">
+							<div class="img">
+								<img src="<?php echo base_url('assets/images/withdrawal.png') ?>" style="height: 150px;">
+							</div>
+							<div class="content">
+								<h1 style="font-size: 25px;">Enter Amount</h1>
+								<p>Withdraw to your saved payment option.</p>
+								<form method="post" action="<?php echo base_url('profile/redeem_points') ?>">
+									<input class="form-control" type="number" name="amount" value="0">
+									<div class="d-flex align-items-center justify-content-between" style="gap: 10px;">
+										<select name="bank_type" class="form-control">
+											<option value="paypal">Paypal</option>
+											<option value="bank">Bank Transfer</option>
+										</select>
+										<button class="mt-2 btn btn-primary" role="button">Request</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

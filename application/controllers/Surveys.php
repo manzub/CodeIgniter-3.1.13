@@ -7,6 +7,7 @@ class Surveys extends Member_Controller
 	{
 		parent::__construct();
 		$this->load->model('model_surveys');
+		$this->load->model('model_categories');
 		$this->load->model('model_users');
 		$this->load->model('model_config');
 		$this->load->model('model_logs');
@@ -313,15 +314,15 @@ class Surveys extends Member_Controller
 
 			if (in_array('manageActivity', $this->permission)) {
 				if ($value['status'] == 'draft') {
-					$buttons .= "<a href='" . base_url('surveys/review_item/' . $value['slug']) . "' class='btn btn-primary'><i class='fa fa-pencil'></i></a>";
+					$buttons .= "<a href='" . base_url('surveys/review_item/' . $value['slug']) . "' class='btn btn-primary'><i class='fa fa-archive'></i></a>";
 				}
 			} else {
 				if (in_array('manageSurvey', $this->permission)) {
 					if ($value['status'] == 'draft') {
 						$buttons .= "<a href='" . base_url('surveys/edit/' . $value['slug']) . "' class='btn btn-primary' style='margin-right:10px'><i class='fa fa-pencil'></i></a>";
 					}
-					$buttons .= "<button onclick='removeFunc(" . $value['slug'] . ")' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
 				}
+				$buttons .= "<button onclick='removeFunc(`" . $value['slug'] . "`)' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
 			}
 
 			$status = "<span class='label label-info'>" . strtoupper($value['status']) . "</span>";
@@ -339,12 +340,292 @@ class Surveys extends Member_Controller
 		echo json_encode($result);
 	}
 
+	public function review_item($survey_slug = null)
+	{
+		$this->not_logged_in();
+		$user_id = $this->session->userdata('id');
+
+
+		if ($survey_slug == null) {
+			redirect('surveys/admin', 'refresh');
+		}
+
+		if (in_array('reviewActivity', $this->permission)) {
+			$survey_item = $this->model_surveys->getSurveyItemBySlug($survey_slug);
+
+			$this->form_validation->set_rules('approve_deny', 'Approve or Deny', 'required');
+			if ($this->form_validation->run() == TRUE) {
+				# code...
+				$approve_deny = $this->input->post('approve_deny');
+				$status = $approve_deny == 'deny' ? 'rejected' : 'available';
+
+				$data = array('status' => $status);
+				$update = $this->model_surveys->updateSurveyItem($survey_item['id'], $data);
+				if ($update) {
+					// reward points
+					$reward_config = $this->model_config->getConfigByName('mod_review_reward');
+					$points_earned = intval($reward_config['value']);
+
+					// reward ref parent user
+					$my_account = $this->model_users->getuserById($user_id);
+					if (!in_array($my_account['referred_by'], array(null, 'NULL'))) {
+						$my_referrer = $this->model_users->getUserByRefCode($my_account['referred_by']);
+						// load interest config
+						$reward_interest_config = $this->model_config->getConfigByName('ref_reward_interest');
+						$reward_interest = intval($reward_interest_config['value']);
+						$interest_earned = $points_earned / $reward_interest;
+
+						$this->model_users->logClaimedReward($my_referrer['id'], array('user_id' => $my_referrer['id'], 'reward_earned' => $interest_earned, 'type' => 'ref_interest', 'streak' => '0'));
+					}
+
+					// log claimed reward
+					$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'review_id' => $survey_item['id'], 'reward_earned' => $points_earned, 'type' => 'mod_reward', 'streak' => '0'));
+					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $points_earned, 'title' => 'Completed'));
+					// log activity
+					$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Reviewed Activity Item', 'message' => 'Completed Review! Earned' . $points_earned);
+					$this->model_logs->logActivity($activity);
+					redirect('surveys/admin', 'refresh');
+				}
+			}
+			$cat_arr = $this->model_categories->getAllCategories();
+			$sv_questions = $this->model_surveys->getSurveyQuestionsById($survey_item['id']);
+			$this->data['survey_item'] = $survey_item;
+			$this->data['sv_questions'] = $sv_questions;
+			$this->data['categories'] = $cat_arr;
+			$this->render_admin('pages/admin/activities/surveys/review_item', $this->data);
+		} else {
+			redirect('surveys/admin', 'refresh');
+		}
+	}
+
 	public function create()
 	{
 		$this->not_logged_in();
 		$user_id = $this->session->userdata('id');
 
+		if (in_array('createSurvey', $this->permission)) {
+			// survey_title, survey_cat[], limit_per_user, global_limit
+			$this->form_validation->set_rules('survey_title', 'Survey Title', 'trim|required');
+			$this->form_validation->set_rules('survey_cat[]', 'Categories', 'required');
+			$this->form_validation->set_rules('limit_per_user', 'Limit Per User', 'required');
+			$this->form_validation->set_rules('global_limit', 'Global Limit', 'required');
+
+			if ($this->form_validation->run() == TRUE) {
+				$categories = $this->input->post('survey_cat[]');
+				$survey_title = trim($this->input->post('survey_title'));
+				$limit_per_user = intval($this->input->post('limit_per_user'));
+				$global_limit = intval($this->input->post('global_limit'));
+
+				// create item as draft state
+				$reward_config = $this->model_config->getConfigByName('survey_item_reward_points');
+				$reward_points = intval($reward_config['value']);
+				$slug = 'sv-' . rand(100, 9999) . '-' . str_replace(' ', '-', substr($survey_title, 0, 25));
+				$data = array('slug' => $slug, 'title' => $survey_title, 'category' => implode(",", $categories), 'limit_per_user' => $limit_per_user, 'global_limit' => $global_limit, 'status' => 'draft', 'reward_points' => $reward_points);
+				$created_item = $this->model_surveys->createSurveyItem($user_id, $data);
+
+				if ($created_item) {
+					// log activity
+					$log = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Item Created', 'message' => 'Created New Survey Item');
+					$this->model_logs->logActivity($log);
+					// flashdata
+					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Item Created', 'message' => 'Created New Survey Item'));
+				} else {
+					$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Error Occurred', 'message' => 'Could not create Item'));
+				}
+				redirect('surveys/admin', 'refresh');
+			}
+		} else {
+			$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'title' => 'Permission Denied', 'message' => 'No access to create survey item.'));
+			redirect('surveys/admin', 'refresh');
+		}
+
 		// form to create new survey
+		$cat_arr = $this->model_categories->getAllCategories();
+		$this->data['categories'] = $cat_arr;
 		$this->render_admin('pages/admin/activities/surveys/create', $this->data);
+	}
+
+	public function edit($survey_slug = null)
+	{
+		$user_id = $this->session->userdata('id');
+
+		if ($survey_slug == null) {
+			redirect('surveys/admin', 'refresh');
+		}
+
+		if (in_array('manageSurvey', $this->permission)) {
+			$survey_item = $this->model_surveys->getSurveyItemBySlug($survey_slug);
+
+			if (!empty($survey_item)) {
+				$this->form_validation->set_rules('survey_title', 'Title', 'trim|required');
+				$this->form_validation->set_rules('categories[]', 'Categories', 'required');
+				$this->form_validation->set_rules('limit_per_user', 'User Limits', 'trim|required');
+				$this->form_validation->set_rules('global_limit', 'Global Limit', 'trim|required');
+
+				if ($this->form_validation->run() == TRUE) {
+					# code...
+					$categories = implode(',', $this->input->post('categories'));
+					$survey_title = $this->input->post('survey_title');
+					$limit_per_user = $this->input->post('limit_per_user');
+					$global_limit = $this->input->post('global_limit');
+
+					$data = array('title' => $survey_title, 'category' => $categories, 'limit_per_user' => $limit_per_user, 'global_limit' => $global_limit);
+					$updated_item = $this->model_surveys->updateSurveyItem($survey_item['id'], $data);
+
+					if ($updated_item) {
+						// log activity
+						$log = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Item Updated', 'message' => 'Updated Survey Item');
+						$this->model_logs->logActivity($log);
+						// flashdata
+						$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Item Created', 'message' => 'Updated Survey Item'));
+					} else {
+						$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Error Occurred', 'message' => 'Could not update Item'));
+					}
+					redirect('surveys/admin', 'refresh');
+				}
+
+				$cat_arr = $this->model_categories->getAllCategories();
+				$sv_questions = $this->model_surveys->getSurveyQuestionsById($survey_item['id']);
+				$this->data['categories'] = $cat_arr;
+				$this->data['survey_item'] = $survey_item;
+				$this->data['sv_questions'] = $sv_questions;
+				$this->render_admin('pages/admin/activities/surveys/edit', $this->data);
+			} else {
+				redirect('surveys/admin', 'refresh');
+			}
+		} else {
+			redirect('surveys/admin', 'refresh');
+		}
+	}
+
+	public function addQuestion($survey_slug = null)
+	{
+		$user_id = $this->session->userdata('id');
+		if ($survey_slug == null) {
+			redirect('surveys/admin', 'refresh');
+		}
+
+		if (in_array('manageSurvey', $this->permission)) {
+			$survey_item = $this->model_surveys->getSurveyItemBySlug($survey_slug);
+			if ($survey_item['status'] == 'draft') {
+				if ($survey_item['created_by'] == $user_id) {
+					# can add questions
+					$this->form_validation->set_rules('question_text', 'Question Name', 'trim|required');
+					$this->form_validation->set_rules('option_style', 'Option Style', 'required');
+					$this->form_validation->set_rules('option_text[]', 'Options', 'trim|required');
+
+					if ($this->form_validation->run() == TRUE) {
+						# code...
+						$question_text = $this->input->post('question_text');
+						$option_style = $this->input->post('option_style');
+						$data = array('survey_slug' => $survey_slug, 'survey_id' => $survey_item['id'], 'question_text' => $question_text, 'option_style' => $option_style);
+						$created_item = $this->model_surveys->createSurveyQuestion($data);
+						$created_item = true;
+						if ($created_item) {
+							// update question count
+							$no_questions = intval($survey_item['no_questions']) + 1;
+							$this->model_surveys->updateSurveyItem($survey_item['id'], array('no_questions' => $no_questions));
+							// add options
+							$options = $this->input->post('option_text');
+							foreach ($options as $key => $value) {
+								$options_data = array('survey_slug' => $survey_slug, 'survey_id' => $survey_item['id'], 'sv_quest_id' => $created_item, 'option_text' => $value);
+								$this->model_surveys->createSurveyOption($options_data);
+							}
+							// log activity
+							$log = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Item Created', 'message' => 'Updated Survey Options');
+							$this->model_logs->logActivity($log);
+							// flashdata
+							$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Item Created', 'message' => 'Updated Survey Item'));
+						} else {
+							$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Error Occurred', 'message' => 'Could not update Item'));
+						}
+						redirect('surveys/edit/' . $survey_slug, 'refresh');
+					} else {
+						redirect('surveys/edit/' . $survey_slug, 'refresh');
+					}
+				} else {
+					$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Error Occurred', 'message' => 'Could not update Item'));
+					redirect('surveys/edit/' . $survey_slug, 'refresh');
+				}
+			} else {
+				redirect('surveys/admin', 'refresh');
+			}
+		}
+	}
+
+	public function deleteQuestion($question_id = null)
+	{
+
+		$user_id = $this->session->userdata('id');
+
+		if ($question_id == null) {
+			redirect('surveys/admin', 'refresh');
+		}
+
+		if (in_array('manageSurvey', $this->permission)) {
+			$question_item = $this->model_surveys->getSurveyQuestionByQuestId($question_id);
+			$survey_item = $this->model_surveys->getSurveyItemBySlug($question_item['survey_slug']);
+			// remove options, remove question
+			$this->model_surveys->removeSurveyOptionsByQuestId($question_id);
+			$remove = $this->model_surveys->removeSurveyQuestionByQuestId($question_id);
+			if ($remove) {
+				// update question count
+				$no_questions = intval($survey_item['no_questions']) - 1;
+				$this->model_surveys->updateSurveyItem($survey_item['id'], array('no_questions' => $no_questions));
+				// log activity
+				$log = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Item Updated', 'message' => 'Updated Survey Item');
+				$this->model_logs->logActivity($log);
+				// flashdata
+				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Item Created', 'message' => 'Updated Survey Item'));
+			} else {
+				$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Error Occurred', 'message' => 'Could not update Item'));
+			}
+
+			redirect('surveys/edit', 'refresh');
+		}
+	}
+
+	public function delete()
+	{
+		$user_id = $this->session->userdata('id');
+		$group_name = $this->session->userdata('group_name');
+
+		$response = array();
+
+		$survey_slug = $this->input->post('slug');
+
+		if (in_array('manageSurvey', $this->permission)) {
+			$survey_item = $this->model_surveys->getSurveyItemBySlug($survey_slug);
+
+			if (!empty($survey_item)) {
+				$can_delete = false;
+				// is not admin user
+				if (!(strpos($group_name, 'admin') !== false)) {
+					$can_delete = $survey_item['created_by'] == $user_id ? true : false;
+				} else {
+					$can_delete = true;
+				}
+
+				if ($can_delete) {
+					$deleted = $this->model_surveys->removeSurveyItem($survey_item['id']);
+					if ($deleted) {
+						// log activity
+						$log = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Deleted Item', 'message' => 'Successfully deleted review item');
+						$this->model_logs->logActivity($log);
+						$response['success'] = true;
+						$response['messages'] = 'Successfully removed';
+					} else {
+						$response['success'] = false;
+						$response['messages'] = 'Error occurred while deleting product, contact admin';
+						$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'title' => 'Error occurred', 'message' => 'Could not delete item, please try again later.'));
+					}
+				} else {
+					$response['success'] =  false;
+					$response['message'] = 'Cannot delete item';
+				}
+			}
+		}
+
+		echo json_encode($response);
 	}
 }
