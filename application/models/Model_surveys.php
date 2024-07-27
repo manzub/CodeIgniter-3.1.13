@@ -41,6 +41,16 @@ class Model_surveys extends CI_Model
 		}
 	}
 
+	public function getSurveyItemById($survey_id = null) {
+		if ($survey_id != null) {
+			$query = $this->db->get_where('survey_meta', array('id' => $survey_id));
+			$result = $query->row_array();
+			return $result;
+		}
+
+		return array();
+	}
+
 	public function getSurveyQuestionByQuestId($quest_id) {
 		if ($quest_id != null) {
 			$query = $this->db->get_where('sv_questions', array('id', $quest_id));

@@ -21,7 +21,7 @@
 					<br /> <br />
 				<?php endif; ?>
 
-				<div class="messages">
+				<div id="messages">
 					<?php if ($this->session->flashdata('alert')) { ?>
 						<div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
 							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
