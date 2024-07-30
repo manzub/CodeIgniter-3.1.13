@@ -98,6 +98,7 @@ class Model_transcribe extends CI_Model
 			$result = $query->result_array();
 
 			// get each transcribe item and compare global limit
+			$count = 0;
 			foreach ($result as $key => $item) {
 				// check global limit was set or expired
 				if (($item['global_limit'] == NULL) || intval($item['global_limit']) > 0) { //item is still valid and hasn't globally expired
@@ -111,7 +112,8 @@ class Model_transcribe extends CI_Model
 							continue;
 						}
 					}
-					$available_items[$key] = $item;
+					$available_items[$count] = $item;
+					$count++;
 					// }
 				}
 			}

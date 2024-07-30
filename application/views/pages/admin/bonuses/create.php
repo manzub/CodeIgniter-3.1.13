@@ -66,6 +66,11 @@
 							</div>
 
 							<div class="form-group">
+								<label>Limit</label>
+								<input type="number" name="global_limit" value="10" class="form-control">
+							</div>
+
+							<div class="form-group">
 								<button type="submit" class="btn btn-primary">Submit</button>
 							</div>
 						</div>

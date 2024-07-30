@@ -9,6 +9,7 @@ class Surveys extends Member_Controller
 		$this->load->model('model_surveys');
 		$this->load->model('model_categories');
 		$this->load->model('model_users');
+		$this->load->model('model_bonuses');
 		$this->load->model('model_config');
 		$this->load->model('model_logs');
 		$this->data['title'] = "Surveys | SurveyMonkey";
@@ -206,36 +207,19 @@ class Surveys extends Member_Controller
 			$this->form_validation->set_rules('completed', 'Survey Item', 'required');
 			if ($this->form_validation->run() == TRUE) {
 				$points_earned = $survey_item['reward_points'];
-
-				// check if daily activity
-				$dl_list = $this->session->userdata('daily_activity');
-				$dl_slug = array_map(function ($o) {
-					return $o['slug'];
-				}, $dl_list);
-				if (!empty($dl_slug)) {
-					if (in_array($survey_item['slug'], $dl_slug)) {
-						$daily_activity_config = $this->model_config->getConfigByName('daily_activity_reward');
-						$points_earned = intval($daily_activity_config['value']);
-						$key = array_search($survey_item['slug'], $dl_slug);
-						$dl_list[$key]['status'] = 'completed';
-						$this->session->set_userdata('daily_activity', $dl_list);
-					}
-				}
-
 				$data = array('points_earned' => $points_earned);
-
 				$update = $this->model_surveys->updateCompletedItem($last_comp_item['id'], $data);
 				if ($update) {
-					// reward ref parent user
-					$my_account = $this->model_users->getuserById($user_id);
-					if (!in_array($my_account['referred_by'], array(null, 'NULL'))) {
-						$my_referrer = $this->model_users->getUserByRefCode($my_account['referred_by']);
-						// load interest config
-						$reward_interest_config = $this->model_config->getConfigByName('ref_reward_interest');
-						$reward_interest = intval($reward_interest_config['value']);
-						$interest_earned = $points_earned / $reward_interest;
-
-						$this->model_users->logClaimedReward($my_referrer['id'], array('user_id' => $my_referrer['id'], 'reward_earned' => $interest_earned, 'type' => 'ref_interest', 'streak' => '0'));
+					// check if bonus item
+					$categories = explode(',', $survey_item['category']);
+					if (in_array('1', $categories)) { // found as bonus_item
+						$bonus_item = $this->model_bonuses->getBonusItemByCond(array('survey_id' => $survey_item['id']));
+						$reward_points = intval($bonus_item['reward_points']);
+						$points_earned =  $points_earned + $reward_points;
+						$global_limit = intval($bonus_item['global_limit']) - 1;
+						$status = $global_limit == 0 ? 'completed' : 'available';
+						// update bonus item
+						$this->model_bonuses->update($bonus_item['id'], array('global_limit' => $global_limit, 'status' => $status));
 					}
 
 					// reduce global limit
@@ -244,9 +228,10 @@ class Surveys extends Member_Controller
 						$this->model_surveys->updateSurveyItem($survey_item['id'], array('global_limit' => $global_limit));
 					}
 				}
-
+				// reward points
 				$total_earned = round($points_earned * count($completed_items));
-				$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'review_id' => $survey_item['id'], 'reward_earned' => $total_earned, 'type' => 'completed_activity', 'streak' => '0'));
+				$this->reward_points($points_earned, $total_earned, $survey_item['slug'], array('survey_id' => $survey_item['id'], 'type' => 'completed_activity', 'streak' => '0'));
+
 				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'message' => 'Earned ' . $total_earned, 'title' => 'Completed'));
 				// log activity
 				$activity = array('user_id' => $user_id, 'activity_code' => '1', 'activity' => 'Earned Reward', 'message' => 'Congratulations! Earned' . $total_earned);

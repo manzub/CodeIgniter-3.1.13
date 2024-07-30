@@ -30,6 +30,16 @@ class Model_bonuses extends CI_Model
 		return $result;
 	}
 
+	public function getBonusItemByCond($cond = array()) {
+		if (!empty($cond)) {
+			$query = $this->db->get_where('bonus_activities', $cond);
+			$result = $query->row_array();
+			return $result;
+		}
+
+		return array();
+	}
+
 	public function create($data = array())
 	{
 		if (!empty($data)) {
@@ -40,7 +50,16 @@ class Model_bonuses extends CI_Model
 		return false;
 	}
 
+	public function update($bonus_id = null, $data = array()) {
+		if ($bonus_id != null && !empty($data)) {
+			$this->db->where('id', $bonus_id);
+			$update = $this->db->update('bonus_activities', $data);
+			return ($update == true) ? true : false;
+		}
 
+		return false;
+	}
+	
 	public function remove($bonus_id)
 	{
 		if ($bonus_id != null) {

@@ -31,7 +31,7 @@ class Bonuses extends Member_Controller
 			switch ($bonus_item['activity_type']) {
 				case 'rv':
 					$x = $this->model_reviews->getReviewItemById($bonus_item['review_id']);
-					$activity_title = $x['tittle'];
+					$activity_title = $x['title'];
 					$activity_type = 'Review';
 					$link = base_url('reviews/single/' . $x['slug']);
 					break;
@@ -132,12 +132,14 @@ class Bonuses extends Member_Controller
 			$this->form_validation->set_rules('activity_type', 'Activity Type', 'trim|required');
 			$this->form_validation->set_rules('activity_id', 'Activity ID', 'required');
 			$this->form_validation->set_rules('reward_points', 'Reward Points', 'required');
+			$this->form_validation->set_rules('global_limit', 'Global Limit', 'required');
 			if ($this->form_validation->run() == TRUE) {
 				// CODE, update item category too
 				$activity_id = $this->input->post('activity_id');
 				$activity_type = $this->input->post('activity_type');
 				$reward_points = $this->input->post('reward_points');
-				$data = array('status' => 'available', 'activity_type' => $activity_type, 'reward_points' => $reward_points, 'created_by' => $user_id);
+				$global_limit = $this->input->post('global_limit');
+				$data = array('status' => 'available', 'activity_type' => $activity_type, 'reward_points' => $reward_points, 'global_limit' => $global_limit, 'created_by' => $user_id);
 
 				// update category item for that activity and update activity_id in data
 				switch ($activity_type) {
@@ -198,13 +200,37 @@ class Bonuses extends Member_Controller
 
 		$bonus_id = $this->input->post('bonus_id');
 		if ($bonus_id) {
-			$delete = $this->model_bonuses->remove($bonus_id);
-			if ($delete == true) {
-				$response['success'] = true;
-				$response['messages'] = "Successfully removed";
-			} else {
-				$response['success'] = false;
-				$response['messages'] = "Error in the database while removing this item";
+			$item = $this->model_bonuses->getBonusById($bonus_id);
+			if (!empty($item)) {
+				switch ($item['activity_type']) {
+					case 'rv':
+						$x = $this->model_reviews->getReviewItemById($item['review_id']);
+						$categories = explode(',', $x['category']);
+						$diff = array_diff($categories, array('1'));
+						$this->model_reviews->updateReviewItem($item['review_id'], array('category' => implode(',', $diff)));
+						break;
+					case 'av':
+						$x = $this->model_transcribe->getTranscribeItemById($item['transcribe_id']);
+						$categories = explode(',', $x['category']);
+						$diff = array_diff($categories, array('1'));
+						$this->model_transcribe->updateTranscribeItem($item['transcribe_id'], array('category' => implode(',', $diff)));
+						break;
+					default:
+						$x = $this->model_surveys->getSurveyItemById($item['survey_id']);
+						$categories = explode(',', $x['category']);
+						$diff = array_diff($categories, array('1'));
+						$this->model_surveys->updateSurveyItem($item['survey_id'], array('category' => implode(',', $diff)));
+						break;
+				}
+
+				$delete = $this->model_bonuses->remove($bonus_id);
+				if ($delete == true) {
+					$response['success'] = true;
+					$response['messages'] = "Successfully removed";
+				} else {
+					$response['success'] = false;
+					$response['messages'] = "Error in the database while removing this item";
+				}
 			}
 		} else {
 			$response['success'] = false;

@@ -53,7 +53,7 @@
 					</li>
 				<?php endif; ?>
 
-				<?php if (in_array('manageSurvey', $user_permission) || in_array('manageActivity', $user_permission)) { ?>
+				<?php if (in_array('manageSurvey', $user_permission)) { ?>
 					<li class="treeview" id="mainSurveyNav">
 						<a href="#">
 							<i class="fa fa-cube"></i>

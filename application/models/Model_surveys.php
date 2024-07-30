@@ -96,6 +96,7 @@ class Model_surveys extends CI_Model
 			$result = $query->result_array();
 
 			// get each survey item and check global_limit
+			$count = 0;
 			foreach ($result as $key => $item) {
 				// check global limit was set
 				if (($item['global_limit'] == NULL) || intval($item['global_limit']) > 0) { //item is still valid and hasn't globally expired
@@ -109,7 +110,8 @@ class Model_surveys extends CI_Model
 							continue;
 						}
 					}
-					$available_items[$key] = $item;
+					$available_items[$count] = $item;
+					$count++;
 					// }
 				}
 			}

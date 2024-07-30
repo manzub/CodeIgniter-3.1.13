@@ -36,24 +36,30 @@ class Auth extends Member_Controller
 
 				if ($login) {
 					$this->model_users->update($login['id'], array('last_login' => strtotime('now')));
-					// create session data
-					$logged_in_sess = array('id' => $login['id'], 'username' => $login['username'], 'email' => $login['email'], 'logged_in' => TRUE);
-					$this->session->set_userdata($logged_in_sess);
-					$this->session->set_userdata('curr_status', $this->user_status['logged_in']);
-					// log activity
-					$activity = array('user_id' => $login['id'], 'activity_code' => '0', 'activity' => 'Login Successful', 'message' => 'Welcome!');
-					$this->model_logs->logActivity($activity);
-					// redirect
-
-					$group_data = $this->model_groups->getUserGroupByUserId($login['id']);
-
-					// get admin users
-					$admins = $this->model_config->getConfigByName('admin_accounts');
-					$admin_arr = unserialize($admins['value']);
-					if (in_array($group_data['group_name'], $admin_arr)) {
-						redirect('dashboard', 'refresh');
+					// TODO: check account status
+					if ($login['status'] == 'active') {
+						// create session data
+						$logged_in_sess = array('id' => $login['id'], 'username' => $login['username'], 'email' => $login['email'], 'logged_in' => TRUE);
+						$this->session->set_userdata($logged_in_sess);
+						$this->session->set_userdata('curr_status', $this->user_status['logged_in']);
+						// log activity
+						$activity = array('user_id' => $login['id'], 'activity_code' => '0', 'activity' => 'Login Successful', 'message' => 'Welcome!');
+						$this->model_logs->logActivity($activity);
+						// redirect
+	
+						$group_data = $this->model_groups->getUserGroupByUserId($login['id']);
+	
+						// get admin users
+						$admins = $this->model_config->getConfigByName('admin_accounts');
+						$admin_arr = unserialize($admins['value']);
+						if (in_array($group_data['group_name'], $admin_arr)) {
+							redirect('dashboard', 'refresh');
+						} else {
+							redirect('home', 'refresh');
+						}
 					} else {
-						redirect('home', 'refresh');
+						$message = $login['status'] == 'pending' ? 'Your account is pending activation.' : 'Your account has been '.$login['status'];
+						$this->sesion->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Error Occurred', 'message' => $message));
 					}
 				} else {
 					$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'message' => 'Incorrect username/password combination.', 'title' => 'Oops an error occured'));
