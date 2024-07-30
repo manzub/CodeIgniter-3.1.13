@@ -81,10 +81,11 @@ class Home extends Member_Controller
 		$this->render_template('pages/home', $this->data);
 	}
 
-	public function bonuses() {
-		// select activities where category = bonus
-		// use config daily bonus limit
-		// check from last claimed
-		$this->render_template('pages/bonus_activity', $this->data);
+	public function contact_us() {
+
+	}
+
+	public function about_us() {
+		
 	}
 }

@@ -46,9 +46,9 @@ class Auth extends Member_Controller
 						$activity = array('user_id' => $login['id'], 'activity_code' => '0', 'activity' => 'Login Successful', 'message' => 'Welcome!');
 						$this->model_logs->logActivity($activity);
 						// redirect
-	
+
 						$group_data = $this->model_groups->getUserGroupByUserId($login['id']);
-	
+
 						// get admin users
 						$admins = $this->model_config->getConfigByName('admin_accounts');
 						$admin_arr = unserialize($admins['value']);
@@ -58,7 +58,7 @@ class Auth extends Member_Controller
 							redirect('home', 'refresh');
 						}
 					} else {
-						$message = $login['status'] == 'pending' ? 'Your account is pending activation.' : 'Your account has been '.$login['status'];
+						$message = $login['status'] == 'pending' ? 'Your account is pending activation.' : 'Your account has been ' . $login['status'];
 						$this->sesion->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Error Occurred', 'message' => $message));
 					}
 				} else {
@@ -80,6 +80,9 @@ class Auth extends Member_Controller
 	{
 		$this->logged_in();
 
+		$account_type = $this->input->get('type');
+		echo gettype($account_type);
+
 		$this->data['title'] = "Create an account | SurveyMonkey";
 		$this->form_validation->set_rules('username', 'Username', 'trim|required');
 		$this->form_validation->set_rules('email', 'Email', 'trim|required');
@@ -91,11 +94,21 @@ class Auth extends Member_Controller
 				$email_exists = $this->model_auth->check_email($this->input->post('email'));
 				if (!$email_exists) {
 					// valid username and email
-					// create user
 					$password_hash = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
+					$status = 'active';
 					$group_data = $this->model_groups->getGroupByGroupName('member');
-					$data = array('username' => $this->input->post('username'), 'password' => $password_hash, 'email' => $this->input->post('email'), 'user_group' => $group_data['id']);
+					$is_admin_user = false;
 
+					if ($account_type != null) {
+						if (in_array($account_type, array('moderator', 'publisher', 'advertiser'))) {
+							$group_data = $this->model_groups->getGroupByGroupName($account_type);
+							$status = 'pending';
+							$is_admin_user = true;
+						}
+					}
+
+					// create user
+					$data = array('username' => $this->input->post('username'), 'password' => $password_hash, 'email' => $this->input->post('email'), 'user_group' => $group_data['id'], 'status' => $status);
 					$raw_ref_code = $this->input->post('ref_code') != '' ? $this->input->post('ref_code') : $ref_code;
 					$ref_id = null;
 					if (!in_array($raw_ref_code, array('', null))) {
@@ -117,6 +130,8 @@ class Auth extends Member_Controller
 							// edit ref info -> save user_id
 							$this->model_referrals->updateReferral($ref_id, array('user_id' => $signup, 'status' => 'active'));
 						}
+						// send superadmin notification
+						$is_admin_user && $this->send_email('wizzdom@surveyvine.com', 'Elevated User Request', 'A new user has requested to be registered as a ' . $account_type . 'do you approve this request?');
 						// log activity
 						$activity = array('user_id' => $signup, 'activity_code' => '0', 'activity' => 'Created User Account', 'message' => 'Welcome to SurveyMonkey!');
 						$this->model_logs->logActivity($activity);

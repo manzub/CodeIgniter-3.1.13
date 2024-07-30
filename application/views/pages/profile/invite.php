@@ -1,5 +1,14 @@
 <div id="y-col1" style="width: 78.23%;">
 	<div class="mod view_default">
+		<?php if ($this->session->flashdata('alert')) { ?>
+			<div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<strong><?php echo $this->session->flashdata('alert')['title']; ?></strong>
+				<p><?php echo $this->session->flashdata('alert')['message']; ?></p>
+			</div>
+		<?php } ?>
 		<div class="jumbotron" style="margin-bottom: 0px;">
 			<div class="container">
 				<div class="row">

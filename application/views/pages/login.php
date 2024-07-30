@@ -11,15 +11,15 @@
 				<p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
 			</div>
 			<div class="col-md-5">
-			<?php if ($this->session->flashdata('alert')) { ?>
-				<div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
-					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<strong><?php echo $this->session->flashdata('alert')['title']; ?></strong>
-					<p><?php echo $this->session->flashdata('alert')['message']; ?></p>
-				</div>
-			<?php } ?>
+				<?php if ($this->session->flashdata('alert')) { ?>
+					<div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<strong><?php echo $this->session->flashdata('alert')['title']; ?></strong>
+						<p><?php echo $this->session->flashdata('alert')['message']; ?></p>
+					</div>
+				<?php } ?>
 				<div class="panel panel-default no-shadow">
 					<div class="panel-heading">
 						<h1 style="font-size: 17px;font-weight:bold" class="panel-title">Don't have an account?</h1>

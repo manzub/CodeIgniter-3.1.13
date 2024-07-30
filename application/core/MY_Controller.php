@@ -23,6 +23,7 @@ class Member_Controller extends MY_Controller
 		parent::__construct();
 		$this->load->helper('my_helper.php');
 		$this->load->library('dailyactivities');
+		$this->load->library('email');
 
 		$this->load->model('model_groups');
 		$this->load->model('model_users');
@@ -251,6 +252,7 @@ class Member_Controller extends MY_Controller
 		// return true or false case
 		$from = "noreply@surveyvine.com";
 		$fromName = "SurveyVine";
+		$this->email->from($from, $fromName);
 
 		$email_body = `<div style="text-align: left; color: #666666;">
 		Your friend has invited you to join SurveyVine. Get ready for a rewarding experience
@@ -282,12 +284,31 @@ class Member_Controller extends MY_Controller
 		$headers .= 'Cc: noreply@surveyvine.com' . "\r\n";
 		$headers .= 'Bcc: noreply@surveyvine.com' . "\r\n";
 
+		$this->email->to($recipient);
+		$this->email->subject($subject);
+		$this->email->message($htmlContent);
+
 		// Send email 
-		if (mail($recipient, $subject, $htmlContent, $headers)) {
+		if ($this->email->send()) {
 			return true;
 		}
 
 		return false;
+	}
+
+	public function send_email($to = null, $subject = null, $message = null)
+	{
+		if ($to && $subject && $message) {
+			$from = "noreply@surveyvine.com";
+			$fromName = 'SurveyVine';
+			$this->email->from($from, $fromName);
+
+			$this->email->to($to);
+			$this->email->subject($subject);
+			$this->email->message(html_email_template($message, null, $fromName));
+
+			$this->email->send();
+		}
 	}
 
 	public function logged_in()
@@ -307,14 +328,15 @@ class Member_Controller extends MY_Controller
 		}
 	}
 
-	public function no_admin($param = true) {
+	public function no_admin($param = true)
+	{
 		$session_data = $this->session->userdata();
 		if ($session_data['logged_in'] == TRUE) {
 			// check group name
 			$group_name = $session_data['group_name'];
 			if ((strpos($group_name, 'admin') !== false) || $group_name == 'moderator') {
 				if ($param) {
-          $this->session->set_flashdata('alert', array('classname' => 'alert-info', 'message' => 'You don\'t have access to view that page.', 'title' => 'Access denied.'));
+					$this->session->set_flashdata('alert', array('classname' => 'alert-info', 'message' => 'You don\'t have access to view that page.', 'title' => 'Access denied.'));
 					redirect('dashboard', 'refresh');
 				}
 			}
