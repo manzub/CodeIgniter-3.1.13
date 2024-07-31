@@ -57,7 +57,7 @@ class Member_Controller extends MY_Controller
 			$this->permission = unserialize($group_data['permissions']);
 			$this->session->set_userdata('group_name', $group_data['group_name']);
 
-			// $permissions = array_merge(array('manageBonus', 'createBonus'), unserialize($group_data['permissions']));
+			// $permissions = array_merge(array('manageUser', 'createUser', 'manageGroup', 'createGroup'), unserialize($group_data['permissions']));
 			// print_r(serialize($permissions));
 
 			// set default currency

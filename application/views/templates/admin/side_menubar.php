@@ -12,7 +12,7 @@
 			</li>
 
 			<?php if ($user_permission) : ?>
-				<?php if (in_array('createUser', $user_permission) || in_array('updateUser', $user_permission) || in_array('viewUser', $user_permission) || in_array('deleteUser', $user_permission)) : ?>
+				<?php if (in_array('createUser', $user_permission) || in_array('manageUser', $user_permission)) : ?>
 					<li class="treeview" id="mainUserNav">
 						<a href="#">
 							<i class="fa fa-users"></i>
@@ -26,7 +26,7 @@
 								<li id="createUserNav"><a href="<?php echo base_url('users/create') ?>"><i class="fa fa-circle-o"></i> Add User</a></li>
 							<?php endif; ?>
 
-							<?php if (in_array('updateUser', $user_permission) || in_array('viewUser', $user_permission) || in_array('deleteUser', $user_permission)) : ?>
+							<?php if (in_array('manageUser', $user_permission)) : ?>
 								<li id="manageUserNav"><a href="<?php echo base_url('users') ?>"><i class="fa fa-circle-o"></i> Manage Users</a></li>
 							<?php endif; ?>
 						</ul>
