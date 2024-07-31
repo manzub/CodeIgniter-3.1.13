@@ -132,6 +132,9 @@ class Auth extends Member_Controller
 						// log activity
 						$activity = array('user_id' => $signup, 'activity_code' => '0', 'activity' => 'Created User Account', 'message' => 'Welcome to SurveyMonkey!');
 						$this->model_logs->logActivity($activity);
+						// send welcome email
+						$message = "Welcome to SurveyVine!\n\n Let's get you started with bonus earnings. Login to get started.";
+						$this->send_email($this->input->post('email'), 'Welcome to SurveyVine!', $message);
 						// TODO: OTP codes
 						$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Congratulations', 'message' => 'Sign in to continue'));
 						redirect('auth/login', 'refresh');
