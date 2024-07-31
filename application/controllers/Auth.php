@@ -63,9 +63,6 @@ class Auth extends Member_Controller
 					}
 				} else {
 					$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'message' => 'Incorrect username/password combination.', 'title' => 'Oops an error occured'));
-					// log activity
-					$activity = array('user_id' => $user_id, 'activity_code' => '0', 'activity' => 'Failed Login', 'message' => 'Incorrect username/password combination.');
-					$this->model_logs->logActivity($activity);
 				}
 			} else {
 				$this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'message' => 'Email does not exist.', 'title' => 'Oops an error occured'));

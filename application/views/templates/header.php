@@ -51,10 +51,23 @@
 						<div class="searchwrapper tabpanel selected">
 							<div class="searchwrapper-border y-mast-ln-dk">
 								<div class="searchwrapper-inner y-mast-sprite y-mast-ln-lt">
-									<input type="text" autocomplete="off" title="Web Search" class="input-query med-large">
+									<input id="searchInput" type="text" autocomplete="off" title="Web Search" placeholder="Search Pages, Settings...." class="input-query med-large">
 									<span class="button-wrapper">
 										<button class="searchsubmit med-large y-fp-pg-grad" value="Web Search" type="submit" id="search-submit">Web Search</button>
 									</span>
+								</div>
+								<div id="search-contents" class="searchwrapper-contents y-mast-ln-dk">
+									<ul id="searchUL">
+										<li><a href="<?php echo base_url('profile') ?>">Profile</a></li>
+										<li><a href="<?php echo base_url('surveys') ?>">Surveys</a></li>
+
+										<li><a href="<?php echo base_url('auth/logout') ?>">Log Out</a></li>
+										<li><a href="<?php echo base_url('profile/redeem_sb') ?>">Withdraw/Redeem SB</a></li>
+
+										<li><a href="<?php echo base_url('bonuses') ?>">Bonuses</a></li>
+										<li><a href="<?php echo base_url('home/coming_soon') ?>">Shop</a></li>
+										<li><a href="<?php echo base_url('home/contact_us') ?>">Contact Us</a></li>
+									</ul>
 								</div>
 							</div>
 						</div>
@@ -194,6 +207,29 @@
 				}
 			})
 		}, 1000);
+
+		// js search inputs
+		document.getElementById('searchInput').addEventListener("keyup", function() {
+			document.getElementById('search-contents').style.display = "block";
+
+			// Declare variables
+			var input, filter, ul, li, a, i, txtValue;
+			input = document.getElementById('searchInput');
+			filter = input.value.toUpperCase();
+			ul = document.getElementById("searchUL");
+			li = ul.getElementsByTagName('li');
+
+			// Loop through all list items, and hide those who don't match the search query
+			for (i = 0; i < li.length; i++) {
+				a = li[i].getElementsByTagName("a")[0];
+				txtValue = a.textContent || a.innerText;
+				if (txtValue.toUpperCase().indexOf(filter) > -1) {
+					li[i].style.display = "";
+				} else {
+					li[i].style.display = "none";
+				}
+			}
+		})
 	})
 
 	window.onbeforeunload = function(e) {
