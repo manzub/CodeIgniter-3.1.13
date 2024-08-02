@@ -33,7 +33,7 @@
 					<!-- small box -->
 					<div class="small-box bg-yellow">
 						<div class="inner">
-							<h3>0</h3>
+							<h3><?php echo $total_users; ?></h3>
 							<p>Total Users</p>
 						</div>
 						<div class="icon">

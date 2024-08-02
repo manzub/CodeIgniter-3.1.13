@@ -35,4 +35,16 @@ class Model_groups extends CI_Model
 
 		return $result;
 	}
+
+	public function getGroupData($groupId = null) 
+	{
+		if($groupId) {
+			$sql = "SELECT * FROM groups WHERE id = ?";
+			$query = $this->db->query($sql, array($groupId));
+			return $query->row_array();
+		}
+
+		$query = $this->db->get('groups');
+		return $query->result_array();
+	}
 }

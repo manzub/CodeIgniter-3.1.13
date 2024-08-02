@@ -7,6 +7,8 @@ class Dashboard extends Member_Controller
 	{
 		parent::__construct();
 
+		$this->load->model('model_users');
+
 		$this->data['title'] = 'Dashboard';
 	}
 
@@ -16,6 +18,8 @@ class Dashboard extends Member_Controller
 
 		$this->data['is_admin'] = (strpos($group_name, 'admin') !== false);
 		$this->data['group_name'] = $group_name;
+
+		$this->data['total_users'] = $this->model_users->countTotalUsers();
 
 		$this->render_admin('pages/admin/dashboard', $this->data);
 	}

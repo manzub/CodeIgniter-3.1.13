@@ -7,6 +7,22 @@ class Model_users extends CI_Model
 		parent::__construct();
 	}
 
+	public function getAllUser() {
+		$sql = "SELECT * FROM users";
+		$query = $this->db->query($sql);
+		return $query->result_array();
+	}
+
+	public function getGroupData($group_id = null) {
+		if ($group_id) {
+			$query = $this->db->get_where('groups', array('id' => $group_id));
+			$result = $query->row_array();
+			return $result;
+		}
+
+		return array();
+	}
+
 	public function getUserById($user_id)
 	{
 		if ($user_id) {
@@ -47,6 +63,14 @@ class Model_users extends CI_Model
 		$update = $this->db->update('users', $data);
 
 		return ($update == true) ? true : false;
+	}
+
+	public function delete($user_id = null) {
+		if ($user_id !== null) {
+			$this->db->where('id', $user_id);
+			$delete = $this->db->delete('users');
+			return ($delete == true) ? true : false;
+		}
 	}
 
 	// misc functions
@@ -136,5 +160,11 @@ class Model_users extends CI_Model
 			$deleted = $this->db->delete('users_account');
 			return ($deleted == true) ? true : false;
 		}
+	}
+
+	public function countTotalUsers() {
+		$sql = "SELECT * FROM users";
+		$query = $this->db->query($sql);
+		return $query->num_rows();
 	}
 }

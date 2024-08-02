@@ -45,9 +45,8 @@
 								<tr>
 									<th>Username</th>
 									<th>Email</th>
-									<th>Name</th>
-									<th>Phone</th>
 									<th>Group</th>
+									<th>Status</th>
 
 									<?php if (in_array('manageUser', $user_permission)) : ?>
 										<th>Action</th>
@@ -60,9 +59,8 @@
 										<tr>
 											<td><?php echo $v['user_info']['username']; ?></td>
 											<td><?php echo $v['user_info']['email']; ?></td>
-											<td><?php echo $v['user_info']['firstname'] . ' ' . $v['user_info']['lastname']; ?></td>
-											<td><?php echo $v['user_info']['phone']; ?></td>
 											<td><?php echo $v['user_group']['group_name']; ?></td>
+											<td><?php echo $v['user_info']['status']; ?></td>
 											<?php if (in_array('manageUser', $user_permission)) : ?>
 												<td>
 													<a href="<?php echo base_url('users/edit/' . $v['user_info']['id']) ?>" class="btn btn-default"><i class="fa fa-edit"></i></a>
