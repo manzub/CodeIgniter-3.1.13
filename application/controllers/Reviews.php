@@ -224,6 +224,10 @@ class Reviews extends Member_Controller
 
 		if (in_array('createReview', $this->permission)) {
 
+			$config['upload_path'] = './uploads/';
+			$config['allowed_types'] = 'gif|jpg|png|jpeg';
+			$this->load->library('upload', $config);
+
 			$this->form_validation->set_rules('review_title', 'Title', 'trim|required');
 			$this->form_validation->set_rules('short_desc', 'Short Description', 'trim|required');
 			$this->form_validation->set_rules('categories[]', 'Categories', 'required');
@@ -238,7 +242,17 @@ class Reviews extends Member_Controller
 				// check short_clip and thumbnail_links
 				$thumbnails = array();
 				if (isset($_FILES['thumbnails'])) {
-					# upload thumbnails
+					$thumb_files = $_FILES['thumbnails'];
+					if (!empty($thumb_files)) {
+						$img_desc = $this->reArrayFiles($thumb_files);
+						foreach ($img_desc as $val) {
+							$newname = time() . $val['name'];
+							$new_dir = $config['upload_path'].$newname;
+							if (move_uploaded_file($val['tmp_name'], $new_dir)) {
+								array_push($thumbnails, base_url(substr($config['upload_path'], 1).$newname));
+							}
+						}
+					}
 				} else {
 					// use thumbnail links
 					$thumb_links_html = $this->input->post('thumbnail_links');
@@ -251,6 +265,15 @@ class Reviews extends Member_Controller
 				$short_clip = "";
 				if (isset($_FILES['short_clip'])) {
 					# upload short clip file
+					if ($_FILES['short_clip']['name']) {
+						$config['file_name'] = time() . $_FILES['short_clip']['name'];
+						if (!$this->upload->do_upload('short_clip')) {
+							$this->upload->display_errors('<p class="bg-danger">', '</p>');
+						} else {
+							$upload = $this->upload->data();
+							$short_clip = base_url($conifg['upload_path'] . $upload['file_name']);
+						}
+					}
 				} else {
 					$clip_link = $this->input->post('short_clip_link');
 					$short_clip = $clip_link;
@@ -275,7 +298,7 @@ class Reviews extends Member_Controller
 				$created_item = $this->model_reviews->createReviewItem($user_id, $data);
 
 				if ($created_item) {
-					$review_item_files = array('review_id' => $created_item, 'thumbnail_large' => $thumbnails[0], 'thumbnail_small' => $thumbnails[count($thumb_links) - 1], 'short_desc' => $short_desc, 'short_clip' => $short_clip, 'is_movie' => $is_movie, 'imdb' => $imdb_link);
+					$review_item_files = array('review_id' => $created_item, 'thumbnail_large' => $thumbnails[0], 'thumbnail_small' => $thumbnails[count($thumbnails) - 1], 'short_desc' => $short_desc, 'short_clip' => $short_clip, 'is_movie' => $is_movie, 'imdb' => $imdb_link);
 					$saved_files = $this->model_reviews->saveReviewItemFiles($review_item_files);
 					if ($saved_files) {
 						// log activity
@@ -326,16 +349,16 @@ class Reviews extends Member_Controller
 				// create list items
 				$buttons = "";
 
+				if (in_array('manageReview', $this->permission)) {
+					if ($value['status'] == 'draft') {
+						$buttons .= "<a href='" . base_url('reviews/edit/' . $value['slug']) . "' class='btn btn-primary' style='margin-right:10px'><i class='fa fa-pencil'></i></a>";
+					}
+					$buttons .= "<button onclick='removeFunc(`" . $value['slug'] . ")`' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
+				}
+
 				if (in_array('manageActivity', $this->permission)) {
 					if ($value['status'] == 'draft') {
 						$buttons .= "<a href='" . base_url('reviews/review_item/' . $value['slug']) . "' class='btn btn-primary'><i class='fa fa-archive'></i></a>";
-					}
-				} else {
-					if (in_array('manageReview', $this->permission)) {
-						if ($value['status'] == 'draft') {
-							$buttons .= "<a href='" . base_url('reviews/edit/' . $value['slug']) . "' class='btn btn-primary' style='margin-right:10px'><i class='fa fa-pencil'></i></a>";
-						}
-						$buttons .= "<button onclick='removeFunc(`" . $value['slug'] . ")`' data-toggle='modal' data-target='#removeModal' class='btn btn-danger'><i class='fa fa-trash'></i></button>";
 					}
 				}
 

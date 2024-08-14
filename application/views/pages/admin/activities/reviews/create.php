@@ -23,7 +23,7 @@
 						<h3 class="box-title">Create a New Review Item</h3>
 					</div>
 
-					<form method="post">
+					<form method="post" enctype="multipart/form-data">
 						<div class="box-body">
 							<!-- title, categories, limits per user, global limit, description, short clip (link or file), is movie / imdb link, thumbnails -->
 							<div class="form-group">
@@ -80,22 +80,22 @@
 									<h3 class="page-header">Files</h3>
 									<div class="form-group">
 										<label for="">Short Clip</label>
-										<div style="background-color: #e3e3e3;width:100%;height:250px;margin-bottom: 2rem">
-											<div class="d-flex align-items-center justify-content-center">
+										<div onclick="document.getElementById('shclip_upload').click()" style="background-color: #e3e3e3;width:100%;height:250px;margin-bottom: 2rem">
+											<div id="sh_drop" class="d-flex align-items-center justify-content-center">
 												<p style="font-size: 30px;">Upload file<span class="fa fa-upload"></span></p>
 											</div>
-											<input type="file" name="short_clip" id="" style="visibility: hidden;">
+											<input type="file" name="short_clip" id="shclip_upload" style="visibility: hidden;">
 										</div>
 										<input name="short_clip_link" type="text" class="form-control" placeholder="paste link to file">
 									</div>
 
 									<div class="form-group">
 										<label for="">Thumbnails</label>
-										<div style="background-color: #e3e3e3;width:100%;height:250px;margin-bottom: 2rem">
-											<div class="d-flex align-items-center justify-content-center">
+										<div onclick="document.getElementById('thumb_upload').click()" style="background-color: #e3e3e3;width:100%;height:250px;margin-bottom: 2rem">
+											<div id="thumb_drop" class="d-flex align-items-center justify-content-center">
 												<p style="font-size: 30px;">Upload file(s)<span class="fa fa-upload"></span></p>
 											</div>
-											<input type="file" name="thumbnails[]" id="" style="visibility: hidden;">
+											<input type="file" name="thumbnails[]" multiple id="thumb_upload" style="visibility: hidden;">
 										</div>
 										<label for="">Link to files</label>
 										<small>Add a comma (;) seperator to link multiple files</small>
@@ -112,5 +112,16 @@
 			</div>
 		</div>
 	</section>
-
 </div>
+
+<script>
+	$(document).ready(function() {
+		document.getElementById('shclip_upload').addEventListener('click', function() {
+			document.getElementById('sh_drop').innerHTML = '<p>Refresh to clear selected file(s)</p>'
+		})
+
+		document.getElementById('thumb_upload').addEventListener('click', function() {
+			document.getElementById('thumb_drop').innerHTML = '<p>Refresh to clear selected file(s)</p>'
+		})
+	})
+</script>
