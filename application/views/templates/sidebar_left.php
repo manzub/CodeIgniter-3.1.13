@@ -1,4 +1,5 @@
 <div id="y-content" class="clearfix y-ln-accent">
+	<marquee loop="-1" style="padding:10px;background-color:purple;color:white" behavior="slide" direction="left">Earn up to <strong>$10</strong> daily by completing activites - answer surveys, review videos and short clips, transcribe audio files and recordings. Redeem earnings into local currency or paypal. sign up to get started now.</marquee>
 	<?php if (!in_array($this->uri->segment(2), array('login', 'signup'))) { ?>
 		<div id="y-cols" class="clearfix y-fp-ln-pg">
 			<div id="y-pa" class="y-fp-pg-vgrad y-ln-2">

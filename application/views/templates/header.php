@@ -38,8 +38,8 @@
 								</a>
 							</li>
 							<li class="small tab">
-								<a href="" class="y-mast-link transcribe">
-									<span class="tab-cover y-mast-bg-hide" style="padding-left:0em;padding-right:0em;">Shop</span>
+								<a href="<?php echo base_url('home/faq') ?>" class="y-mast-link transcribe">
+									<span class="tab-cover y-mast-bg-hide" style="padding-left:0em;padding-right:0em;">FAQ</span>
 								</a>
 							</li>
 							<li class="small">
@@ -65,7 +65,7 @@
 										<li><a href="<?php echo base_url('profile/redeem_sb') ?>">Withdraw/Redeem SB</a></li>
 
 										<li><a href="<?php echo base_url('bonuses') ?>">Bonuses</a></li>
-										<li><a href="<?php echo base_url('home/coming_soon') ?>">Shop</a></li>
+										<li><a href="<?php echo base_url('home/coming_soon') ?>">FAQ</a></li>
 										<li><a href="<?php echo base_url('home/contact_us') ?>">Contact Us</a></li>
 									</ul>
 								</div>
@@ -88,6 +88,12 @@
 						</li>
 						<li class="y-hdr-ln homepage promotion small">
 							<a href="" class="y-hdr-link icon link">Rewards</a>
+						</li>
+						<li class="y-hdr-ln homepage promotion small">
+							<select name="y-hdr-link" style="border:none;background-color:inherit;padding:0px">
+								<option value="">NGN</option>
+								<option value="">USD</option>
+							</select>
 						</li>
 						<?php if (!empty($this->session->userdata('logged_in'))) { ?>
 							<li class="y-hdr-ln homepage promotion small">

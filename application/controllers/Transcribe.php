@@ -190,6 +190,10 @@ class Transcribe extends Member_Controller
 
 		if (in_array('createTranscribe', $this->permission)) {
 
+			$config['upload_path'] = './uploads/';
+			$config['allowed_types'] = 'mp3|wav';
+			$this->load->library('upload', $config);
+
 			$this->form_validation->set_rules('transcribe_title', 'required|trim');
 			$this->form_validation->set_rules('categories[]', 'required');
 			$this->form_validation->set_rules('limit_per_user', 'User Limits', 'trim|required');
@@ -199,8 +203,18 @@ class Transcribe extends Member_Controller
 			if ($this->form_validation->run() == TRUE) {
 				// audio files and file links
 				$files = array();
-				if (isset($_FILES['av_files[]'])) {
-					# code...
+				if (isset($_FILES['av_files'])) {
+					$av_files = $_FILES['av_files'];
+					if (!empty($av_files)) {
+						$file_desc = $this->reArrayFiles($av_files);
+						foreach ($file_desc as $val) {
+							$newname = time() . $val['name'];
+							$new_dir = $config['upload_path'].$newname;
+							if (move_uploaded_file($val['tmp_name'], $new_dir)) {
+								array_push($av_files, base_url(substr($config['upload_path'], 1).$newname));
+							}
+						}
+					}
 				} else {
 					// use file links
 					$av_links_html = $this->input->post('files_links');

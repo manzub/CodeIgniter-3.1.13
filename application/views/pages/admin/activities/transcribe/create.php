@@ -61,11 +61,11 @@
 									<h3 class="page-header">Files</h3>
 									<div class="form-group">
 										<label for="">Audio Files</label>
-										<div style="background-color: #e3e3e3;width:100%;height:250px;margin-bottom: 2rem">
-											<div class="d-flex align-items-center justify-content-center">
+										<div onclick="document.getElementById('av_upload').click()" style="background-color: #e3e3e3;width:100%;height:250px;margin-bottom: 2rem">
+											<div id="av_drop" class="d-flex align-items-center justify-content-center">
 												<p style="font-size: 30px;">Upload file<span class="fa fa-upload"></span></p>
 											</div>
-											<input type="file" name="av_files[]" id="" style="visibility: hidden;">
+											<input type="file" name="av_files[]" multiple id="av_upload" style="visibility: hidden;">
 										</div>
 										<label for="">Link to files</label>
 										<small>Add a comma (;) seperator to link multiple files</small>
@@ -82,3 +82,11 @@
 		</div>
 	</section>
 </div>
+
+<script>
+	$(document).ready(function() {
+		document.getElementById('av_upload').addEventListener('click', function() {
+			document.getElementById('av_drop').innerHTML = '<p>Refresh to clear selected file(s)</p>'
+		})
+	})
+</script>
