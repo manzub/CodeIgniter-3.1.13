@@ -478,7 +478,7 @@ class Reviews extends Member_Controller
         $approve_deny = $this->input->post('approve_deny');
         $status = $approve_deny == 'deny' ? 'rejected' : 'approved';
 
-        // if approved -> reward user points. else nothing.
+        // if approved -> reward user points. else remove points and strike.
         $data = array('status' => $status);
         $update = $this->model_reviews->updateCompletedItem($comp_id, $data);
         if ($update) {
@@ -486,7 +486,19 @@ class Reviews extends Member_Controller
             // reward completed user
             $bonus = intval($this->model_config->getConfigByName('mod_approve_reward')['value']);
             $this->model_users->logClaimedReward($completed_item['completed_by'], array('user_id' => $completed_item['completed_by'], 'review_id' => $completed_item['review_id'], 'reward_earned' => $bonus, 'type' => 'mod_reward', 'streak' => '0'));
-          }
+          } else {
+						// remove points earned
+						$x_2_remove = $review_item['reward_points'];
+						$this->model_users->logClaimedReward($completed_item['completed_by'], array('user_id' => $completed_item['completed_by'], 'review_id' => $completed_item['review_id'], 'reward_earned' => "-$x_2_remove", 'type' => 'mod_reward', 'streak' => '0'));
+
+						// add strike
+						$this_user = $this->model_users->getUserById($completed_item['completed_by']);
+						$strike = intval($this_user['strike']) + 1;
+						$this->model_users->update($completed_item['completed_by'], array('strike' => $strike));
+
+						// log activity
+						$this->model_logs->logActivity(array('user_id' => $completed_item['completed_by'], 'activity' => 'Review Denied', 'activity_code' => '4', 'message' => 'A review you submitted has been rejected and balance points deducted.'));
+					}
 
           // reward points
           $reward_config = $this->model_config->getConfigByName('mod_review_reward');
