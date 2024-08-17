@@ -32,10 +32,10 @@ class Transactions extends Member_Controller
 		$data = $this->model_transactions->getAllTransactions();
 		foreach ($data as $key => $value) {
 			// Customer Name, Coins Requested,	Currency,	Amounts Worth,	Bank Name,	Bank Information,	Paid Status,	Action
-			$customer = $this->model_users->getUserById($data['user_id']);
+			$customer = $this->model_users->getUserById($value['user_id']);
 
-			$date = date('d-m-Y', $value['date_created']);
-			$time = date('h:i a', $value['date_created']);
+			$date = date('d-m-Y', strtotime($value['date_created']));
+			$time = date('h:i a', strtotime($value['date_created']));
 
 			$date_time = $date . ' ' . $time;
 
@@ -48,10 +48,20 @@ class Transactions extends Member_Controller
 			}
 
 			// load bank information
-			$customer_bank_info = $this->model_users->getUserAccountsById($data['user_id']);
-			$bank_name = $customer_bank_info['bank'] . " - " . $customer_bank_info['account_holder'];
-			$bank_info = $customer_bank_info['sort_code'] . " - " . $customer_bank_info['account_no'];
+			$bank_name = "";
+			$bank_info = "";
 
+			$customer_bank_info = $this->model_users->getUserAccountByType($value['user_id'], $value['bank_type']);
+			if (!empty($customer_bank_info)) {
+				if ($customer_bank_info['type'] == 'paypal') {
+					$bank_name = 'PayPal';
+					$bank_info = $customer_bank_info['email'];
+				} else {
+					$bank_name = $customer_bank_info['bank'] . " - " . $customer_bank_info['account_holder'];
+					$bank_info = $customer_bank_info['sort_code'] . " - " . $customer_bank_info['account_no'];
+				}
+			}
+			
 			if ($value['status'] == 1) {
 				$paid_status = '<span class="label label-success">Paid</span>';
 			} else {
@@ -60,9 +70,9 @@ class Transactions extends Member_Controller
 
 			$result['data'][$key] = array(
 				$customer['full_name'],
-				$data['coins_requested'],
+				$value['coins_requested'],
 				$date_time,
-				$data['value'] . $data['currency'],
+				$value['value'] . $value['currency'],
 				$bank_name,
 				$bank_info,
 				$paid_status,

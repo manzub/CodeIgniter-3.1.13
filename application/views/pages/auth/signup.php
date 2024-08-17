@@ -5,10 +5,16 @@
 			<div class="col-md-7">
 				<div class="thumbnail">
 					<a href="#">
-						<img src="https://web.archive.org/web/20130410174940im_/https://a248.e.akamai.net/sec.yimg.com/a/ya/yahoo_gdm_ccs/r1_metro_mail_car.jpg" alt="">
-					</a>
+            <?php if(isset($banner_home_bottom)) { ?>
+              <!-- banner_page_home_bottom -->
+              <img style="border:1px solid #000" width="500px" src="<?php echo base_url($banner_home_bottom['value']) ?>" />
+            <?php }else { ?>
+              <img src="https://web.archive.org/web/20130410174940im_/https://a248.e.akamai.net/sec.yimg.com/a/ya/yahoo_gdm_ccs/r1_metro_mail_car.jpg" alt="">
+            <?php } ?>
+          </a>
 				</div>
-				<p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
+        <!-- TODO: advertise home -->
+				<p><a class="btn btn-primary btn-lg" href="#" style="color:white" role="button">Learn more</a></p>
 			</div>
 			<div class="col-md-5">
 				<?php if ($this->session->flashdata('alert')) { ?>
@@ -44,15 +50,13 @@
 							<div class="form-group">
 								<label for="pwInput">Password</label>
 								<input class="form-control" type="password" name="password" id="pwInput">
+                <input type="checkbox" onclick="showPassword()">Show Password
 							</div>
 							<div class="form-group">
 								<label for="ref_code">Referral Code (Optional)</label>
 								<input <?php echo $this->uri->segment(3) != '' ? 'disabled' : '' ?> class="form-control" type="text" name="ref_code" id="ref_code" value="<?php echo $this->uri->segment(3) != '' ? $this->uri->segment(3) : null ?>">
 							</div>
-							<div class="form-group">
-								<input type="checkbox" name="" id="">
-								<span><strong>Keep me signed in</strong><br> for 2 weeks unless i sign out</span>
-							</div>
+							<hr>
 							<button class="btn btn-primary">Sign In</button>
 						</form>
 					</div>
@@ -61,3 +65,14 @@
 		</div>
 	</div>
 </div>
+
+<script>
+  function showPassword() {
+    var x = document.getElementById("pwInput");
+    if (x.type === "password") {
+      x.type = "text";
+    } else {
+      x.type = "password";
+    }
+  }
+</script>

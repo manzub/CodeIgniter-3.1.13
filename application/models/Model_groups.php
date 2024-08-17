@@ -36,7 +36,7 @@ class Model_groups extends CI_Model
 		return $result;
 	}
 
-	public function getGroupData($groupId = null) 
+  public function getGroupData($groupId = null) 
 	{
 		if($groupId) {
 			$sql = "SELECT * FROM groups WHERE id = ?";

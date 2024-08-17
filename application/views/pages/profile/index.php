@@ -16,7 +16,7 @@
 	<div class="mod view_default">
 		<ol class="breadcrumb">
 			<li><a href="<?php echo base_url('home') ?>"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
-			<li><a href="<?php echo base_url('profile') ?>"><?php echo $this->session->userdata('username') ?></a></li>
+			<li><a href="<?php echo base_url('profile') ?>"><?php echo $this->session->userdata('username') ?></a></li>/
 			<li><a href="<?php echo base_url('profile') ?>">Profile</a></li>
 		</ol>
 	</div>
@@ -63,5 +63,23 @@
 		<div class="header-flex">
 			<h2 style="font-weight: bold;">Activities</h2>
 		</div>
+    <table class="table table-responsive" style="width:100%">
+      <thead>
+        <tr>
+          <th>Activity</th>
+          <th>Message</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($activities_list as $key => $value) { ?>
+          <tr>
+            <td><?php echo $value['activity'] ?></td>
+            <td><?php echo $value['message'] ?></td>
+            <td><?php echo date('m-d H:i', strtotime($value['last_modified'])) ?></td>
+          </tr>
+        <?php } ?>
+      </tbody>
+    </table>
 	</div>
 </div>

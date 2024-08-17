@@ -93,6 +93,7 @@
 							</div>
 
 							<div class="form-group">
+                <a href="<?php echo base_url('surveys/admin') ?>" class="btn btn-default"><i class="fa fa-arrow-left"></i> Back</a>
 								<button class="btn btn-primary">Submit</button>
 							</div>
 						</div>

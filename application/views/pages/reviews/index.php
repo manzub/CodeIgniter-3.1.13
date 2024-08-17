@@ -39,7 +39,7 @@
 									<div class="d-flex w-100 justify-content-between">
 										<div class="d-block">
 											<div class="d-flex align-items-center" style="gap:10px">
-												<img src="<?php echo base_url($item['thumbnail_small'] != NULL ? $item['thumbnail_small'] : 'assets/phs/pictures.png') ?>" alt="" style="height: 60px;">
+												<img src="<?php echo $item['thumbnail_small'] != NULL ? $item['thumbnail_small'] : base_url('assets/phs/pictures.png') ?>" alt="" style="height: 60px;">
 												<div class="d-block">
 													<h1><strong><?php echo $item['title'] ?></strong></h1>
 													<p><?php echo nl2br(substr($item['short_desc'], 0, 50)) ?>...</p>

@@ -95,7 +95,7 @@ class Model_reviews extends CI_Model
 			$result = $query->result_array();
 
 			// loop each review item
-			$count = 0;
+      $count = 0;
 			foreach ($result as $key => $item) {
 				// check global limit was set or expired
 				if (($item['global_limit'] == NULL) || intval($item['global_limit']) > 0) {
@@ -111,7 +111,7 @@ class Model_reviews extends CI_Model
 					}
 
 					$available_items[$count] = $item;
-					$count++;
+          $count++;
 					// }
 				}
 			}
@@ -159,6 +159,8 @@ class Model_reviews extends CI_Model
 			$update = $this->db->update('reviews_completed', $data);
 			return ($update == true) ? true : false;
 		}
+
+    return false;
 	}
 
 	// admin function

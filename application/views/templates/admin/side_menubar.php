@@ -138,13 +138,28 @@
 					</li>
 				<?php endif; ?>
 
-				<?php if (in_array('manageBonus', $user_permission)) { ?>
+        <?php if (in_array('manageBonus', $user_permission)) { ?>
 					<li id="bonusesNav">
 						<a href="<?php echo base_url('bonuses/admin') ?>">
 							<i class="glyphicon glyphicon-tags"></i> <span>Bonuses</span>
 						</a>
 					</li>
 				<?php } ?>
+
+        <!-- my account, profile, withdraw -->
+        <li class="treeview" id="myaccountNav">
+          <a href="#">
+            <i class="fa fa-home"></i>
+            <span>My Account</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li id="myaccountNav"><a href="<?php echo base_url('profile') ?>"><i class="fa fa-circle-o"></i>Profile</a></li>
+            <li id="myaccountNav"><a href="<?php echo base_url('profile/redeem_points') ?>"><i class="fa fa-circle-o"></i>Withdraw Points</a></li>
+          </ul>
+        </li>
 
 				<?php if (in_array('viewReports', $user_permission)) : ?>
 					<li id="reportNav">

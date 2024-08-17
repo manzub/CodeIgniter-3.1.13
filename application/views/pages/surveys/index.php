@@ -31,7 +31,8 @@
 						</div>
 					</div>
 					<div class="card-body" style="padding: 5px">
-						<div class="mb-2" style="padding: 5px">
+            <!-- TODO: verify account -->
+						<!-- <div class="mb-2" style="padding: 5px">
 							<div class="verify-info pb-1">
 								<p class="text-info">Verify your account to unlock rewarding survey options</p>
 								<p>Earn <strong>5 SB</strong> when you verify</p>
@@ -40,19 +41,19 @@
 								<button type="button" class="btn btn-outline-primary p-1" style="font-size: 9px;">Verify Email</button>
 								<button type="button" class="btn btn-outline-success p-1" style="font-size: 9px;">Verify Text</button>
 							</div>
-						</div>
+						</div> -->
 						<div id="sv_list-items" class="list-group no-shadow">
 							<div class="list-group">
 								<?php foreach ($surveys as $key => $survey) { ?>
 									<a href="<?php echo base_url('surveys/single/' . $survey['slug']); ?>" class="list-group-item list-group-item-action">
 										<div class="d-flex w-100 justify-content-between">
 											<h5 class="mb-1 font-weight-bold"><?php echo $survey['title'] ?></h5>
-											<small>EST <?php echo $survey['duration'] ?> min</small>
+                      <!-- TODO: est duration -->
+											<!-- <small>EST <?php echo $survey['duration'] ?> min</small> -->
 										</div>
-										<p class="mb-1">Some placeholder content in a paragraph.</p>
 										<h1>
-											<span class="text-link">Begin</span>
-											<span class="badge badge-success"><?php echo $survey['reward_points'] ?> SB</span>
+                      <span class="badge badge-info p-2 rounded" style="font-size:15px"><?php echo $survey['reward_points'] ?> SB</span>
+											<span class="text-link" style="text-decoration: underline;color:blue;font-weight:900;font-size:15px">Begin >></span>
 											<?php if (!empty($this->session->userdata('daily_activity'))) { ?>
 												<?php $dl_slugs = array_map(function ($o) {
 													return $o['slug'];
@@ -77,14 +78,14 @@
 							<div class="y-nav-count y-txt-2"><?php echo $page; ?> of <?php echo $pages; ?></div>
 							<div class="y-nav-buttons">
 								<?php if ($page > 1) { ?>
-									<a class="prev" href="<?php echo base_url('surveys/' . ($page - 1)) ?>">
+									<a class="prev" href="<?php echo base_url('surveys/' . ($page - 1)); ?>">
 										<span class="y-fp-pg-grad y-ln-1 btn">
 											<span class="y-fp-pg-controls hide-textindent">Previous set of activities</span>
 										</span>
 									</a>
 								<?php } ?>
 								<?php if ($page < $pages) { ?>
-									<a class="next" href="<?php echo base_url('surveys/' . ($page + 1)) ?>">
+									<a class="next" href="<?php echo base_url('surveys/' . ($page + 1)); ?>">
 										<span class="y-fp-pg-grad y-ln-1 btn">
 											<span class="y-fp-pg-controls hide-textindent">Next set of activities</span>
 										</span>

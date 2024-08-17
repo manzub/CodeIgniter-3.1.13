@@ -23,7 +23,7 @@
 						<h3 class="box-title">Create a New Review Item</h3>
 					</div>
 
-					<form method="post" enctype="multipart/form-data">
+					<form method="post">
 						<div class="box-body">
 							<!-- title, categories, limits per user, global limit, description, short clip (link or file), is movie / imdb link, thumbnails -->
 							<div class="form-group">
@@ -61,7 +61,7 @@
 								<div class="row">
 									<div class="col-md-6">
 										<label for="">Limit Per User</label>
-										<input type="number" name="limit_per_user" id="" class="form-control">
+										<input type="number" value="1" name="limit_per_user" id="" class="form-control">
 									</div>
 									<div class="col-md-6">
 										<label for="">Global Limit</label>
@@ -112,8 +112,8 @@
 			</div>
 		</div>
 	</section>
-</div>
 
+</div>
 <script>
 	$(document).ready(function() {
 		document.getElementById('shclip_upload').addEventListener('click', function() {
@@ -125,3 +125,4 @@
 		})
 	})
 </script>
+

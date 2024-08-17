@@ -28,7 +28,7 @@
 					<div class="main-story-content y-bg-1">
 						<h2 class="package-header ">
 							<a class="pack-title" href="<?php echo base_url('reviews/single/' . $reviews[0]['slug']) ?>">
-								<img id="p_13872472-header-image" class="" src="<?php echo base_url($reviews[0]['thumbnail_large']) ?>" alt="<?php echo $reviews[0]['title'] ?>">
+								<img id="p_13872472-header-image" class="" src="<?php echo $reviews[0]['thumbnail_large'] ?>" alt="<?php echo $reviews[0]['title'] ?>">
 							</a>
 						</h2>
 						<h3 class="">
@@ -53,14 +53,14 @@
 								<li id="p_13872472-panel0" class="y-panel clearfix ">
 									<a class="y-fp-pg-grad y-ln-4 item selected" href="<?php echo base_url('reviews/single/' . $reviews[0]['slug']) ?>">
 										<span class="y-fp-pg-controls indicator"></span>
-										<img class="image y-ln-4 y-bg-1" src="<?php echo base_url($reviews[0]['thumbnail_large']) ?>" alt="<?php echo $reviews[0]['title'] ?>">
+										<img class="image y-ln-4 y-bg-1" src="<?php echo $reviews[0]['thumbnail_large'] ?>" alt="<?php echo $reviews[0]['title'] ?>">
 										<span class="medium item-label" style="font-family: inherit;line-height:inherit;"><?php echo substr($reviews[0]['title'], 0, 40) ?></span>
 									</a>
 									<?php for ($i = 1; $i < count($reviews); $i++) { ?>
-										<a class="y-fp-pg-grad trans-border item" href="<?php echo base_url('reviews/single/' . $reviews[0]['slug']) ?>">
+										<a class="y-fp-pg-grad trans-border item" href="<?php echo base_url('reviews/single/' . $reviews[$i]['slug']) ?>">
 											<span class="y-fp-pg-controls indicator"></span>
-											<img class="image y-ln-2 y-bg-1" src="<?php echo base_url($reviews[0]['thumbnail_large']) ?>" alt="<?php echo $reviews[0]['title'] ?>">
-											<span class="medium item-label" style="font-family: inherit;line-height:inherit;"><?php echo $reviews[0]['title'] ?></span>
+											<img class="image y-ln-2 y-bg-1" src="<?php echo $reviews[$i]['thumbnail_large'] ?>" alt="<?php echo $reviews[$i]['title'] ?>">
+											<span class="medium item-label" style="font-family: inherit;line-height:inherit;"><?php echo $reviews[$i]['title'] ?></span>
 										</a>
 									<?php } ?>
 								</li>

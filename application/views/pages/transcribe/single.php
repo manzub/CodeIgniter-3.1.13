@@ -23,7 +23,7 @@
 			<div class="card-body" style="padding: 10px;">
 				<div class="thumbnail">
 					<audio controls>
-						<source src="<?php echo base_url(unserialize($transcribe_item['files'])[0]) ?>" type="audio/mp3">
+						<source src="<?php echo unserialize($transcribe_item['files'])[0] ?>" type="audio/mp3">
 						Your browser does not support the audio element.
 					</audio>
 					<p style="margin-top: 5px;font-weight:bold">Customer service recognition file from conversation with customer from company xyz</p>

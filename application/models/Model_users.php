@@ -7,6 +7,27 @@ class Model_users extends CI_Model
 		parent::__construct();
 	}
 
+	public function getUserById($user_id)
+	{
+		if ($user_id) {
+			$sql = "SELECT * FROM users INNER JOIN users_meta ON users.id = users_meta.user_id WHERE users.id = ?";
+			$query = $this->db->query($sql, array($user_id));
+			$result = $query->row_array();
+
+			return $result;
+		}
+	}
+
+  public function getUserByCond($cond = array()) {
+    if (!empty($cond)) {
+      $query = $this->db->get_where('users', $cond);
+      $result = $query->row_array();
+      return $result;
+    }
+
+    return array();
+  }
+
 	public function getAllUser() {
 		$sql = "SELECT * FROM users";
 		$query = $this->db->query($sql);
@@ -23,16 +44,6 @@ class Model_users extends CI_Model
 		return array();
 	}
 
-	public function getUserById($user_id)
-	{
-		if ($user_id) {
-			$sql = "SELECT * FROM users INNER JOIN users_meta ON users.id = users_meta.user_id WHERE users.id = ?";
-			$query = $this->db->query($sql, array($user_id));
-			$result = $query->row_array();
-
-			return $result;
-		}
-	}
 
 	public function getUserByRefCode($ref_code = null)
 	{
@@ -65,13 +76,14 @@ class Model_users extends CI_Model
 		return ($update == true) ? true : false;
 	}
 
-	public function delete($user_id = null) {
+  public function delete($user_id = null) {
 		if ($user_id !== null) {
 			$this->db->where('id', $user_id);
 			$delete = $this->db->delete('users');
 			return ($delete == true) ? true : false;
 		}
 	}
+
 
 	// misc functions
 	public function logClaimedReward($user_id = null, $data = array())
@@ -115,6 +127,13 @@ class Model_users extends CI_Model
 		if ($user_id != null) {
 			$query = $this->db->get_where('users_account', array('user_id' => $user_id));
 			return $query->result_array();
+		}
+	}
+	public function getUserAccountByType($user_id = null, $type = null)
+	{
+		if ($user_id != null && $type != null) {
+			$query = $this->db->get_where('users_account', array('user_id' => $user_id, 'type' => $type));
+			return $query->row_array();
 		}
 	}
 

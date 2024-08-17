@@ -20,6 +20,7 @@ class Bonuses extends Member_Controller
 	public function index()
 	{
 		$this->not_logged_in();
+    $this->no_admin();
 
 		$result = array();
 		// available bonuses

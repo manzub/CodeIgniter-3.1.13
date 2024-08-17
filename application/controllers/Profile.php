@@ -6,7 +6,7 @@ class Profile extends Member_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->data['title'] = "My Account | SurveyMonkey";
+		$this->data['title'] = "My Account | SurveyVine";
 		$this->load->model('model_users');
 		$this->load->model('model_referrals');
 		$this->load->model('model_logs');
@@ -126,6 +126,10 @@ class Profile extends Member_Controller
 		$this->data['bonus'] = $reward_bonus;
 		$this->data['multiply'] = $multiply;
 
+    // activities list
+    $activities_list = $this->model_logs->getUserLogsById($user_id);
+    $this->data['activities_list'] = array_slice($activities_list, 0, 10);
+
 		$this->render_template('pages/profile/index', $this->data);
 	}
 
@@ -149,7 +153,7 @@ class Profile extends Member_Controller
 	{
 		$this->not_logged_in();
 		$user_id = $this->session->userdata('id');
-		$this->data['title'] = 'My Referrals | SurveyMonkey!';
+		$this->data['title'] = 'My Referrals | SurveyVine!';
 
 		$me = $this->model_users->getUserById($user_id);
 		$ref_code = $me['ref_code'];
@@ -216,7 +220,7 @@ class Profile extends Member_Controller
 	{
 		$this->not_logged_in();
 		$user_id = $this->session->userdata('id');
-		$this->data['title'] = 'Invite your Friends | SurveyMonkey';
+		$this->data['title'] = 'Invite your Friends | SurveyVine';
 
 		$ref_bonus = $this->model_config->getConfigByName('ref_reward')['value'];
 		$ref_reward_config = $this->model_config->getConfigByName('ref_reward_after')['value'];
@@ -289,7 +293,7 @@ class Profile extends Member_Controller
 		if ($this->form_validation->run() == TRUE) {
 			$recipient = $this->input->post('recipient_email');
 			if (filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
-				$subject = 'Your friend invited you to join SurveyMonkey';
+				$subject = 'Your friend invited you to join SurveyVine';
 
 				$ref_code = $this->model_users->getUserById($user_id)['ref_code'];
 				$link_url = base_url('auth/signup/' . $ref_code);

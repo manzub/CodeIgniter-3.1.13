@@ -24,7 +24,7 @@
 			<div class="card-body" style="padding: 10px;">
 				<div id="video-info" class="video-info">
 					<video controls style="border: 1px solid #000;width:100%">
-						<source src="<?php echo base_url($review_item['short_clip']) ?>">
+						<source src="<?php echo $review_item['short_clip'] ?>">
 					</video>
 					<h1 style="font-size: 20px;font-weight:bold"><?php echo $review_item['title'] ?></h1>
 					<p><?php echo nl2br($review_item['short_desc']) ?></p>
