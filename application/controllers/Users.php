@@ -137,6 +137,9 @@ class Users extends Member_Controller
 						$group_data = $this->model_groups->getGroupData();
 						$this->data['group_data'] = $group_data;
 
+						$user_status = $this->model_config->getConfigByName('user_account_types');
+						$this->data['user_status'] = unserialize($user_status['value']);
+
 						$this->render_admin('pages/admin/users/edit', $this->data);
 					}
 				}
@@ -181,6 +184,70 @@ class Users extends Member_Controller
 				$this->data['id'] = $id;
 				$this->render_admin('pages/admin/users/delete', $this->data);
 			}
+		}
+	}
+
+	public function strike($user_id)
+	{
+		$this->not_logged_in();
+
+		if ($user_id != null) {
+			// add a strike to user account
+			if (in_array('manageUser', $this->permission)) {
+				$this_user = $this->model_users->getUserById($user_id);
+				if (!empty($this_user)) {
+					$strike = intval($this_user['strike']) + 1;
+					$updated = $this->model_users->update($user_id, array('strike' => $strike));
+					if ($updated) {
+						$this->model_logs->logActivity(array('user_id' => $user_id, 'activity' => 'Strike', 'activity_code' => '4', 'message' => 'A strike has been added to your account. please contact support to review this.'));
+						$this->model_logs->logActivity(array('user_id' => $this->session->userdata('id'), 'activity' => 'Strike User', 'activity_code' => '4', 'message' => 'Added strike to user account.'));
+						$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Added strike to user account', 'message' => 'added strike to user account.'));
+						redirect('users', 'refresh');
+					} else {
+						$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'An error occurred', 'message' => 'An error occurred'));
+					}
+				} else {
+					$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Invalid user id provided', 'message' => 'User not found'));
+					redirect('users', 'refresh');
+				}
+			} else {
+				$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Access Denied', 'message' => 'You don\'t have permissions to complete this action.'));
+				redirect('users', 'refresh');
+			}
+		} else {
+			redirect('users', 'refresh');
+		}
+	}
+
+	public function remove_strike($user_id)
+	{
+		$this->not_logged_in();
+
+		if ($user_id != null) {
+			// add a strike to user account
+			if (in_array('manageUser', $this->permission)) {
+				$this_user = $this->model_users->getUserById($user_id);
+				if (!empty($this_user)) {
+					$strike = intval($this_user['strike']) > 0 ? intval($this_user['strike']) - 1 : 0;
+					$updated = $this->model_users->update($user_id, array('strike' => $strike));
+					if ($updated) {
+						$this->model_logs->logActivity(array('user_id' => $user_id, 'activity' => 'Strike', 'activity_code' => '4', 'message' => 'A strike has been removed from your account.'));
+						$this->model_logs->logActivity(array('user_id' => $this->session->userdata('id'), 'activity' => 'Strike User', 'activity_code' => '4', 'message' => 'Remvoed strike from user account.'));
+						$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Removed strike from user account', 'message' => 'removed strike from user account.'));
+						redirect('users', 'refresh');
+					} else {
+						$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'An error occurred', 'message' => 'An error occurred'));
+					}
+				} else {
+					$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Invalid user id provided', 'message' => 'User not found'));
+					redirect('users', 'refresh');
+				}
+			} else {
+				$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Access Denied', 'message' => 'You don\'t have permissions to complete this action.'));
+				redirect('users', 'refresh');
+			}
+		} else {
+			redirect('users', 'refresh');
 		}
 	}
 

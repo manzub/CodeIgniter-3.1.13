@@ -87,6 +87,11 @@
 								<input type="password" class="form-control" id="cpassword" name="cpassword" placeholder="Confirm Password" autocomplete="off">
 							</div>
 
+							<div class="form-group">
+								<h3 class="text-uppercase">Strikes: <?php echo $user_data['strike'] ?></h3>
+								<span id="strikeuser" user-id="<?php echo $user_data['user_id'] ?>" class="btn btn-danger"><i class="fa fa-times"></i> Add Strike</span>
+								<span id="nostrikeuser" user-id="<?php echo $user_data['user_id'] ?>" class="btn btn-info"><i class="fa fa-check"></i> Remove A Strike</span>
+							</div>
 						</div>
 						<!-- /.box-body -->
 
@@ -109,11 +114,28 @@
 <!-- /.content-wrapper -->
 
 <script type="text/javascript">
+	var base_url = '<?php echo base_url() ?>';
 	$(document).ready(function() {
 		$("#groups").select2();
 		$("#status").select2();
 
 		$("#mainUserNav").addClass('active');
 		$("#manageUserNav").addClass('active');
+
+		let action = document.getElementById('strikeuser');
+		action.addEventListener('click', function(data) {
+			if (window.confirm('Are you sure you want to continue?')) {
+				let user_id = action.getAttribute('user-id');
+				window.location.href = base_url + 'users/strike/' + user_id;
+			}
+		})
+
+		let action2 = document.getElementById('nostrikeuser');
+		action2.addEventListener('click', function(data) {
+			if (window.confirm('Are you sure you want to continue?')) {
+				let user_id = action.getAttribute('user-id');
+				window.location.href = base_url + 'users/remove_strike/' + user_id;
+			}
+		})
 	});
 </script>

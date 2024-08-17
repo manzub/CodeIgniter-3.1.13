@@ -12,6 +12,9 @@
 			<?php } ?>
 		</div>
 	</div>
+	<div class="alert alert-warning">
+		<strong>Please submit accurate content, if your reviews are seen as spam or misleading, your account could be banned.</strong>
+	</div>
 	<!-- content items -->
 	<div class="mod view_default">
 		<div class="card panel-default no-shadow">

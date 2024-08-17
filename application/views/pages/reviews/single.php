@@ -18,6 +18,9 @@
 		<p>Give your review a short clip or a movie, positive or negative and a rating</p>
 		<small>Please ensure your reviews are grammatically correct.</small>
 	</div>
+	<div class="alert alert-warning">
+		<strong>Please submit accurate reviews, if your reviews are seen as spam or misleading, your account could be banned.</strong>
+	</div>
 	<!-- content items -->
 	<div class="mod view_default">
 		<div class="card card-default no-shadow">

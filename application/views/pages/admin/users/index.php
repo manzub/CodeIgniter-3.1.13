@@ -47,6 +47,7 @@
 									<th>Email</th>
 									<th>Group</th>
 									<th>Status</th>
+									<th>Strikes</th>
 
 									<?php if (in_array('manageUser', $user_permission)) : ?>
 										<th>Action</th>
@@ -61,6 +62,7 @@
 											<td><?php echo $v['user_info']['email']; ?></td>
 											<td><?php echo $v['user_group']['group_name']; ?></td>
 											<td><?php echo $v['user_info']['status']; ?></td>
+											<td><?php echo $v['user_info']['strike']; ?></td>
 											<?php if (in_array('manageUser', $user_permission)) : ?>
 												<td>
 													<a href="<?php echo base_url('users/edit/' . $v['user_info']['id']) ?>" class="btn btn-default"><i class="fa fa-edit"></i></a>
