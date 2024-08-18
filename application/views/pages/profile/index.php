@@ -36,20 +36,20 @@
 				<a href="#" style="font-weight: bold;">Show More</a>
 			</div>
 			<div class="row">
-				<?php for ($i = 0; $i < 3; $i++) { ?>
+				<?php foreach ($plans as $value) { ?>
 					<div class="col-md-4">
 						<div class="card card-info">
 							<div class="card-header" style="text-align: center;">
-								<h1 style="font-size: 20px;font-weight:bold;margin-bottom:5px;">Gold</h1>
-								<p style="font-size: 12px;margin:0px 0px;">2x Reward Bonus</p>
+								<h1 style="font-size: 20px;font-weight:bold;margin-bottom:5px;"><?php echo $value['name'] ?></h1>
+								<p style="font-size: 12px;margin:0px 0px;"><?php echo $value['multiplier'] ?>x Reward Bonus</p>
 								<p style="font-size: 12px;margin: 0px 0px;">No delay on withdrawals</p>
 							</div>
 							<div class="card-body" style="text-align: center;">
 								<div style="display: flex;align-items:baseline;justify-content:center;margin-bottom:10px">
-									<h1 style="font-size: 30px;font-weight:bold;">$20.45</h1>
+									<h1 style="font-size: 25px;font-weight:bold;"><?php echo number_format($value['price'], 0).$this->session->userdata('currency')['currency'] ?></h1>
 									<small>/MONTHLY</small>
 								</div>
-								<button class="btn btn-primary">BUY</button>
+								<button onclick="window.alert('This function is not available yet.')" class="btn btn-primary">BUY</button>
 							</div>
 						</div>
 					</div>

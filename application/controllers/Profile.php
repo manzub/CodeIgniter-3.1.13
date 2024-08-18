@@ -137,6 +137,18 @@ class Profile extends Member_Controller
 		$this->data['balance'] =  $balance['total_rewards']."SB";
 		$this->data['balance_converted'] = $balance_n_currency . "".$sel_currency['currency'];
 
+		// membership plans
+		$plans = array();
+		$membership_plans = $this->model_config->getSimilarConfig('_membership_plan');
+		if (!empty($membership_plans)) {
+			foreach ($membership_plans as $value) {
+				$extra = unserialize($value['extra']);
+				$cost = intval($extra['price_in_sb']) * doubleval($this->session->userdata('currency')['rate']);
+				array_push($plans, array('name' => $value['value'], 'multiplier' => $extra['multiplier'], 'price' => $cost));
+			}
+		}
+		$this->data['plans'] = $plans;
+
 		$this->render_template('pages/profile/index', $this->data);
 	}
 
