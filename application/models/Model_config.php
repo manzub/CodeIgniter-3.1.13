@@ -13,4 +13,14 @@ class Model_config extends CI_Model {
 			return $result;
 		}
 	}
+
+	public function getSimilarConfig($like = null) {
+		if ($like) {
+			$this->db->select('*');
+			$this->db->like('name', $like);
+			$query = $this->db->get('app_config');
+			$result = $query->result_array();
+			return $result;
+		}
+	}
 }

@@ -15,11 +15,18 @@
 
 	<div class="mod view_default">
 		<ol class="breadcrumb">
-			<li><a href="<?php echo base_url('home') ?>"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
-			<li><a href="<?php echo base_url('profile') ?>"><?php echo $this->session->userdata('username') ?></a></li>/
-			<li><a href="<?php echo base_url('profile') ?>">Profile</a></li>
+			<li class="breadcrumb-item"><a href="<?php echo base_url('profile') ?>"><?php echo $this->session->userdata('username') ?></a></li>
+			<li class="breadcrumb-item active"><a href="<?php echo base_url('profile') ?>">Profile</a></li>
 		</ol>
 	</div>
+
+	<div class="alert alert-secondary">
+		<div class="d-flex align-items-center justify-content-start">
+			<h1 style="font-size: 25px;font-weight:bold">Balance:</h1>
+			<h1 class="text-muted" style="font-size: 25px;font-weight:bold"><?php echo $balance ?> = <?php echo $balance_converted ?></h1>
+		</div>
+	</div>
+
 	<div class="jumbotron" style="padding: 10px 10px;">
 		<p style="font-size: 15px;font-weight:bold">Increase your <strong class="label label-primary">Membership Level</strong></p>
 		<p style="font-size: 12px;">Increase your membership to increase your chances of earning more rewards, increase your withdrawal limit and no delays on your withdrawal.</p>
@@ -63,23 +70,23 @@
 		<div class="header-flex">
 			<h2 style="font-weight: bold;">Activities</h2>
 		</div>
-    <table class="table table-responsive" style="width:100%">
-      <thead>
-        <tr>
-          <th>Activity</th>
-          <th>Message</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($activities_list as $key => $value) { ?>
-          <tr>
-            <td><?php echo $value['activity'] ?></td>
-            <td><?php echo $value['message'] ?></td>
-            <td><?php echo date('m-d H:i', strtotime($value['last_modified'])) ?></td>
-          </tr>
-        <?php } ?>
-      </tbody>
-    </table>
+		<table class="table table-responsive" style="width:100%">
+			<thead>
+				<tr>
+					<th>Activity</th>
+					<th>Message</th>
+					<th>Time</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ($activities_list as $key => $value) { ?>
+					<tr>
+						<td><?php echo $value['activity'] ?></td>
+						<td><?php echo $value['message'] ?></td>
+						<td><?php echo date('m-d H:i', strtotime($value['last_modified'])) ?></td>
+					</tr>
+				<?php } ?>
+			</tbody>
+		</table>
 	</div>
 </div>

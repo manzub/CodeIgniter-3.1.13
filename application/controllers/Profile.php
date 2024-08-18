@@ -130,6 +130,13 @@ class Profile extends Member_Controller
     $activities_list = $this->model_logs->getUserLogsById($user_id);
     $this->data['activities_list'] = array_slice($activities_list, 0, 10);
 
+		// balance and rate conv;
+		$sel_currency = $this->session->userdata('currency');
+		$balance = $this->model_users->getUserRewardsBalance($user_id);
+		$balance_n_currency = intval($balance['total_rewards']) * doubleval($sel_currency['rate']);
+		$this->data['balance'] =  $balance['total_rewards']."SB";
+		$this->data['balance_converted'] = $balance_n_currency . "".$sel_currency['currency'];
+
 		$this->render_template('pages/profile/index', $this->data);
 	}
 
@@ -258,7 +265,7 @@ class Profile extends Member_Controller
 					# request withdrawal.
 					// if balance is calculated from rewards.
 					// withdrawal should minus
-					$amount_converted = intval($amount) / intval($currency['rate']);
+					$amount_converted = intval($amount) * intval($currency['rate']);
 					$data = array('user_id' => $user_id, 'coins_requested' => $amount, 'currency' => $currency['currency'], 'value' => $amount_converted, 'bank_type' => $bank_type, 'status' => 'pending');
 					$requested = $this->model_users->requestCoins($user_id, $data);
 					if ($requested) {
