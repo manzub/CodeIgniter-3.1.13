@@ -91,7 +91,7 @@ class Model_transcribe extends CI_Model
 	{
 		$available_items = array();
 		if ($user_id != null) {
-			// TODO: test pagination later
+			//test pagination later
 			$sql = "SELECT * FROM transcribe_av INNER JOIN transcribe_av_meta ON transcribe_av.id = transcribe_av_meta.transcribe_id WHERE `status` = ? ORDER BY rand()";
 			$sql .= $is_page ? " LIMIT " . $per_page . " OFFSET " . ($per_page * $page) . "" : "";
 			$query = $this->db->query($sql, array('available'));

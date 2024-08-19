@@ -6,7 +6,7 @@
         <div class="mod view_default">
           <div class="bd type_tts type_tts_default">
             <div class="y-ln-1 clearfix typetopten">
-              <!-- TODO: daily activity list -->
+              <!-- daily activity list -->
               <h2 class="y-txt-modhdr bdr-b y-ln-1">DAILY ACTIVITIES</h2>
               <ol class="firstcol" style="width:100%">
                 <?php foreach ($dl_activity_list as $key => $item) { ?>

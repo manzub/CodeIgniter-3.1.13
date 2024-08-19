@@ -88,7 +88,7 @@ class Model_reviews extends CI_Model
 	{
 		$available_items = array();
 		if ($user_id != null) {
-			// TODO: test pagination later
+			// test pagination later
 			$sql = "SELECT * FROM review_vd INNER JOIN review_vd_meta ON review_vd.id = review_vd_meta.review_id WHERE `status` = ? ORDER BY rand()";
 			$sql .= $is_page ? " LIMIT " . $per_page . " OFFSET " . ($per_page * $page) . "" : "";
 			$query = $this->db->query($sql, array('available'));

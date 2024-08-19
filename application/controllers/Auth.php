@@ -36,7 +36,7 @@ class Auth extends Member_Controller
 
         if ($login) {
           $this->model_users->update($login['id'], array('last_login' => strtotime('now')));
-          // TODO: check account status
+          // check account status
           if ($login['status'] == 'active') {
             // create session data
             $logged_in_sess = array('id' => $login['id'], 'username' => $login['username'], 'email' => $login['email'], 'logged_in' => TRUE);
@@ -301,7 +301,7 @@ class Auth extends Member_Controller
     $this->not_logged_in();
 
     $user_id = $this->session->userdata('id');
-    // TODO: reactivate user account
+    // reactivate user account
     $update = $this->model_users->update($user_id, array('status' => 'deactivated'));
     if ($update) {
       // log activity

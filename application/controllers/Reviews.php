@@ -98,6 +98,11 @@ class Reviews extends Member_Controller
       show_404('Page Not Found');
     }
 
+		if ($this->daily_limit_reached($this->session->userdata('id'))) {
+			$this->session->set_flashdata('alert', array('message' => 'You have reached your max earnings for today', 'title' => 'Daily Limit Reached', 'classname' => 'alert-warning'));
+			redirect('home', 'refresh');
+		}
+
     // completeReview - can review item
     if (in_array('completeReview', $this->permission)) {
       // render review

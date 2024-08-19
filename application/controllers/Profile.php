@@ -80,7 +80,7 @@ class Profile extends Member_Controller
 		$reward_bonus = (int) $this->model_config->getConfigByName('daily_bonus')['value'];
 		$multiply = (float) $this->model_config->getConfigByName('daily_bonus_multiply')['value'];
 
-		// TODO: reset streak count
+		// reset streak count
 		// list new streaks available to claim current count.
 		// construct here
 		$streak_count_html = '';

@@ -5,11 +5,20 @@
 				<h3 class="alert-heading font-weight-bold" style="font-size: 15px;">Login Bonus Available!</h3>
 				<p>Click <a href="<?php echo base_url('profile') ?>" class="text-dark alert-link">here</a> to claim login bonus.</p>
 			</div>
+			<?php if ($this->session->flashdata('alert')) { ?>
+				<div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<strong><?php echo $this->session->flashdata('alert')['title']; ?></strong>
+					<p><?php echo $this->session->flashdata('alert')['message']; ?></p>
+				</div>
+			<?php } ?>
 		</div>
 	</div>
 	<!-- ads  -->
 	<!-- content items -->
-	<!-- TODO: bonus info/ daily activity count. daily login bonus link -->
+	<!-- bonus info/ daily activity count. daily login bonus link -->
 	<div class="mod view_default">
 		<div class="bd type_fptoday type_fptoday_default">
 			<div class="fptoday-container y-ln-1">

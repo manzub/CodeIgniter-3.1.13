@@ -67,7 +67,7 @@ class Member_Controller extends MY_Controller
 
 			$this->bonus_available();
 			$this->earned_from_refered_users($user_id);
-			$this->daily_limit_reached($user_id);
+			// $this->daily_limit_reached($user_id);
 			$this->get_daily_activities($user_id, $group_data['group_name']);
 		}
 	}
@@ -75,12 +75,15 @@ class Member_Controller extends MY_Controller
 	public function daily_limit_reached($user_id = null)
 	{
 		if ($user_id != null) {
+			// TODO: on membership plans change default loaded
 			$daily_limit_config = $this->model_config->getConfigByName('daily_limit');
 			$daily_limit = intval($daily_limit_config['value']);
 
 			// select all earning from db with date time greater than yesterday
 			$todays_earnings_raw = $this->model_users->getUserTotalRewardsToday($user_id);
 			$todays_earnings = intval($todays_earnings_raw['total_earned']);
+
+			echo $todays_earnings;
 
 			// compare with db set limit
 			if ($todays_earnings >= $daily_limit) {
@@ -198,7 +201,7 @@ class Member_Controller extends MY_Controller
 
 	public function earned_from_refered_users($user_id = null)
 	{
-		// TODO: test referrals
+		// test referrals
 		// check refered users | check refered_by user
 		if ($user_id != null) {
 			// check if already earned from ref bonus

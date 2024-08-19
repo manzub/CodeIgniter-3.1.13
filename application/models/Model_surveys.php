@@ -84,12 +84,12 @@ class Model_surveys extends CI_Model
 		return array();
 	}
 
-	// TODO: rewrite surveys module
+	// rewrite surveys module
 	public function getAvailableSurveys($group_name = null, $user_id = null, $is_page = false, $page = 0, $per_page = 5)
 	{
 		$available_items = array();
 		if ($user_id != null) {
-			// TODO: test pagination later
+			// test pagination later
 			$sql = "SELECT * FROM survey_meta WHERE `status` = ? ORDER BY rand()";
 			$sql .= $is_page ? " LIMIT " . $per_page . " OFFSET " . ($per_page * $page) . "" : "";
 			$query = $this->db->query($sql, array('available'));

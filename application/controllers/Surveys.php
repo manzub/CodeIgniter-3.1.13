@@ -92,7 +92,7 @@ class Surveys extends Member_Controller
     echo json_encode($result);
   }
 
-  // TODO: on each complete page complete as guest user
+  // on each complete page complete as guest user
   public function completeQuestion($question_id = null)
   {
     $result = array('status' => 0);
@@ -165,7 +165,6 @@ class Surveys extends Member_Controller
     $this->render_template('pages/surveys/index', $this->data);
   }
 
-  //  TODO: show alert if limit reached
   public function single($slug = null)
   {
     $this->no_admin();
@@ -173,6 +172,11 @@ class Surveys extends Member_Controller
     if ($slug == null) {
       show_404('Page Not Found');
     }
+
+		if ($this->daily_limit_reached($this->session->userdata('id'))) {
+			$this->session->set_flashdata('alert', array('message' => 'You have reached your max earnings for today', 'title' => 'Daily Limit Reached', 'classname' => 'alert-warning'));
+			redirect('home', 'refresh');
+		}
 
     // completeQuestion - can answer question, completeSurvey can reduce global limit
     if (in_array('completeQuestion', $this->permission)) {
