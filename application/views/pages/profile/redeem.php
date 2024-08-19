@@ -23,6 +23,13 @@
 		</div>
 	</div>
 
+	<div class="alert alert-secondary">
+		<div class="d-flex align-items-center justify-content-start">
+			<h1 style="font-size: 25px;font-weight:bold">Balance:</h1>
+			<h1 class="text-muted" style="font-size: 25px;font-weight:bold"><?php echo $balance ?> = <?php echo $balance_converted ?></h1>
+		</div>
+	</div>
+
 	<div class="mod view_default">
 		<div class="card bg-default">
 			<div class="card-header">
@@ -63,7 +70,7 @@
 								<h1 style="font-size: 25px;">Enter Amount</h1>
 								<p>Withdraw to your saved payment option.</p>
 								<form method="post" action="<?php echo base_url('profile/redeem_points') ?>">
-									<input class="form-control" type="number" name="amount" value="0">
+									<input class="form-control" type="number" name="amount" max="<?php echo $balance_in_sb ?>" value="0">
 									<div class="d-flex align-items-center justify-content-between" style="gap: 10px;">
 										<select name="bank_type" class="form-control">
 											<option value="paypal">Paypal</option>

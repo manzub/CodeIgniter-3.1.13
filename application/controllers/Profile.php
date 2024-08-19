@@ -126,16 +126,16 @@ class Profile extends Member_Controller
 		$this->data['bonus'] = $reward_bonus;
 		$this->data['multiply'] = $multiply;
 
-    // activities list
-    $activities_list = $this->model_logs->getUserLogsById($user_id);
-    $this->data['activities_list'] = array_slice($activities_list, 0, 10);
+		// activities list
+		$activities_list = $this->model_logs->getUserLogsById($user_id);
+		$this->data['activities_list'] = array_slice($activities_list, 0, 10);
 
 		// balance and rate conv;
 		$sel_currency = $this->session->userdata('currency');
 		$balance = $this->model_users->getUserRewardsBalance($user_id);
 		$balance_n_currency = intval($balance['total_rewards']) * doubleval($sel_currency['rate']);
-		$this->data['balance'] =  $balance['total_rewards']."SB";
-		$this->data['balance_converted'] = $balance_n_currency . "".$sel_currency['currency'];
+		$this->data['balance'] =  $balance['total_rewards'] . "SB";
+		$this->data['balance_converted'] = $balance_n_currency . "" . $sel_currency['currency'];
 
 		// membership plans
 		$plans = array();
@@ -268,32 +268,53 @@ class Profile extends Member_Controller
 		if ($this->form_validation->run() == TRUE) {
 			$user_accounts = $this->model_users->getUserAccountsById($user_id);
 			if (!empty($user_accounts)) {
-				// check balance and request funds
-				$balance = $this->model_users->getUserRewardsBalance($user_id);
-				$amount = $this->input->post('amount');
-				$bank_type = $this->input->post('bank_type');
+				// check if selected option matches saved options available
+				$saved_bank_types = array_column($user_accounts, 'type');
+				if (($i = array_search($this->input->post('bank_type'), $saved_bank_types)) !== FALSE) {
+					// check balance and request funds
+					$balance = doubleval($this->model_users->getUserRewardsBalance($user_id)['total_rewards']);
+					$amount = doubleval($this->input->post('amount'));
+					$bank_type = $this->input->post('bank_type');
 
-				if ($balance > $amount) {
-					# request withdrawal.
-					// if balance is calculated from rewards.
-					// withdrawal should minus
-					$amount_converted = intval($amount) * intval($currency['rate']);
-					$data = array('user_id' => $user_id, 'coins_requested' => $amount, 'currency' => $currency['currency'], 'value' => $amount_converted, 'bank_type' => $bank_type, 'status' => 'pending');
-					$requested = $this->model_users->requestCoins($user_id, $data);
-					if ($requested) {
-						# deduct balance
-						$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'reward_earned' => '-' . $amount, 'type' => 'withdrawal', 'streak' => '0'));
-						// log activity
-						$this->model_logs->logActivity(array('user_id' => $user_id, 'activity_code' => '4', 'activity' => 'Requested Coins', 'message' => 'Requested Amount #'.$amount));
-						$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Requested Coins', 'message' => 'Requested amount #'.$amount.' pending approval!. We will let you know once it\'s been completed.'));
+					$min_withdrawal_amount = doubleval($this->model_config->getConfigByName('min_withdrawal')['value']);
+					if ($amount >= $min_withdrawal_amount) {
+						// requesting an amount higher than min.
+						if ($balance >= $amount) {
+							# request withdrawal.
+							// if balance is calculated from rewards.
+							// withdrawal should minus
+							$amount_converted = doubleval($amount) * doubleval($currency['rate']);
+							$data = array('user_id' => $user_id, 'coins_requested' => $amount, 'currency' => $currency['currency'], 'value' => $amount_converted, 'bank_type' => $bank_type, 'status' => 'pending');
+							$requested = $this->model_users->requestCoins($user_id, $data);
+							if ($requested) {
+								# deduct balance
+								$this->model_users->logClaimedReward($user_id, array('user_id' => $user_id, 'reward_earned' => '-' . $amount, 'type' => 'withdrawal', 'streak' => '0'));
+								// log activity
+								$this->model_logs->logActivity(array('user_id' => $user_id, 'activity_code' => '4', 'activity' => 'Requested Coins', 'message' => 'Requested Amount #' . $amount));
+								$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Requested Coins', 'message' => 'Requested amount #' . $amount . ' pending approval!. We will let you know once it\'s been completed.'));
+							}
+						} else {
+							$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Insufficient Balance', 'message' => 'Not enough balance, earn some more.'));
+						}
+					} else {
+						$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Insufficient Balance', 'message' => 'Minimum withdrawal is ' . $min_withdrawal_amount));
 					}
 				} else {
-					$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Insufficient Balance', 'message' => 'Not enough balance, earn some more.'));
+					$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Invalid Payment Option', 'message' => 'Selected payment option not saved.'));
 				}
 			} else {
 				$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'No payment options saved', 'message' => 'Please save a payment option and try again.'));
 			}
 		}
+
+		// balance and rate conv;
+		$sel_currency = $this->session->userdata('currency');
+		$balance = $this->model_users->getUserRewardsBalance($user_id);
+		$balance_n_currency = intval($balance['total_rewards']) * doubleval($sel_currency['rate']);
+		$this->data['balance'] =  $balance['total_rewards'] . "SB";
+		$this->data['balance_converted'] = $balance_n_currency . "" . $sel_currency['currency'];
+		$this->data['balance_in_sb'] =  $balance['total_rewards'];
+
 
 		$withdraw_options = unserialize($this->model_config->getConfigByName('withdraw_options')['value']);
 		$this->data['withdraw_options'] = $withdraw_options;
