@@ -36,9 +36,9 @@ class Model_groups extends CI_Model
 		return $result;
 	}
 
-  public function getGroupData($groupId = null) 
+	public function getGroupData($groupId = null)
 	{
-		if($groupId) {
+		if ($groupId) {
 			$sql = "SELECT * FROM groups WHERE id = ?";
 			$query = $this->db->query($sql, array($groupId));
 			return $query->row_array();
@@ -46,5 +46,33 @@ class Model_groups extends CI_Model
 
 		$query = $this->db->get('groups');
 		return $query->result_array();
+	}
+
+	public function create($data = array())
+	{
+		if (!empty($data)) {
+			$create = $this->db->insert('groups', $data);
+			return ($create == true) ? true : false;
+		}
+	}
+
+	public function edit($data, $id)
+	{
+		$this->db->where('id', $id);
+		$update = $this->db->update('groups', $data);
+		return ($update == true) ? true : false;
+	}
+
+	public function delete($id)
+	{
+		$this->db->where('id', $id);
+		$delete = $this->db->delete('groups');
+		return ($delete == true) ? true : false;
+	}
+
+	public function existInUserGroup($id) {
+		$sql = "SELECT * FROM users WHERE user_group = ?";
+		$query = $this->db->query($sql, array($id));
+		return ($query->num_rows() >= 1) ? true : false;
 	}
 }

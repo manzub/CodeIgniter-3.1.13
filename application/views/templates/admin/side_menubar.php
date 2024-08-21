@@ -33,7 +33,7 @@
 					</li>
 				<?php endif; ?>
 
-				<?php if (in_array('createGroup', $user_permission) || in_array('updateGroup', $user_permission) || in_array('viewGroup', $user_permission) || in_array('deleteGroup', $user_permission)) : ?>
+				<?php if (in_array('createGroup', $user_permission) || in_array('manageGroup', $user_permission)) : ?>
 					<li class="treeview" id="mainGroupNav">
 						<a href="#">
 							<i class="fa fa-files-o"></i>
@@ -46,7 +46,7 @@
 							<?php if (in_array('createGroup', $user_permission)) : ?>
 								<li id="addGroupNav"><a href="<?php echo base_url('groups/create') ?>"><i class="fa fa-circle-o"></i> Add Group</a></li>
 							<?php endif; ?>
-							<?php if (in_array('updateGroup', $user_permission) || in_array('viewGroup', $user_permission) || in_array('deleteGroup', $user_permission)) : ?>
+							<?php if (in_array('manageGroup', $user_permission)) : ?>
 								<li id="manageGroupNav"><a href="<?php echo base_url('groups') ?>"><i class="fa fa-circle-o"></i> Manage Groups</a></li>
 							<?php endif; ?>
 						</ul>
