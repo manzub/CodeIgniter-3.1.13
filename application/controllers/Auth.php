@@ -58,8 +58,11 @@ class Auth extends Member_Controller
               redirect('home', 'refresh');
             }
           } else {
-            $message = $login['status'] == 'pending' ? 'Your account is pending activation.' : 'Your account has been ' . $login['status'];
-            $this->sesion->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Error Occurred', 'message' => $message));
+						if ($login['status'] == 'pending') {
+							$message = 'Your account is pending activation, please check your emails for any activation codes. if you are a moderator or publisher please contact support.';
+							$this->sesion->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Unverified account.', 'message' => $message));
+							redirect('auth/verify', 'refresh');
+						}
           }
         } else {
           $this->session->set_flashdata('alert', array('classname' => 'alert-danger', 'message' => 'Incorrect username/password combination.', 'title' => 'Oops an error occured'));

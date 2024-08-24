@@ -28,6 +28,15 @@ class Model_users extends CI_Model
     return array();
   }
 
+	public function getUsersByGroup($user_group) {
+		if ($user_group) {
+			$query = $this->db->get_where('users', array('user_group' => $user_group));
+			return $query->result_array();
+		}
+
+		return array();
+	}
+
 	public function getAllUser() {
 		$sql = "SELECT * FROM users";
 		$query = $this->db->query($sql);

@@ -14,6 +14,7 @@ class Home extends Member_Controller
 		$this->load->model('model_transcribe');
 		$this->load->model('model_users');
 		$this->load->model('model_config');
+		$this->load->model('model_groups');
 		$this->data["title"] = "SurveyVine!";
 	}
 
@@ -111,6 +112,7 @@ class Home extends Member_Controller
 	public function contact_us()
 	{
 		$this->data['title'] = 'SurveyVine | Contact Us';
+		$categories_raw = array('account' => array('I am having troubles with my account.', 'usersadmin'), 'referrals' => array('Referrals', 'superadmin'), 'payments' => array('Payments/Withdrawals', 'paymentsadmin'), 'website' => array('Website/Activites', 'superadmin'), 'other' => array('Other', 'superadmin'));
 
 		$this->form_validation->set_rules('fname', 'First Name', 'trim|required');
 		$this->form_validation->set_rules('email', 'Email Address', 'trim|required');
@@ -121,22 +123,37 @@ class Home extends Member_Controller
 			$lastName = !empty($this->input->post('lname')) ? $this->input->post('lname') : '';
 			$fromName = $this->input->post('fname') . ' ' . $lastName;
 
-			$subject = "A query has been submitted on SurveyVine!";
+			$category = $this->input->post('category');
+			if (array_key_exists($category, $categories_raw)) {
+				$selected_cat = $categories_raw[$category];
 
-			$message = "<div style='align-items:left'>
-			<h1>A new query has been submitted on SurveyVine.com</h1>
-			<p>Here are the details.\n</p>
-			<h3>From Name: " . $fromName . "</h3>
-			<h3>Email: " . $this->input->post('email') . "</h3>
-			<h3>Category: " . $this->input->post('category') . "\n\n</h3>
-			<p>Message details below:</p>
-			<p>" . $this->input->post('message') . "</p>
-			</div>";
+				// send message, save to cron db, let cron script notify usergroup members
+				$subject = "A query has been submitted on SurveyVine!";
 
-			if ($this->send_email('noreply@surveyvine.com', $subject, $message)) {
-				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Query Submitted', 'message' => 'Your query has been submitted'));
-			} else {
-				$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'An error occurred', 'message' => 'an error occurred and could not complete your request, try again later.'));
+				$message = "<div style='align-items:left'>
+				<h1>A new query has been submitted on SurveyVine.com</h1>
+				<p>Here are the details.\n</p>
+				<h3>From Name: " . $fromName . "</h3>
+				<h3>Email: " . $this->input->post('email') . "</h3>
+				<h3>Category: " . $this->input->post('category') . "\n\n</h3>
+				<p>Message details below:</p>
+				<p>" . $this->input->post('message') . "</p>
+				</div>";
+
+				if ($this->send_email('noreply@surveyvine.com', $subject, $message)) {
+					// message all admins with selected user groups.
+					$selected_group = $this->model_groups->getGroupByGroupName($selected_cat[1]);
+					if (!empty($selected_group)) {
+						$all_admins = $this->model_users->getUsersByGroup($selected_group['id']);
+						foreach ($all_admins as $value) {
+							$this->send_email($value['email'], $subject, $message);
+						}
+					}
+
+					$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Query Submitted', 'message' => 'Your query has been submitted'));
+				} else {
+					$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'An error occurred', 'message' => 'an error occurred and could not complete your request, try again later.'));
+				}
 			}
 		}
 

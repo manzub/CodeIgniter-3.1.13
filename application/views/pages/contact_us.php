@@ -48,10 +48,11 @@
 										<label for="">Please select a category*</label>
 										<select id="form_need" name="category" class="form-control" required="required" data-error="Please select a category.">
 											<option value="" selected disabled>--Select Your Issue--</option>
-											<option>Request Invoice for order</option>
-											<option>Request order status</option>
-											<option>Haven't received cashback yet</option>
-											<option>Other</option>
+											<option value="account">I am having troubles with my account.</option>
+											<option value="referrals">Referrals</option>
+											<option value="payments">Payments/Withdrawals</option>
+											<option value="website">Website/Activities</option>
+											<option value="other">Other</option>
 										</select>
 									</div>
 
