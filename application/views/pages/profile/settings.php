@@ -93,43 +93,79 @@
 								position: absolute;
 								top: -999999px;
 							}
+
+							.well {
+								min-height: 20px;
+								padding: 19px;
+								margin-bottom: 20px;
+								background-color: #f5f5f5;
+								border: 1px solid #e3e3e3;
+								border-radius: 4px;
+								-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+								box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+							}
 						</style>
-						<?php if (empty($user_accounts)) { ?>
-							<div style="display: flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap: 15px;">
-								<img src="<?php echo base_url('assets/icons/paypal.png') ?>" style="height:70px;width:70px;">
-								<form action="<?php echo base_url('profile/add_paypal') ?>" id="paypal-form" class="hidden" method="post" style="flex:8;display: flex;align-items:center;justify-content:space-between;">
-									<div class="form-group" style="width:80%;">
-										<label for="">Paypal Address</label>
-										<input class="form-control" name="paypal_email" placeholder="Paypal Email Address" />
+						<?php $saved_types = array_column($user_accounts, 'type'); ?>
+						<div style="display: flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap: 15px;">
+							<img src="<?php echo base_url('assets/icons/paypal.png') ?>" style="height:70px;width:70px;">
+							<form action="<?php echo base_url('profile/add_paypal') ?>" id="paypal-form" class="hidden" method="post" style="flex:8;display: flex;align-items:center;justify-content:space-between;">
+								<div class="form-group" style="width:80%;">
+									<label for="">Paypal Address</label>
+									<input class="form-control" name="paypal_email" placeholder="Paypal Email Address" />
+								</div>
+								<button class="btn btn-primary">Submit</button>
+							</form>
+							<?php if (in_array('paypal', $saved_types)) { ?>
+								<?php $bb_key = array_search('paypal', $saved_types); ?>
+								<form method="post" action="<?php echo base_url('profile/unlink_account/paypal') ?>" style="flex:8;display:flex;align-items:center;justify-content:space-between;">
+									<p style="visibility: hidden;">.</p>
+									<p id="paypal-text"><?php echo $user_accounts[$bb_key]['email'] ?></p>
+									<button type="submit" class="btn btn-primary">Unlink Account</button>
+								</form>
+							<?php } else { ?>
+								<p id="paypal-text">Link your PayPal account to turn your SB into cash</p>
+								<button id="trigger-hide" class="btn btn-primary">Link Account</button>
+							<?php } ?>
+						</div>
+						<div style="display: flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+							<img src="<?php echo base_url('assets/icons/bank.png') ?>" style="height:70px;width:70px">
+							<?php if (in_array('bank', $saved_types)) { ?>
+								<?php $bb_key = array_search('bank', $saved_types); ?>
+								<form method="post" action="<?php echo base_url('profile/unlink_account/bank') ?>" style="flex:8;display:flex;align-items:center;justify-content:space-between;">
+									<p style="visibility: hidden;">.</p>
+									<p id="paypal-text"><?php echo $user_accounts[$bb_key]['account_no'] . ' | ' . $user_accounts[$bb_key]['account_holder'] ?></p>
+									<button type="submit" class="btn btn-primary">Unlink Account</button>
+								</form>
+							<?php } else { ?>
+								<p>Link your Bank Account to turn your SB into cash</p>
+								<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#linkbankForm" aria-expanded="false" aria-controls="linkbankForm">Link Account</button>
+							<?php } ?>
+						</div>
+						<div class="collapse" id="linkbankForm">
+							<div class="well">
+								<h3>Enter your bank details</h3>
+								<form action="<?php echo base_url('profile/link_bankaccount') ?>" method="post">
+									<div class="form-group">
+										<label for="">Bank</label>
+										<select name="bank_name" class="form-control">
+											<option value="">Select One</option>
+											<?php foreach ($banks as $key => $value) { ?>
+												<option value="<?php echo str_replace(" ", "-", strtolower($value)); ?>"><?php echo $value ?></option>
+											<?php } ?>
+										</select>
+									</div>
+									<div class="form-group">
+										<label for="">Account Number</label>
+										<input type="text" name="account_no" class="form-control" placeholder="Account Number">
+									</div>
+									<div class="form-group">
+										<label for="">Account Holder</label>
+										<input type="text" name="account_holder" placeholder="Account Holder" class="form-control">
 									</div>
 									<button class="btn btn-primary">Submit</button>
 								</form>
-								<p id="paypal-text">Link your PayPal account to turn your SB into cash</p>
-								<button id="trigger-hide" class="btn btn-primary">Link Account</button>
 							</div>
-							<div style="display: flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-								<img src="<?php echo base_url('assets/icons/bank.png') ?>" style="height:70px;width:70px">
-								<p>Link your Bank Account to turn your SB into cash</p>
-								<button class="btn btn-primary">Link Account</button>
-							</div>
-						<?php } else { ?>
-							<?php foreach ($user_accounts as $key => $accounts) { ?>
-								<?php if (in_array($accounts['type'], array('paypal', 'bank'))) { ?>
-									<form method="post" action="<?php echo base_url('profile/unlink_account/' . $accounts['type']) ?>" style="display: flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-										<img src="<?php echo base_url('assets/icons/' . $accounts['type'] . '.png') ?>" style="height:70px;width:70px">
-										<p><?php echo $accounts['email'] | $accounts['account_no'] . ' - ' . $accounts['account_holder'] ?></p>
-										<button class="btn btn-primary">Unlink Account</button>
-									</form>
-								<?php } ?>
-							<?php } ?>
-							<?php if (sizeof($user_accounts) > 0 && sizeof($user_accounts) < 2) { ?>
-								<div style="display: flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-									<img src="<?php echo base_url('assets/icons/' . ($user_accounts[0]['type'] == 'paypal' ? 'bank' : 'paypal') . '.png') ?>" style="height:70px;width:70px">
-									<p>Link your <?php echo $user_accounts[0]['type'] == 'paypal' ? 'bank' : 'paypal' ?> account to turn your SB into cash</p>
-									<button class="btn btn-primary">Link Account</button>
-								</div>
-							<?php } ?>
-						<?php } ?>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -143,8 +179,8 @@
 						</div>
 					</div>
 					<div class="card-body">
-						<p style="font-size: 17px;margin-bottom:5px"><a href="">Contact Customer Support</a></p>
-						<p><a onclick="if(window.confirm('Are you sure you want to proceed?')) { window.location.href = '<?php echo base_url('auth/deactivate_user') ?>'}" style="font-size: 17px;">Deactivate My Account</a></p>
+						<p style="font-size: 17px;margin-bottom:5px"><a href="<?php echo base_url('home/contact_us') ?>">Contact Customer Support</a></p>
+						<p><a onclick="if(window.confirm('Are you sure you want to proceed?')) { window.location.href = '<?php echo base_url('auth/deactivate_user') ?>'}" style="font-size: 17px;" href="#">Deactivate My Account</a></p>
 					</div>
 				</div>
 			</div>

@@ -163,9 +163,33 @@ class Profile extends Member_Controller
 		// users_account => bank info
 		$user_accounts = $this->model_users->getUserAccountsById($user_id);
 
-		$this->data['user_accounts'] = $user_accounts;
+		$banks = array(
+			"Access Bank",
+			"Citibank Nigeria",
+			"Diamond Bank",
+			"Ecobank Nigeria",
+			"Fidelity Bank",
+			"First Bank Nigeria",
+			"First City Monument Bank",
+			"Guaranty Trust Bank",
+			"Heritage Banking Company",
+			"Keystone Bank",
+			"Polaris Bank",
+			"Stanbic IBTC Bank",
+			"Standard Chartered Bank Nigeria",
+			"Sterling Bank",
+			"SunTrust Bank Nigeria",
+			"Union Bank of Nigeria",
+			"United Bank for Africa",
+			"Unity Bank",
+			"Wema Bank",
+			"Zenith Bank"
+		);
 
-		$this->render_template('pages/profile/settings', $this->data);
+		$this->data['user_accounts'] = $user_accounts;
+		$this->data['banks'] = $banks;
+
+			$this->render_template('pages/profile/settings', $this->data);
 	}
 
 	public function referrals()
@@ -451,7 +475,28 @@ class Profile extends Member_Controller
 				// log activity
 				$activity = array('user_id' => $user_id, 'activity_code' => '4', 'activity' => 'Linked Account', 'message' => 'Successfully linked Paypal');
 				$this->model_logs->logActivity($activity);
-				redirect('profile', 'refresh');
+				redirect('profile/settings', 'refresh');
+			}
+		}
+	}
+
+	public function link_bankaccount() {
+		$this->not_logged_in();
+
+		$user_id = $this->session->userdata('id');
+
+		$this->form_validation->set_rules('bank_name', 'Bank', 'required');
+		$this->form_validation->set_rules('account_no', 'Account Number', 'trim|required');
+		$this->form_validation->set_rules('account_holder', 'Account Holder', 'trim|required');
+		if ($this->form_validation->run() == TRUE) {
+			$data = array('user_id' => $user_id, 'type' => 'bank', 'bank' => $this->input->post('bank_name'), 'account_no' => $this->input->post('account_no'), 'account_holder' => $this->input->post('account_holder'));
+			$update = $this->model_users->insertUserAccount($data);
+			if ($update) {
+				$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Done', 'message' => 'Saved bank account'));
+				// log activity
+				$activity = array('user_id' => $user_id, 'activity_code' => '4', 'activity' => 'Linked Account', 'message' => 'Successfully linked Bank Account');
+				$this->model_logs->logActivity($activity);
+				redirect('profile/settings', 'refresh');
 			}
 		}
 	}
