@@ -11,10 +11,8 @@ class Reviews extends Member_Controller
     // load needed db configs
     $this->load->model('model_reviews');
     $this->load->model('model_categories');
-    $this->load->model('model_users');
-    $this->load->model('model_config');
     $this->load->model('model_bonuses');
-    $this->load->model('model_logs');
+		
     $this->data['title'] = "Reviews | SurveyVine";
     $this->data['per_page'] = 5;
   }

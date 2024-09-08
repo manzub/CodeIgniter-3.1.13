@@ -11,10 +11,8 @@ class Surveys extends Member_Controller
 
     $this->load->model('model_surveys');
     $this->load->model('model_categories');
-    $this->load->model('model_users');
-    $this->load->model('model_config');
     $this->load->model('model_bonuses');
-    $this->load->model('model_logs');
+		
     $this->data['title'] = "Surveys | SurveyVine";
     $this->data['per_page'] = 5;
   }

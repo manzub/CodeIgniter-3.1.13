@@ -24,11 +24,12 @@ class Member_Controller extends MY_Controller
 		$this->load->helper('my_helper.php');
 		$this->load->library('dailyactivities');
 		$this->load->library('email');
-
+ 
+		$this->load->model('model_logs');
 		$this->load->model('model_groups');
 		$this->load->model('model_users');
-		$this->load->model('model_dailyactivity');
 		$this->load->model('model_config');
+		$this->load->model('model_dailyactivity');
 		$this->load_banner_configs();
 
 		// construct permissions here

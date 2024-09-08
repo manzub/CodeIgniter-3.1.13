@@ -8,8 +8,6 @@ class Transactions extends Member_Controller
 		parent::__construct();
 
 		$this->load->model('model_transactions');
-		$this->load->model('model_users');
-		$this->load->model('model_logs');
 
 		$this->data['title'] = 'Transactions';
 	}

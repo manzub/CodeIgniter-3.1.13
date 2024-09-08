@@ -7,10 +7,6 @@ class Auth extends Member_Controller
   {
     parent::__construct();
     $this->load->model('model_auth');
-    $this->load->model('model_users');
-    $this->load->model('model_groups');
-    $this->load->model('model_logs');
-    $this->load->model('model_config');
     $this->load->model('model_referrals');
   }
 

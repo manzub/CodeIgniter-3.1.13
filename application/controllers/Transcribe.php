@@ -10,11 +10,9 @@ class Transcribe extends Member_Controller
 		$this->load->helper('my_helper.php');
 		// load needed db configs
 		$this->load->model('model_transcribe');
-		$this->load->model('model_users');
-		$this->load->model('model_config');
 		$this->load->model('model_bonuses');
 		$this->load->model('model_categories');
-		$this->load->model('model_logs');
+		
 		$this->data['title'] = "Transcribe | SurveyVine";
 		$this->data['per_page'] = 5;
 	}

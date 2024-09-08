@@ -6,13 +6,12 @@ class Profile extends Member_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->data['title'] = "My Account | SurveyVine";
-		$this->load->model('model_users');
 		$this->load->model('model_referrals');
-		$this->load->model('model_logs');
-		$this->load->model('model_config');
-
+		
 		$this->load->helper('my_helper.php');
+
+		$this->data['title'] = "My Account | SurveyVine";
+
 	}
 
 	public function claimDailyBonus()

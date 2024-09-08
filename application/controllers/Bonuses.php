@@ -11,9 +11,6 @@ class Bonuses extends Member_Controller
 		$this->load->model('model_reviews');
 		$this->load->model('model_transcribe');
 		$this->load->model('model_bonuses');
-		$this->load->model('model_users');
-		$this->load->model('model_config');
-		$this->load->model('model_logs');
 		$this->data["title"] = "SurveyVine!";
 	}
 

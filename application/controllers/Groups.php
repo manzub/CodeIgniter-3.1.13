@@ -7,13 +7,7 @@ class Groups extends Member_Controller
 		parent::__construct();
 
 		$this->not_logged_in();
-
 		$this->data['title'] = 'Groups';
-
-		$this->load->model('model_users');
-		$this->load->model('model_groups');
-		$this->load->model('model_config');
-		$this->load->model('model_logs');
 	}
 
 	public function index()
