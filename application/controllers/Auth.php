@@ -58,6 +58,9 @@ class Auth extends Member_Controller
 							$message = 'Your account is pending activation, please check your emails for any activation codes. if you are a moderator or publisher please contact support.';
 							$this->sesion->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Unverified account.', 'message' => $message));
 							redirect('auth/verify', 'refresh');
+						} else if ($login['status'] == 'suspended') {
+							$message = "Your account has been suspended, please contact support to review your activity. contact@surveyvine.com";
+							$this->sesion->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Suspended account.', 'message' => $message));
 						}
           }
         } else {

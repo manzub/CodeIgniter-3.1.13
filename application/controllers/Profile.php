@@ -315,6 +315,9 @@ class Profile extends Member_Controller
 								// log activity
 								$this->model_logs->logActivity(array('user_id' => $user_id, 'activity_code' => '4', 'activity' => 'Requested Coins', 'message' => 'Requested Amount #' . $amount));
 								$this->session->set_flashdata('alert', array('classname' => 'alert-success', 'title' => 'Requested Coins', 'message' => 'Requested amount #' . $amount . ' pending approval!. We will let you know once it\'s been completed.'));
+								// alert admins
+								$user_group = $this->model_groups->getGroupByGroupName('paymentsadmin');
+								$this->alertAdmins($user_group['id']);
 							}
 						} else {
 							$this->session->set_flashdata('alert', array('classname' => 'alert-warning', 'title' => 'Insufficient Balance', 'message' => 'Not enough balance, earn some more.'));

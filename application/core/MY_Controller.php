@@ -73,6 +73,18 @@ class Member_Controller extends MY_Controller
 		}
 	}
 
+	public function alertAdmins($user_group = null, $message = "") {
+		if ($user_group) {
+			$users = $this->model_users->getAllUsers($user_group);
+			if (!empty($users)) {
+				foreach ($users as $value) {
+					$subject = "Hi ".$value['username'].", you have a message from Surveyvine!";
+					$this->send_email($value['email'], $subject, $message);
+				}
+			}
+		}
+	}
+
 	public function daily_limit_reached($user_id = null)
 	{
 		if ($user_id != null) {

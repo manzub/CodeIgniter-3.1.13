@@ -19,7 +19,7 @@ class Users extends Member_Controller
 			redirect('dashboard', 'refresh');
 		}
 
-		$user_data = $this->model_users->getAllUser();
+		$user_data = $this->model_users->getAllUsers();
 
 		$result = array();
 		foreach ($user_data as $k => $v) {
