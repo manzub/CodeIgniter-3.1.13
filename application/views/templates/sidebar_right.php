@@ -57,15 +57,10 @@
               </div>
               <div class="pulse-wrapper clearfix">
                 <ul class="pulse-list">
-                  <li>
-                    <a class="y-link-2 y-fp-pg-controls" href="<?php echo base_url('surveys') ?>">Answer Surveys</a>
-                  </li>
-                  <li>
-                    <a class="y-link-2 y-fp-pg-controls" href="<?php echo base_url('profile/invite') ?>">Invite a Friend</a>
-                  </li>
-                  <li>
-                    <a class="y-link-2 y-fp-pg-controls" href="<?php echo base_url('reviews') ?>">Complete Other Activities</a>
-                  </li>
+                  <li><a class="y-link-2 y-fp-pg-controls" href="<?php echo base_url('surveys') ?>">Answer Surveys</a></li>
+                  <li><a class="y-link-2 y-fp-pg-controls" href="<?php echo base_url('profile/invite') ?>">Invite a Friend</a></li>
+                  <li><a class="y-link-2 y-fp-pg-controls" href="<?php echo base_url('reviews') ?>">Complete Other Activities</a></li>
+                  <li><a class="y-link-2 y-fp-pg-controls" href="<?php echo base_url('auth/signup?type=moderator') ?>">Want to become a moderator? Learn more</a></li>
                 </ul>
               </div>
             </div>

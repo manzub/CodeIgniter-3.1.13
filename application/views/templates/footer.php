@@ -1,7 +1,9 @@
 <div id="y-footer">
 	<div class="mod view_default">
 		<div class="bd type_footer type_footer_default">
-			<div class="ad small y-ftr-link"></div>
+			<div class="ad small y-ftr-link">
+				<marquee loop="-1" style="padding:10px;font-size:20px;background-color:#ffeeba;color:teal" behavior="slide" direction="left">Become a moderator. Earn points from reviewing activities completed by members on the platform</marquee>
+			</div>
 			<div class="ysites sections clearfix y-ftr-bg y-ftr-ln y-fp-pg-grad cols2">
 				<div class="ysites-col"></div>
 				<div class="stacked-col">
