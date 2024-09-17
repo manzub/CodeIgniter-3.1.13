@@ -86,16 +86,58 @@
 			<div id="payments" class="collapse" aria-labelledby="paymentsHeader" data-parent="#accordion">
 				<div class="card-body" style="font-size: 15px;">
 					<h1 style="font-size: 20px;"><strong>How do i set a preferred payment option.</strong></h1>
-					<span><br/></span>
+					<span><br /></span>
 					<p>On the sidebar menu select (Settings) to go the settings page.</p>
 					<p>On the settings page you can save your payment options. <strong>PayPal</strong> and any other accepted local currency.</p>
 					<p>On request for withdrawal you will be prompted to select your preferred payment option.</p>
-					<span><br/></span>
-					<span><br/></span>
+					<span><br /></span>
+					<span><br /></span>
 					<h1 style="font-size: 20px;"><strong>How long does withdrawals take.</strong></h1>
-					<span><br/></span>
+					<span><br /></span>
 					<p>Withdrawals typically take 2-3 business days from when the amount is requested to arrive in your selected payout option.</p>
 					<p>Withdrawals are not automatic. if any issues experienced regarding a requested payment. contact us on <a href="mailto:contact@surveyvine.com">contact@surveyvine.com</a></p>
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-header" id="specialAccountsHeader">
+				<h5 class="mb-0">
+					<button class="btn btn-link collapsed" data-toggle="collapse" data-target="#specialAccounts" aria-expanded="<?php echo ($this->input->get('show') != null && $this->input->get('show') == 'modsnpubs') ? 'true' : 'false'; ?>" aria-controls="specialAccounts">
+						Moderator and Publisher Accounts
+					</button>
+				</h5>
+			</div>
+			<div id="specialAccounts" class="collapse <?php echo ($this->input->get('show') != null && $this->input->get('show') == 'modsnpubs') ? 'show' : ''; ?>" aria-labelledby="specialAccountsHeader" data-parent="#accordion">
+				<div class="card-body" style="font-size:15px">
+					<h1 class="h2 font-weight-bold">Moderators</h1>
+					<div class="jumbotron" style="font-size:15px;font-family:monospace;text-align:center">
+						<p>Our moderator program is another way for you to earn as a member of surveyvine.com. Every activity completed on surveyvine.com will need to be reviewed to ensure the quality of the reveiws. Our moderator program allows selected members to earn money while reviewing these activities for spam or false information.</p>
+						<div class="row my-3">
+							<div class="col-md-6">
+								<img src="<?php echo base_url('assets/images/marketing.png') ?>" height="300" alt="">
+							</div>
+							<div class="col-md-6">
+								<img src="<?php echo base_url('assets/images/investigation.png') ?>" height="300" alt="">
+							</div>
+						</div>
+						<p>As a moderator you can either approve or deny submitted activities and earn points for your reviews. <strong>spam reviews or false contents could earn you/the user a strike.</strong></p>
+						<a href="<?php echo base_url('auth/signup?type=moderator') ?>" class="mt-2 rounded btn btn-lg btn-outline-primary">Get Started</a>
+					</div>
+					<hr>
+					<h1 class="h2 font-weight-bold">Publishers</h1>
+					<div class="jumbotron" style="font-size:15px;font-family:monospace;text-align:center">
+						<p>Registered publishers on surveyvine.com will have access to post activities like surveys, reviews and transcribe items on our platform to gather feedback and conduct general surveys. Publishers pay an initial sign in fee and have access to the full platform. activities completed are made available on your publisher dashboard for you to export/convert to cvs/txt file format.</p>
+						<div class="row my-3">
+							<div class="col-md-6">
+								<img src="<?php echo base_url('assets/images/new-post.png') ?>" height="300" alt="">
+							</div>
+							<div class="col-md-6">
+								<img src="<?php echo base_url('assets/images/post-production.png') ?>" height="300" alt="">
+							</div>
+						</div>
+						<p>Publishers cannot earn rewards from the platform and dont have to pay members to complete activities.</p>
+						<a href="<?php echo base_url('auth/signup?type=publisher') ?>" class="mt-2 rounded btn btn-lg btn-outline-primary">Become a publisher</a>
+					</div>
 				</div>
 			</div>
 		</div>

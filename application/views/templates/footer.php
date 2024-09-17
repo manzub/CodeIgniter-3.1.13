@@ -23,8 +23,8 @@
 					<li><a class="y-fp-pg-controls y-subftr-link" href="<?php echo base_url('home/about_us') ?>">About Us</a>
 					</li>
 					<li><a class="y-fp-pg-controls y-subftr-link" href="<?php echo base_url('home/contact_us') ?>">Contact Us</a></li>
-					<li><a class="y-fp-pg-controls y-subftr-link" href="<?php echo base_url('auth/signup?type=moderator') ?>">Become a Moderator</a></li>
-					<li><a class="y-fp-pg-controls y-subftr-link" href="<?php echo base_url('auth/signup?type=publisher') ?>">List An Activity With Us</a></li>
+					<li><a class="y-fp-pg-controls y-subftr-link" href="<?php echo base_url('home/faq?show=modsnpubs') ?>">Become a Moderator</a></li>
+					<li><a class="y-fp-pg-controls y-subftr-link" href="<?php echo base_url('home/faq?show=modsnpubs') ?>">List An Activity With Us</a></li>
 					<li><a class="y-fp-pg-controls y-subftr-link" href="<?php echo base_url('home/coming_soon') ?>">Advertise With Us</a></li>
 				</ul>
 			</div>
