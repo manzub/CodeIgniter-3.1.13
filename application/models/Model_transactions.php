@@ -6,6 +6,16 @@ class Model_transactions extends CI_Model
 		parent::__construct();
 	}
 
+	public function getUserTransactions($user_id = null) {
+		if ($user_id != null) {
+			$query = $this->db->get_where('transactions', array('user_id' => $user_id));
+			$result = $query->result_array();
+			return $result;
+		}
+
+		return array();
+	}
+
 	public function getAllTransactions()
 	{
 		$query = $this->db->get('transactions');
@@ -17,7 +27,7 @@ class Model_transactions extends CI_Model
 	{
 		if ($trnx_id != null) {
 			$query = $this->db->get_where('transactions', array('id' => $trnx_id));
-			$result = $query->result_array();
+			$result = $query->row_array();
 			return $result;
 		}
 

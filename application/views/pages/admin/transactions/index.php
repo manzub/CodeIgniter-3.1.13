@@ -31,9 +31,7 @@
 									<th>Bank Name</th>
 									<th>Bank Information</th>
 									<th>Paid Status</th>
-									<?php if (in_array('manageOrder', $user_permission)) : ?>
-										<th>Action</th>
-									<?php endif; ?>
+									<th>Action</th>
 								</tr>
 							</thead>
 

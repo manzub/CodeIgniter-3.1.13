@@ -158,6 +158,7 @@
           <ul class="treeview-menu">
             <li id="myaccountNav"><a href="<?php echo base_url('profile') ?>"><i class="fa fa-circle-o"></i>Profile</a></li>
             <li id="myaccountNav"><a href="<?php echo base_url('profile/redeem_points') ?>"><i class="fa fa-circle-o"></i>Withdraw Points</a></li>
+            <li id="myaccountNav"><a href="<?php echo base_url('transactions') ?>"><i class="fa fa-circle-o"></i>Withdrawals</a></li>
           </ul>
         </li>
 
