@@ -171,5 +171,54 @@
 		<div id="default-p_13923988-ft" class="ft"></div>
 	</div>
 	<!-- ads -->
-
 </div>
+
+<!-- bottom welcome div -->
+<style>
+	.welcome-popup {
+		display: none;
+		position: fixed;
+		bottom: 0;
+		right: 15px;
+		border: 3px solid teal;
+		z-index: 9;
+	}
+
+	.welcome-container-wrapper {
+		max-width: 450px;
+		padding: 10px;
+		background-color: white;
+	}
+</style>
+<div class="welcome-popup shadow-lg" id="welcome-popup">
+	<div class="welcome-container-wrapper">
+		<div class="d-flex align-items-center gap-4">
+			<img src="<?php echo base_url('assets/images/welcome.png') ?>" height="70px" alt="">
+			<div class="d-block">
+				<h1 class="h3 font-weight-bold" style="margin-bottom: 5px;">Welcome to Surveyvine</h1>
+				<h3 class="h6">Your one stop to earn money on the internet quickly.</h3>
+			</div>
+		</div>
+		<ul class="list-group" style="font-size: 15px;border:none">
+			<li class="list-group-item">- Complete <strong>surveys</strong> and <strong>other activities</strong> to earn <strong>points</strong></li>
+			<li class="list-group-item">- Convert the points earned to your <strong>local currency</strong></li>
+			<li class="list-group-item">- <strong>Refer friends</strong> to earn more points</li>
+			<li class="list-group-item">- Create an account to get started</li>
+		</ul>
+		<div class="my-3">
+			<a href="<?php echo base_url('auth/signup') ?>" class="btn btn-block btn-outline-success">Get Started</a>
+			<a href="<?php echo base_url('home/faq') ?>" class="btn btn-block btn-outline-warning">Learn More</a>
+			<button type="button" class="btn btn-block btn-danger" id="close-welcome-popup">Close</button>
+		</div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function() {
+		document.getElementById('welcome-popup').style.display = 'block';
+
+		document.getElementById('close-welcome-popup').addEventListener('click', function() {
+			document.getElementById('welcome-popup').style.display = 'none';
+		})
+	})
+</script>
