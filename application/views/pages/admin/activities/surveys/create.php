@@ -21,6 +21,7 @@
         <div class="box">
           <div class="box-header">
             <h3 class="box-title">Create a New Survey</h3>
+						<p>Edit your survey item as many times as you want and it will be reviewed in 24hrs before published to the main site.</p>
           </div>
 
           <form action="<?php echo base_url('surveys/create') ?>" method="post">

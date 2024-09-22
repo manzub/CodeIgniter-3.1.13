@@ -11,7 +11,10 @@ class Model_surveys extends CI_Model
 	{
 		// get all items from db completed by current_user
 		if ($survey_id != null) {
-			$query = $this->db->get_where('surveys_completed', array('survey_id' => $survey_id, 'completed_by' => $user_id));
+			$arr1 = array();
+			$user_id != null && $arr1 = array('completed_by' => $user_id);
+
+			$query = $this->db->get_where('surveys_completed', array_merge($arr1, array('survey_id' => $survey_id)));
 			return $query->result_array();
 		}
 
@@ -41,7 +44,8 @@ class Model_surveys extends CI_Model
 		}
 	}
 
-	public function getSurveyItemById($survey_id = null) {
+	public function getSurveyItemById($survey_id = null)
+	{
 		if ($survey_id != null) {
 			$query = $this->db->get_where('survey_meta', array('id' => $survey_id));
 			$result = $query->row_array();
@@ -51,7 +55,8 @@ class Model_surveys extends CI_Model
 		return array();
 	}
 
-	public function getSurveyQuestionByQuestId($quest_id) {
+	public function getSurveyQuestionByQuestId($quest_id)
+	{
 		if ($quest_id != null) {
 			$query = $this->db->get_where('sv_questions', array('id', $quest_id));
 			$result = $query->row_array();
@@ -96,7 +101,7 @@ class Model_surveys extends CI_Model
 			$result = $query->result_array();
 
 			// get each survey item and check global_limit
-      $count = 0;
+			$count = 0;
 			foreach ($result as $key => $item) {
 				// check global limit was set
 				if (($item['global_limit'] == NULL) || intval($item['global_limit']) > 0) { //item is still valid and hasn't globally expired
@@ -111,7 +116,7 @@ class Model_surveys extends CI_Model
 						}
 					}
 					$available_items[$count] = $item;
-          $count++;
+					$count++;
 					// }
 				}
 			}
@@ -161,7 +166,8 @@ class Model_surveys extends CI_Model
 		return false;
 	}
 
-	public function createSurveyQuestion($data) {
+	public function createSurveyQuestion($data)
+	{
 		if (!empty($data)) {
 			$this->db->set($data);
 			$this->db->insert('sv_questions');
@@ -172,7 +178,8 @@ class Model_surveys extends CI_Model
 		return false;
 	}
 
-	public function createSurveyOption($data){
+	public function createSurveyOption($data)
+	{
 		if (!empty($data)) {
 			$this->db->set($data);
 			$this->db->insert('sv_quest_options');
