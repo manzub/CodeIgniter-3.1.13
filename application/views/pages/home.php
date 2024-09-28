@@ -1,10 +1,12 @@
 <div id="y-col1">
 	<div class="mod view_default">
 		<div class="bd type_breakingnews type_breakingnews_default">
-			<div class="alert alert-success p-2">
-				<h3 class="alert-heading font-weight-bold" style="font-size: 15px;">Login Bonus Available!</h3>
-				<p>Click <a href="<?php echo base_url('profile') ?>" class="text-dark alert-link">here</a> to claim login bonus.</p>
-			</div>
+			<?php if (empty($this->session->userdata('logged_in')) || !empty($this->session->userdata('bonus_available'))) { ?>
+				<div class="alert alert-success p-2">
+					<h3 class="alert-heading font-weight-bold" style="font-size: 15px;">Login Bonus Available!</h3>
+					<p>Click <a href="<?php echo base_url('profile') ?>" class="text-dark alert-link">here</a> to claim login bonus.</p>
+				</div>
+			<?php } ?>
 			<?php if ($this->session->flashdata('alert')) { ?>
 				<div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
 					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -174,44 +176,46 @@
 </div>
 
 <!-- bottom welcome div -->
-<style>
-	.welcome-popup {
-		display: none;
-		position: fixed;
-		bottom: 0;
-		right: 15px;
-		border: 3px solid teal;
-		z-index: 9;
-	}
+<?php if (empty($this->session->userdata('logged_in'))) { ?>
+	<style>
+		.welcome-popup {
+			display: none;
+			position: fixed;
+			bottom: 5px;
+			right: 15px;
+			border: 3px solid teal;
+			z-index: 9;
+		}
 
-	.welcome-container-wrapper {
-		max-width: 450px;
-		padding: 10px;
-		background-color: white;
-	}
-</style>
-<div class="welcome-popup shadow-lg" id="welcome-popup">
-	<div class="welcome-container-wrapper">
-		<div class="d-flex align-items-center gap-4">
-			<img src="<?php echo base_url('assets/images/welcome.png') ?>" height="70px" alt="">
-			<div class="d-block">
-				<h1 class="h3 font-weight-bold" style="margin-bottom: 5px;">Welcome to Surveyvine</h1>
-				<h3 class="h6">Your one stop to earn money on the internet quickly.</h3>
+		.welcome-container-wrapper {
+			max-width: 450px;
+			padding: 10px;
+			background-color: white;
+		}
+	</style>
+	<div class="welcome-popup shadow-lg" id="welcome-popup">
+		<div class="welcome-container-wrapper">
+			<div class="d-flex align-items-center gap-4">
+				<img src="<?php echo base_url('assets/images/welcome.png') ?>" height="70px" alt="">
+				<div class="d-block">
+					<h1 class="h3 font-weight-bold" style="margin-bottom: 5px;">Welcome to Surveyvine</h1>
+					<h3 class="h6">Your one stop to earn money on the internet quickly.</h3>
+				</div>
+			</div>
+			<ul class="list-group" style="font-size: 15px;border:none">
+				<li class="list-group-item">- Complete <strong>surveys</strong> and <strong>other activities</strong> to earn <strong>points</strong></li>
+				<li class="list-group-item">- Convert the points earned to your <strong>local currency</strong></li>
+				<li class="list-group-item">- <strong>Refer friends</strong> to earn more points</li>
+				<li class="list-group-item">- Create an account to get started</li>
+			</ul>
+			<div class="my-3">
+				<a href="<?php echo base_url('auth/signup') ?>" class="btn btn-block btn-outline-success">Get Started</a>
+				<a href="<?php echo base_url('home/faq') ?>" class="btn btn-block btn-outline-warning">Learn More</a>
+				<button type="button" class="btn btn-block btn-danger" id="close-welcome-popup">Close</button>
 			</div>
 		</div>
-		<ul class="list-group" style="font-size: 15px;border:none">
-			<li class="list-group-item">- Complete <strong>surveys</strong> and <strong>other activities</strong> to earn <strong>points</strong></li>
-			<li class="list-group-item">- Convert the points earned to your <strong>local currency</strong></li>
-			<li class="list-group-item">- <strong>Refer friends</strong> to earn more points</li>
-			<li class="list-group-item">- Create an account to get started</li>
-		</ul>
-		<div class="my-3">
-			<a href="<?php echo base_url('auth/signup') ?>" class="btn btn-block btn-outline-success">Get Started</a>
-			<a href="<?php echo base_url('home/faq') ?>" class="btn btn-block btn-outline-warning">Learn More</a>
-			<button type="button" class="btn btn-block btn-danger" id="close-welcome-popup">Close</button>
-		</div>
 	</div>
-</div>
+<?php } ?>
 
 <script>
 	$(document).ready(function() {

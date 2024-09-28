@@ -7,7 +7,7 @@
 					<a href="#">
             <?php if(isset($banner_home_bottom)) { ?>
               <!-- banner_page_home_bottom -->
-              <img style="border:1px solid #000" width="500px" src="<?php echo base_url($banner_home_bottom['value']) ?>" />
+              <img style="border:1px solid #000" width="100%" src="<?php echo base_url($banner_home_bottom['value']) ?>" />
             <?php }else { ?>
               <img src="https://web.archive.org/web/20130410174940im_/https://a248.e.akamai.net/sec.yimg.com/a/ya/yahoo_gdm_ccs/r1_metro_mail_car.jpg" alt="">
             <?php } ?>
@@ -57,7 +57,7 @@
 								<input <?php echo $this->uri->segment(3) != '' ? 'disabled' : '' ?> class="form-control" type="text" name="ref_code" id="ref_code" value="<?php echo $this->uri->segment(3) != '' ? $this->uri->segment(3) : null ?>">
 							</div>
 							<hr>
-							<button class="btn btn-primary">Sign In</button>
+							<button class="btn btn-primary">Sign Up</button>
 						</form>
 					</div>
 				</div>

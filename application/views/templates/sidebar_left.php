@@ -12,11 +12,14 @@
 										<div class="pa-main">
 											<div class="pa-top y-fp-pg-grad y-ln-1">
 												<div class="pa-heading">
-													<h2 class="y-txt-modhdr">MY FAVORITES</h2>
+													<div class="d-flex align-items-center justify-content-between">
+														<h2 class="y-txt-modhdr">MY FAVORITES</h2>
+														<i class="fa fa-minus-square" aria-hidden="true"></i>
+													</div>
 												</div>
 											</div>
 											<!-- sidebar options -->
-											<div class="pa-middle clearfix y-ln-2">
+											<div class="no-mobile-view pa-middle clearfix y-ln-2">
 												<div class="pa-panel-myapps y-bg-1">
 													<div>
 														<div class="pa-apps-userlist y-ln-1">

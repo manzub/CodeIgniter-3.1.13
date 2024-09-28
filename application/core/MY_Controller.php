@@ -70,6 +70,7 @@ class Member_Controller extends MY_Controller
 			$this->earned_from_refered_users($user_id);
 			// $this->daily_limit_reached($user_id);
 			$this->get_daily_activities($user_id, $group_data['group_name']);
+			$this->default_balance();
 		}
 	}
 
@@ -85,6 +86,12 @@ class Member_Controller extends MY_Controller
 		}
 	}
 
+	public function default_balance() {
+		$user_id = $this->session->userdata('id');
+		$balance = $this->model_users->getUserRewardsBalance($user_id)['total_rewards'];
+		$this->data['mvc_balance'] = $balance;
+	}
+
 	public function daily_limit_reached($user_id = null)
 	{
 		if ($user_id != null) {
@@ -95,8 +102,6 @@ class Member_Controller extends MY_Controller
 			// select all earning from db with date time greater than yesterday
 			$todays_earnings_raw = $this->model_users->getUserTotalRewardsToday($user_id);
 			$todays_earnings = intval($todays_earnings_raw['total_earned']);
-
-			echo $todays_earnings;
 
 			// compare with db set limit
 			if ($todays_earnings >= $daily_limit) {

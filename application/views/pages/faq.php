@@ -18,8 +18,8 @@
 				<div class="card-body">
 					<div class="row">
 						<div class="col-md-4">
-							<div class="card" style="width: 18rem;">
-								<img src="..." class="card-img-top" style="height:150px" alt="...">
+							<div class="card">
+								<img src="<?php echo base_url('assets/images/join-our-team.png') ?>" class="card-img-top" style="height:150px" alt="...">
 								<div class="card-body text-center">
 									<h5 class="card-title" style="font-size: 15px;"><strong>Join SurveyVine</strong></h5>
 									<p class="card-text">Create an account with us.</p>
@@ -29,8 +29,8 @@
 							</div>
 						</div>
 						<div class="col-md-4">
-							<div class="card" style="width: 18rem;">
-								<img src="..." class="card-img-top" style="height:150px" alt="...">
+							<div class="card">
+								<img src="<?php echo base_url('assets/images/money-bag.png') ?>" class="card-img-top" style="height:150px" alt="...">
 								<div class="card-body text-center">
 									<h5 class="card-title" style="font-size: 15px;"><strong>Earn SB</strong></h5>
 									<p class="card-text">Answer surveys, review short video clips, transcribe audio recording and complete other activities to earn points.</p>
@@ -39,8 +39,8 @@
 							</div>
 						</div>
 						<div class="col-md-4">
-							<div class="card" style="width: 18rem;">
-								<img src="..." class="card-img-top" style="height:150px" alt="...">
+							<div class="card">
+								<img src="<?php echo base_url('assets/images/cash-withdrawal.png') ?>" class="card-img-top" style="height:150px" alt="...">
 								<div class="card-body text-center">
 									<h5 class="card-title" style="font-size: 15px;"><strong>Redeem Points</strong></h5>
 									<p class="card-text">Redeem your earned points to PayPal or accepted local currencies.</p>

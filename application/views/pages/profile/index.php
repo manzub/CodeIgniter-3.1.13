@@ -1,4 +1,4 @@
-<div id="y-col1" style="width: 78.23%;">
+<div class="profile-home" id="y-col1" style="width: 72%">
 	<div class="mod view_default">
 		<div class="bd type_breakingnews type_breakingnews_default">
 			<?php if ($this->session->flashdata('alert')) { ?>
@@ -46,7 +46,7 @@
 							</div>
 							<div class="card-body" style="text-align: center;">
 								<div style="display: flex;align-items:baseline;justify-content:center;margin-bottom:10px">
-									<h1 style="font-size: 25px;font-weight:bold;"><?php echo number_format($value['price'], 0).$this->session->userdata('currency')['currency'] ?></h1>
+									<h1 style="font-size: 25px;font-weight:bold;"><?php echo number_format($value['price'], 0) . $this->session->userdata('currency')['currency'] ?></h1>
 									<small>/MONTHLY</small>
 								</div>
 								<button onclick="window.alert('This function is not available yet.')" class="btn btn-primary">BUY</button>

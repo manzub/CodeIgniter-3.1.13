@@ -1,4 +1,4 @@
-<div id="y-col1" style="width: 78.23%;">
+<div class="profile-home" id="y-col1" style="width: 70%;">
 	<div class="mod view_default">
 		<ol class="breadcrumb">
 			<li><a href="<?php echo base_url('home') ?>"><span class="glyphicon glyphicon-chevron-left"></span></a></li>

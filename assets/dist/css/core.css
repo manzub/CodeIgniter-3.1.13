@@ -116,6 +116,7 @@ legend {
 }
 
 body {
+	width: 100%;
 	font: 13px/1.231 arial, helvetica, clean, sans-serif;
 	*font-size: small;
 	*font: x-small;
@@ -6885,8 +6886,9 @@ button {
 #y-header,
 #y-content,
 #y-footer {
-	width: 74.8em;
-	min-width: 972px;
+	/* width: 74.8em;
+	min-width: 972px; */
+	/* TODO: mobile responsiveness */
 	margin: 0 auto;
 	clear: both;
 }

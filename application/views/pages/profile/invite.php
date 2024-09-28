@@ -1,4 +1,4 @@
-<div id="y-col1" style="width: 78.23%;">
+<div class="profile-home" id="y-col1" style="width: 70%;">
   <div class="mod view_default">
     <?php if ($this->session->flashdata('alert')) { ?>
       <div class="alert <?php echo $this->session->flashdata('alert')['classname']; ?> alert-dismissible" role="alert">
