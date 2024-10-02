@@ -62,14 +62,14 @@
 							<div class="y-nav-count y-txt-2"><?php echo $page; ?> of <?php echo $pages; ?></div>
 							<div class="y-nav-buttons">
 								<?php if ($page > 1) { ?>
-									<a class="prev" href="<?php echo base_url('surveys/' . ($page - 1)) ?>">
+									<a class="prev" href="<?php echo base_url('reviews/' . ($page - 1)) ?>">
 										<span class="y-fp-pg-grad y-ln-1 btn">
 											<span class="y-fp-pg-controls hide-textindent">Previous set of activities</span>
 										</span>
 									</a>
 								<?php } ?>
 								<?php if ($page < $pages) { ?>
-									<a class="next" href="<?php echo base_url('surveys/' . ($page + 1)) ?>">
+									<a class="next" href="<?php echo base_url('reviews/' . ($page + 1)) ?>">
 										<span class="y-fp-pg-grad y-ln-1 btn">
 											<span class="y-fp-pg-controls hide-textindent">Next set of activities</span>
 										</span>

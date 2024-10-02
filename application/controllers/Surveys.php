@@ -27,7 +27,7 @@ class Surveys extends Member_Controller
 			if (!empty($survey_item)) {
 				// check if item already completed;
 				$last_session = null; // last completed session
-				$completed_item = $this->model_surveys->getCompletedBySurveyId(null, $survey_item['id']);
+				$completed_item = $this->model_surveys->getCompletedBySurveyId($user_id, $survey_item['id']);
 				if (!empty($completed_item)) { // if user has completed item
 					if (count($completed_item) >= $survey_item['limit_per_user']) {
 						redirect('surveys', 'refresh');
